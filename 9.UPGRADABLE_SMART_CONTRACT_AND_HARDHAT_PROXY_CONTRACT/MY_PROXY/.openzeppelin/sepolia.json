@@ -1,0 +1,84 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xa8751B3E8B176E372cEb58FECEbC52dBF8AA9795",
+      "txHash": "0x5b32c572b3f65c04b4bb5ddc3c89265b52f1568cb57ad1369e83950ef154e43e",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "e28a3faf2050bad9fc094bce205826ea5664757bc753f9da259f9d7ecc6d1a73": {
+      "address": "0x99526Db91c58061431f778d7e9d0D90441f58351",
+      "txHash": "0x3f15388e6ff8409bfa8d7b57d23deb7a90c847da2cee4edbdb903b63118ea380",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Box",
+            "src": "contracts\\Box.sol:5"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "28a90f66c731ebd0cf969dd7e461bf67982b625441524cc38aef1376f4955d91": {
+      "address": "0x5c97D78f31F48357a6cC14A73727B193FcD3B283",
+      "txHash": "0x411bbf2e218dca2b4446351c5740a57eaba6fb5d28de602e45a69ef985c5c0ed",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "BoxV2",
+            "src": "contracts\\BoxV2.sol:6"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "e43490fd34a95d9d31d8fef384e4c5fddbd1e0de55cd4eee81dd5220e8738dfd": {
+      "address": "0x9d282cE36dCd513fbee061ca327C08825db4D11c",
+      "txHash": "0x8bde9085890e41100741967032f8e6b85266eee60d5eb2179e8f58c45b1c5597",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "BoxV3",
+            "src": "contracts\\BoxV3.sol:6"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}
