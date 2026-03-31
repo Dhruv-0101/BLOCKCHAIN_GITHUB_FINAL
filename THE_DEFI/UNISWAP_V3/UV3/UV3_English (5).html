@@ -1,0 +1,4234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uniswap V3 — Complete Guide</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #0f0f0f;
+        color: #e8e8e8;
+        line-height: 1.75;
+      }
+      .toc {
+        background: #1a1a2e;
+        border-right: 2px solid #6c63ff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        overflow-y: auto;
+        padding: 20px 16px;
+        z-index: 100;
+        font-size: 12px;
+      }
+      .toc h2 {
+        color: #6c63ff;
+        margin-bottom: 12px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .toc a {
+        display: block;
+        color: #aaa;
+        text-decoration: none;
+        padding: 3px 0;
+        border-bottom: 1px solid #222;
+      }
+      .toc a:hover {
+        color: #6c63ff;
+      }
+      .main {
+        margin-left: 260px;
+      }
+      .page {
+        min-height: 100vh;
+        padding: 60px 80px;
+        border-bottom: 3px solid #1e1e3a;
+        position: relative;
+        max-width: 860px;
+      }
+      .page-number {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        background: #6c63ff;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      h1 {
+        font-size: 2rem;
+        color: #6c63ff;
+        margin-bottom: 24px;
+        line-height: 1.3;
+      }
+      h2 {
+        font-size: 1.4rem;
+        color: #a78bfa;
+        margin: 28px 0 14px;
+        border-left: 4px solid #6c63ff;
+        padding-left: 14px;
+      }
+      h3 {
+        font-size: 1.1rem;
+        color: #c4b5fd;
+        margin: 20px 0 10px;
+      }
+      p {
+        margin-bottom: 14px;
+      }
+      ul,
+      ol {
+        margin: 10px 0 14px 24px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      .highlight {
+        background: #1e1e3a;
+        border-left: 4px solid #6c63ff;
+        padding: 16px 20px;
+        border-radius: 0 8px 8px 0;
+        margin: 16px 0;
+      }
+      .box-red {
+        background: #2d0f0f;
+        border-left: 4px solid #ef4444;
+        padding: 16px 20px;
+        border-radius: 0 8px 8px 0;
+        margin: 16px 0;
+      }
+      .box-green {
+        background: #0d2614;
+        border-left: 4px solid #22c55e;
+        padding: 16px 20px;
+        border-radius: 0 8px 8px 0;
+        margin: 16px 0;
+      }
+      .box-yellow {
+        background: #2a200a;
+        border-left: 4px solid #f59e0b;
+        padding: 16px 20px;
+        border-radius: 0 8px 8px 0;
+        margin: 16px 0;
+      }
+      .emoji-large {
+        font-size: 1.6rem;
+        margin-right: 8px;
+      }
+      code {
+        background: #1a1a2e;
+        color: #a78bfa;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
+      }
+      pre {
+        background: #1a1a2e;
+        color: #a78bfa;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 14px 0;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
+        line-height: 1.6;
+      }
+      .label-red {
+        color: #ef4444;
+        font-weight: bold;
+      }
+      .label-green {
+        color: #22c55e;
+        font-weight: bold;
+      }
+      .label-yellow {
+        color: #f59e0b;
+        font-weight: bold;
+      }
+      .label-purple {
+        color: #a78bfa;
+        font-weight: bold;
+      }
+      .divider {
+        border: none;
+        border-top: 1px solid #222;
+        margin: 28px 0;
+      }
+      .icon-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .price-table {
+        border-collapse: collapse;
+        margin: 16px 0;
+        width: 100%;
+      }
+      .price-table th,
+      .price-table td {
+        border: 1px solid #333;
+        padding: 8px 16px;
+      }
+      .price-table th {
+        background: #1e1e3a;
+        color: #a78bfa;
+      }
+      .price-table tr:nth-child(even) {
+        background: #161616;
+      }
+      .current-row {
+        background: #1e1e3a !important;
+        color: #6c63ff;
+        font-weight: bold;
+      }
+      .killer-line {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #f59e0b;
+        background: #2a200a;
+        border: 2px solid #f59e0b;
+        border-radius: 8px;
+        padding: 14px 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .staircase {
+        font-family: monospace;
+        background: #1a1a2e;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 14px 0;
+        line-height: 2;
+      }
+      /* ── Image-replaced content blocks ── */
+      .img-content-block {
+        margin: 24px 0;
+        background: #13131f;
+        border: 1px solid #2a2a4a;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .img-block-title {
+        background: #1e1e3a;
+        color: #c4b5fd;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 12px 18px;
+        border-bottom: 1px solid #2a2a4a;
+      }
+      .img-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+      .img-table th {
+        background: #1a1a30;
+        color: #a78bfa;
+        padding: 10px 16px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 1px solid #2a2a4a;
+      }
+      .img-table td {
+        padding: 10px 16px;
+        border-bottom: 1px solid #1e1e2e;
+        color: #ddd;
+      }
+      .img-table tr:last-child td {
+        border-bottom: none;
+      }
+      .img-table tr:hover td {
+        background: #16162a;
+      }
+      .row-sep td {
+        border-top: 2px dashed #2a2a4a;
+      }
+      .val-green {
+        color: #22c55e;
+        font-weight: 600;
+      }
+      .val-red {
+        color: #ef4444;
+        font-weight: 600;
+      }
+      .img-block-note {
+        padding: 12px 18px;
+        background: #0f0f1e;
+        border-top: 1px solid #2a2a4a;
+        color: #ccc;
+        font-size: 0.88rem;
+        line-height: 1.7;
+      }
+      .img-code {
+        display: inline-block;
+        background: #1a1a2e;
+        color: #f59e0b;
+        font-family: "Courier New", monospace;
+        font-size: 1rem;
+        padding: 6px 14px;
+        border-radius: 6px;
+        margin: 8px 0;
+        border: 1px solid #3a3a5a;
+      }
+      .img-quote {
+        margin: 0;
+        padding: 10px 18px;
+        border-left: 4px solid #6c63ff;
+        background: #16162a;
+        color: #c4b5fd;
+        font-style: italic;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 900px) {
+        .toc {
+          display: none;
+        }
+        .main {
+          margin-left: 0;
+        }
+        .page {
+          padding: 40px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="toc">
+      <h2>📖 Table of Contents</h2>
+      <a href="#p1">P1 — Uniswap V2 Problems (LP POV)</a>
+      <a href="#p2">P2 — Reality Check</a>
+      <a href="#p3">P3 — Problem #2: Skill Ignored</a>
+      <a href="#p4">P4 — Problem #3: Fees Need Capital</a>
+      <a href="#p5">P5 — Problem #4 & #5</a>
+      <a href="#p6">P6 — Q1: What does "Auto Sell" Mean?</a>
+      <a href="#p7">P7 — Pool Mechanics</a>
+      <a href="#p8">P8 — Q2: V3 Range & Liquidity</a>
+      <a href="#p9">P9 — V3: LP Sets Range</a>
+      <a href="#p10">P10 — Liquidity Not Reduced Globally</a>
+      <a href="#p11">P11 — V3 Pool Structure</a>
+      <a href="#p12">P12 — V2: No Control</a>
+      <a href="#p13">P13 — IL: LP's Pain</a>
+      <a href="#p14">P14 — Fair Comparison Setup</a>
+      <a href="#p15">P15 — Case 2: LP vs HODL</a>
+      <a href="#p16">P16 — "No ETH Left" Feel</a>
+      <a href="#p17">P17 — Why Call It a "Loss"?</a>
+      <a href="#p18">P18 — V3 Caps IL</a>
+      <a href="#p19">P19 — V3: LP Sets Range</a>
+      <a href="#p20">P20 — $2800 Hit: Out of Range</a>
+      <a href="#p21">P21 — Short Answer V2 vs V3</a>
+      <a href="#p22">P22 — V3 Features</a>
+      <a href="#p23">P23 — V2: Capital Waste</a>
+      <a href="#p24">P24 — V3: LP's Perspective</a>
+      <a href="#p25">P25 — V2 vs V3 Example Setup</a>
+      <a href="#p26">P26 — Fee Comparison</a>
+      <a href="#p27">P27 — Trade-off Warning</a>
+      <a href="#p28">P28 — Price Ranges (Ticks) Full Feel</a>
+      <a href="#p29">P29 — Choosing Range</a>
+      <a href="#p30">P30 — Out of Range Cases</a>
+      <a href="#p31">P31 — ETH+USDC → Single Asset</a>
+      <a href="#p32">P32 — Scene Setup Same Example</a>
+      <a href="#p33">P33 — Price Move Step by Step</a>
+      <a href="#p34">P34 — Why Price Goes Up</a>
+      <a href="#p35">P35 — Buy Pressure vs Sell Pressure</a>
+      <a href="#p36">P36 — AMM Price Mechanics</a>
+      <a href="#p37">P37 — LP Always Takes Opposite Side</a>
+      <a href="#p38">P38 — Trader vs LP Mindset</a>
+      <a href="#p39">P39 — Case 1: Buyers Dominate</a>
+      <a href="#p40">P40 — Case 2: Sellers Dominate</a>
+      <a href="#p41">P41 — Without LP, Market Breaks</a>
+      <a href="#p42">P42 — Sell Side Scenario</a>
+      <a href="#p43">P43 — Upper Limit Touch</a>
+      <a href="#p44">P44 — Conversion Happens Gradually</a>
+      <a href="#p45">P45 — Price Journey Step by Step</a>
+      <a href="#p46">P46 — ETH Decreasing Step by Step</a>
+      <a href="#p47">P47 — $2200 Upper Limit Reached</a>
+      <a href="#p48">P48 — Out of Range: Relaxed LP</a>
+      <a href="#p49">P49 — LP = Automatic Ladder Strategy</a>
+      <a href="#p50">P50 — Ticks: Rules + Math + Price</a>
+      <a href="#p51">P51 — Protocol Rule Written</a>
+      <a href="#p52">P52 — Autopilot: Price Rising</a>
+      <a href="#p53">P53 — Tick Hit: Autopilot Action</a>
+      <a href="#p54">P54 — LP Final State</a>
+      <a href="#p55">P55 — Price Above Range: Ignored</a>
+      <a href="#p56">P56 — Re-entry Magic</a>
+      <a href="#p57">P57 — Lift & Floor Analogy</a>
+      <a href="#p58">P58 — Price Down: LP Buys ETH</a>
+      <a href="#p59">P59 — Lower Limit: No More ETH Buying</a>
+      <a href="#p60">P60 — V2 vs V3 Control</a>
+      <a href="#p61">P61 — Tick Range = Price Range</a>
+      <a href="#p62">P62 — Ticks &amp; TickSpacing Full Intuition</a>
+      <a href="#p63">P63 — Tick = Fixed Price Ratio</a>
+      <a href="#p64">P64 — Tick is a Label, Not the Driver</a>
+      <a href="#p65">P65 — Lift Analogy for Ticks</a>
+      <a href="#p66">P66 — Price Moves: sqrtPriceX96</a>
+      <a href="#p67">P67 — Tick Updates at Boundaries</a>
+      <a href="#p68">P68 — Up vs Down: Both Sides</a>
+      <a href="#p69">P69 — Real World V3 Example</a>
+      <a href="#p70">P70 — Tick-Price Table</a>
+      <a href="#p71">P71 — From First Principles</a>
+      <a href="#p72">P72 — Step 1: What Does 1.0001 Mean?</a>
+      <a href="#p73">P73 — Step 3: Real Calculation</a>
+      <a href="#p74">P74 — Step 4: TickSpacing Effect</a>
+      <a href="#p75">P75 — Verifying the Table</a>
+      <a href="#p76">P76 — LP Decision Making</a>
+      <a href="#p77">P77 — LP Active Condition</a>
+      <a href="#p78">P78 — Single Asset: No ETH to Sell</a>
+      <a href="#p79">P79 — Limit Buy Analogy</a>
+      <a href="#p80">P80 — Not In Trade Yet</a>
+      <a href="#p81">P81 — Price Hits $1800: Order Activates</a>
+      <a href="#p82">P82 — No Forced Sell Happened</a>
+      <a href="#p83">P83 — Sell Side Single Asset</a>
+      <a href="#p84">P84 — Single vs Dual Asset Summary</a>
+      <a href="#p85">P85 — Real Trade Happens</a>
+      <a href="#p86">P86 — Tick Path in Real Market</a>
+      <a href="#p87">P87 — Upper Range Hit: Autopilot</a>
+      <a href="#p88">P88 — Price Returns: Re-entry Magic</a>
+      <a href="#p89">P89 — One-Line Reality</a>
+      <a href="#p90">P90 — Tick Range = Price Range</a>
+      <a href="#p91">P91 — TickSpacing: Allowed Gates</a>
+      <a href="#p92">P92 — Visual LP Stacking</a>
+      <a href="#p93">P93 — Switch ON/OFF: Tick Crossings</a>
+      <a href="#p94">P94 — Tick = Small Fixed Step (Log)</a>
+      <a href="#p95">P95 — Small Move = Few Ticks</a>
+      <a href="#p96">P96 — Big Move = Many Ticks</a>
+      <a href="#p97">P97 — Log-Scale Intuition</a>
+      <a href="#p98">P98 — Volatile Day Reality</a>
+      <a href="#p99">P99 — Reset: New Mental Model for Ticks</a>
+      <a href="#p100">P100 — Building Floor Analogy</a>
+      <a href="#p101">P101 — Lift at Various Floors</a>
+      <a href="#p102">P102 — The Click Moment</a>
+      <a href="#p103">P103 — No Magic, No Confusion</a>
+      <a href="#p104">P104 — No Manager in V3</a>
+      <a href="#p105">P105 — Real Trade Simulation Setup</a>
+      <a href="#p106">P106 — Step 1: Protocol Checks Active LPs</a>
+      <a href="#p107">P107 — Step 2: Trade Executes</a>
+      <a href="#p108">P108 — Step 3: Tick Boundary Checkpoint</a>
+      <a href="#p109">P109 — Step 4: Trade Continues</a>
+      <a href="#p110">P110 — Step 5: LP2 Exits at $2200</a>
+      <a href="#p111">P111 — Manage Kaise Hota Hai: Final Answer</a>
+      <a href="#p112">P112 — Structure + Gas Efficient</a>
+    </nav>
+
+    <div class="main">
+      <!-- PAGE 1 -->
+      <div class="page" id="p1">
+        <div class="page-number">Page 1</div>
+        <div style="margin-bottom: 20px; font-weight: bold; color: #a78bfa">
+          Author: Dhruv Patel
+        </div>
+        <h1>🔴 Uniswap V2 Problems — From an LP's Perspective</h1>
+        <h2>🧑‍💻 Scene Setup (You are the LP)</h2>
+        <ul>
+          <li>Pool: <strong>ETH / USDC</strong></li>
+          <li>Current ETH price = <strong>$2000</strong></li>
+          <li>Your capital = <strong>$10,000</strong></li>
+        </ul>
+        <p>You are thinking:</p>
+        <div class="highlight">"I'll provide liquidity and earn fees."</div>
+        <hr class="divider" />
+        <h2>🔹 Problem #1: Your Money Mostly Sits Idle (Capital Waste)</h2>
+        <p>What do you do in V2?</p>
+        <p>You deposit:</p>
+        <ul>
+          <li>2.5 ETH</li>
+          <li>5000 USDC</li>
+        </ul>
+        <p>(Equal value at price $2000)</p>
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="page" id="p2">
+        <div class="page-number">Page 2</div>
+        <h2>Reality Check 👇</h2>
+        <p>V2 says:</p>
+        <div class="highlight">
+          "Your liquidity will be active for the <strong>$0 → ∞</strong> price
+          range."
+        </div>
+        <p>Now be honest:</p>
+        <ul>
+          <li>
+            Is ETH trading at $10 right now? <span class="label-red">❌</span>
+          </li>
+          <li>
+            Is ETH trading at $1,00,000 today? <span class="label-red">❌</span>
+          </li>
+        </ul>
+        <p>💥 But your money is locked there too.</p>
+        <p>Think about it:</p>
+        <ul>
+          <li>90% of trades happen between <strong>$1950 – $2050</strong></li>
+          <li>Your money is spread across <strong>$1 – $1,00,000</strong></li>
+        </ul>
+        <div class="box-yellow">
+          <p>👉 Your real-use capital ≈ <strong>10%</strong></p>
+          <p>You invested $10,000</p>
+          <p>$1,000 is working</p>
+          <p>$9,000 is "just sitting there"</p>
+        </div>
+        <p>💔 As an LP, this really hurts.</p>
+      </div>
+
+      <!-- PAGE 3 -->
+      <div class="page" id="p3">
+        <div class="page-number">Page 3</div>
+        <h2>🔹 Problem #2: You Are Smart, but the Protocol Doesn't Care</h2>
+        <p>You understand the market:</p>
+        <ul>
+          <li>ETH is highly liquid</li>
+          <li>Price mostly moves in a narrow range</li>
+        </ul>
+        <p>You think:</p>
+        <div class="highlight">
+          "I only want to provide liquidity in the $1800–$2200 range."
+        </div>
+        <div class="box-red">
+          <p><span class="label-red">❌</span> V2 says:</p>
+          <p>"There's no option for that, buddy."</p>
+        </div>
+        <p>Another LP (a newbie):</p>
+        <ul>
+          <li>Watches the news</li>
+          <li>Makes a random deposit</li>
+          <li>Into the same pool</li>
+        </ul>
+        <div class="box-yellow">
+          <p>📌 Result:</p>
+          <p>Both of you get the <strong>same fee share</strong></p>
+        </div>
+        <p>😤 Skill = Zero reward</p>
+      </div>
+
+      <!-- PAGE 4 -->
+      <div class="page" id="p4">
+        <div class="page-number">Page 4</div>
+        <h2>🔹 Problem #3: You Need More Capital to Earn Meaningful Fees</h2>
+        <p>Fee in V2:</p>
+        <ul>
+          <li>Fixed <strong>0.30%</strong></li>
+        </ul>
+        <p>Think about it:</p>
+        <ul>
+          <li>Daily trading volume = <strong>$1,000,000</strong></li>
+          <li>Total fees = <strong>$3,000/day</strong></li>
+        </ul>
+        <p>If:</p>
+        <ul>
+          <li>Pool TVL = <strong>$100,000,000</strong></li>
+        </ul>
+        <p>Your share:</p>
+        <pre>
+$10,000 / $100,000,000 = 0.01%
+Fees = $0.30/day</pre
+        >
+        <p>🤡</p>
+        <p>
+          😶 You'll think: "I put in all this capital and this is all I earn?"
+        </p>
+      </div>
+
+      <!-- PAGE 5 -->
+      <div class="page" id="p5">
+        <div class="page-number">Page 5</div>
+        <h2>🔹 Problem #4: Slippage Blame Falls on the LP</h2>
+        <p>If liquidity in the pool decreases:</p>
+        <ul>
+          <li>Traders face more slippage</li>
+          <li>Traders say: "Uniswap is useless"</li>
+        </ul>
+        <p>But the LP says: "Bro, I'm already wasting my capital here."</p>
+        <hr class="divider" />
+        <h2>🔹 Problem #5: No Control to Avoid Impermanent Loss</h2>
+        <p>ETH went from $2000 to $3000 📈</p>
+        <p>You:</p>
+        <ul>
+          <li>Are automatically selling ETH</li>
+          <li>Accumulating more USDC</li>
+        </ul>
+        <p>You want: "I don't want to sell ETH after $2800."</p>
+        <div class="box-red">
+          <p>
+            <span class="label-red">❌</span> V2: "Sorry, it's an automatic
+            formula."
+          </p>
+        </div>
+        <p>😬 Impermanent Loss + Regret.</p>
+      </div>
+
+      <!-- PAGE 6 -->
+      <div class="page" id="p6">
+        <div class="page-number">Page 6</div>
+        <h2>❓ Q1: What Does "Automatically Selling ETH" Mean?</h2>
+        <h3>First, let's break a misconception</h3>
+        <div class="box-red">
+          <p>
+            <span class="label-red">❌</span> The LP does NOT place a sell order
+          </p>
+          <p>
+            <span class="label-red">❌</span> The LP does NOT manually sell in
+            the market
+          </p>
+        </div>
+        <div class="highlight">
+          <p>👉 "Automatically sell" means this:</p>
+          <p>
+            When a trader BUYS ETH, the LP takes the opposite side of that
+            trade.
+          </p>
+        </div>
+        <h3>🔁 Real Flow (V2 Example)</h3>
+        <ul>
+          <li>Pool: ETH / USDC</li>
+          <li>ETH price = $2000</li>
+        </ul>
+        <p>A trader comes: "I will BUY ETH"</p>
+        <p>Trader:</p>
+        <ul>
+          <li>Gives USDC</li>
+          <li>Takes ETH (from the pool)</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 7 -->
+      <div class="page" id="p7">
+        <div class="page-number">Page 7</div>
+        <h2>Pool Mechanics</h2>
+        <ul>
+          <li>ETH balance ↓</li>
+          <li>USDC balance ↑</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 The pool's owner = LP</p>
+          <p>Therefore:</p>
+          <p>LP's ETH keeps decreasing</p>
+          <p>LP is holding more and more USDC</p>
+        </div>
+        <div class="box-yellow">
+          <p>⚠️ LP did NOT press the "sell" button</p>
+          <p>But the economic effect is exactly like selling</p>
+        </div>
+        <p>
+          This is what we call:
+          <strong>"LP is automatically selling ETH"</strong>
+        </p>
+        <h3>📈 Why is the price going up?</h3>
+        <p>Because:</p>
+        <ul>
+          <li>More people are BUYING ETH</li>
+          <li>ETH is being removed from the pool</li>
+          <li>ETH becomes scarce</li>
+        </ul>
+        <p>👉 <code>Price = USDC / ETH ↑</code></p>
+      </div>
+
+      <!-- PAGE 8 -->
+      <div class="page" id="p8">
+        <div class="page-number">Page 8</div>
+        <h2>
+          ❓ Q2: "If the LP says 'I don't want to sell after $2800', does
+          liquidity not decrease?"
+        </h2>
+        <p>🔥 This is the core V3 question. The answer is a little subtle.</p>
+        <h3>🟥 What Happens in V2?</h3>
+        <p>LP says: "I don't want to sell after $2800"</p>
+        <div class="box-red">
+          <p>
+            V2's reply: <span class="label-red">❌</span> "There's no option for
+            that."
+          </p>
+        </div>
+        <p>Liquidity:</p>
+        <ul>
+          <li>Always active</li>
+          <li>No matter how much the price moves</li>
+        </ul>
+        <p>👉 Therefore:</p>
+        <ul>
+          <li>ETH selling never stops</li>
+          <li>IL keeps growing</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 9 -->
+      <div class="page" id="p9">
+        <div class="page-number">Page 9</div>
+        <h2>🟩 What Does the LP Say in V3?</h2>
+        <p>LP says:</p>
+        <pre>Range = $2000 – $2800</pre>
+        <p>Meaning: "I will only provide liquidity in this range."</p>
+        <h3>🔥 When the Price Hits $2800</h3>
+        <p>YES, your intuition is correct 👇</p>
+        <p>What happens?</p>
+        <ul>
+          <li>Your liquidity is REMOVED from the active set</li>
+          <li>You become out of range</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Liquidity decreases — but it is NOT broken. it is inactive.</p>
+        </div>
+        <!-- <h3>🧠 Important Clarity (Many people get confused here)</h3>
+        <p>Liquidity decreases:</p>
+        <ul>
+          <li><span class="label-red">❌</span> For you (from LP's POV)</li>
+          <li><span class="label-red">❌</span> For that price range</li>
+          <li><span class="label-red"></span> it means inactive</li>
+        </ul> -->
+      </div>
+
+      <!-- PAGE 10 -->
+      <div class="page" id="p10">
+        <div class="page-number">Page 10</div>
+        <!-- <h2>Liquidity Does NOT Decrease:</h2>
+        <ul>
+          <li><span class="label-red">❌</span> For the pool overall</li>
+          <li><span class="label-red">❌</span> For Uniswap overall</li>
+        </ul> -->
+        <h3>🎯 Simple Analogy (Strong)</h3>
+        <p>Imagine:</p>
+        <ul>
+          <li>You are a currency exchange</li>
+          <li>You say: "I will exchange USD between ₹80–₹90"</li>
+        </ul>
+        <p>If the rate goes to ₹95:</p>
+        <ul>
+          <li>You close your shop <span class="label-red">❌</span></li>
+          <li>The market does NOT close <span class="label-red">❌</span></li>
+          <li>Other exchange shops keep working</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 11 -->
+      <div class="page" id="p11">
+        <div class="page-number">Page 11</div>
+        <h2>🧱 V3 Pool Structure (Important)</h2>
+        <p>In V3:</p>
+        <ul>
+          <li>Multiple LPs at the same price</li>
+          <li>Each with different ranges</li>
+        </ul>
+        <p>When you go out of range:</p>
+        <ul>
+          <li>Your liquidity = OFF</li>
+          <li>Other LPs (with wider ranges) = ON</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 The market continues</p>
+        </div>
+      </div>
+
+      <!-- PAGE 12 -->
+      <div class="page" id="p12">
+        <div class="page-number">Page 12</div>
+        <h2>🟥 UNISWAP V2 — WHAT HAPPENS HERE (NO CONTROL)</h2>
+        <h3>Setup</h3>
+        <ul>
+          <li>ETH/USDC pool</li>
+          <li>Start price = $2000</li>
+          <li>ETH → went to $3000</li>
+        </ul>
+        <h3>🔁 Why is price going up?</h3>
+        <ul>
+          <li>✔️ People are buying ETH</li>
+          <li>✔️ Buying happens from the pool</li>
+          <li>✔️ ETH is leaving the pool</li>
+          <li>✔️ USDC is coming into the pool</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 LP's role: <strong>LP is automatically selling ETH</strong></p>
+        </div>
+        <h3>🔥 Critical Point (This is where IL happens)</h3>
+        <p>Price path:</p>
+        <p><strong>$2000 → $2200 → $2500 → $2800 → $3000</strong></p>
+      </div>
+
+      <!-- PAGE 13 -->
+      <div class="page" id="p13">
+        <div class="page-number">Page 13</div>
+        <h2>LP's Pain at Each Step</h2>
+        <p>LP at each step:</p>
+        <ul>
+          <li>Sells a little ETH each time</li>
+          <li>Holds more and more USDC</li>
+        </ul>
+        <div class="box-red">
+          <p>😬 "ETH went to $3000 😭 and I have almost no ETH left."</p>
+        </div>
+        <hr class="divider" />
+        <h2>🔢 SAME STARTING POINT (FAIR COMPARISON)</h2>
+        <ul>
+          <li>ETH price = $2000</li>
+          <li>Your total value = $10,000</li>
+        </ul>
+        <p><strong>Option A: HODL</strong></p>
+        <ul>
+          <li>5 ETH × 2000 = $10,000</li>
+        </ul>
+        <p><strong>Option B: LP (V2)</strong></p>
+        <ul>
+          <li>Deposited into pool: 2.5 ETH + 5000 USDC = $10,000</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Both start at the exact same amount.</p>
+        </div>
+      </div>
+
+      <!-- PAGE 14 -->
+      <div class="page" id="p14">
+        <div class="page-number">Page 14</div>
+        <ul>
+          <li>2.5 ETH</li>
+          <li>5000 USDC</li>
+          <li>= $10,000</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Both start at the exact same amount.</p>
+        </div>
+        <h2>📈 NOW THE PRICE MOVES (REAL FEEL PART)</h2>
+        <p>ETH: <strong>$2000 → $3000</strong></p>
+        <h3>🟢 CASE 1: IF YOU JUST HODL</h3>
+        <p>You did nothing.</p>
+        <p>ETH: 5 ETH × $3000 = <strong>$15,000</strong></p>
+        <p>😄 Straight profit</p>
+      </div>
+
+      <!-- PAGE 15 -->
+      <div class="page" id="p15">
+        <div class="page-number">Page 15</div>
+        <h2>+ $5,000 Profit</h2>
+        <h2>🔴 CASE 2: IF YOU WERE AN LP (V2)</h2>
+        <p>This is where the pain starts 👇</p>
+        <p>What happened internally?</p>
+        <ul>
+          <li>People kept buying ETH</li>
+          <li>ETH kept leaving the pool</li>
+          <li>You (LP) kept selling ETH</li>
+          <li>USDC kept accumulating</li>
+        </ul>
+        <p>By the time ETH ≈ $3000:</p>
+        <p>You have roughly:</p>
+        <ul>
+          <li>~1.44 ETH</li>
+          <li>~10,600 USDC</li>
+        </ul>
+        <p>Total value:</p>
+        <pre>
+1.44 × 3000 + 10,600
+≈ 4,320 + 10,600
+≈ $14,920</pre
+        >
+      </div>
+
+      <!-- PAGE 16 -->
+      <div class="page" id="p16">
+        <div class="page-number">Page 16</div>
+        <h2>≈ $14,920</h2>
+        <h2>😬 The Feel of "I Have No ETH Left"</h2>
+        <p>Now understand the psychology:</p>
+        <p>You are the LP and you see:</p>
+        <ul>
+          <li>ETH = $3000 😍</li>
+          <li>You have: only ~1.44 ETH ❌</li>
+          <li>Whereas in HODL you'd have 5 ETH 😭</li>
+        </ul>
+        <p>You say: "I wish I had never sold ETH…"</p>
+        <div class="box-yellow">
+          <p>📌 ETH became expensive, but you didn't get its full benefit.</p>
+        </div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">😯 Now Do You Feel It?</div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>Final Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>HODL</td>
+                <td class="val-green"><strong>$15,000</strong></td>
+              </tr>
+              <tr>
+                <td>LP (V2)</td>
+                <td class="val-red"><strong>~$14,920</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="img-block-note">
+            <strong>Difference:</strong>
+            <div class="img-code">≈ $80 loss</div>
+            <p>👉 <strong>This is Impermanent Loss</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 17 -->
+      <div class="page" id="p17">
+        <div class="page-number">Page 17</div>
+        <h2>That is the pain.</h2>
+        <h2>
+          🧠 IMPORTANT: Why Call It a "LOSS" When Money Actually Increased?
+        </h2>
+        <p>Because:</p>
+        <ul>
+          <li>You have $14,920 (it IS a profit)</li>
+          <li>But you should have had $15,000</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Difference = opportunity loss</p>
+          <p>
+            That is why the name: <strong>Impermanent Loss (vs HODL)</strong>
+          </p>
+        </div>
+        <hr class="divider" />
+        <h2>🔥 NOW THE CONNECTION TO V3 (VERY IMPORTANT)</h2>
+        <p>You say: "I don't want to sell ETH after $2800"</p>
+        <div class="box-red">
+          <p>V2:</p>
+          <ul>
+            <li>❌ You keep selling</li>
+            <li>❌ ETH exposure keeps falling</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 18 -->
+      <div class="page" id="p18">
+        <div class="page-number">Page 18</div>
+        <h2>V3:</h2>
+        <div class="box-green">
+          <ul>
+            <li>✅ At $2800, liquidity becomes inactive</li>
+            <li>✅ ETH selling STOPS</li>
+            <li>✅ ETH exposure is frozen</li>
+          </ul>
+          <p>👉 IL is capped here</p>
+        </div>
+        <h3>❌ What is the problem in V2?</h3>
+        <p>You want: "I don't want to sell ETH after $2800"</p>
+        <div class="box-red">
+          <p>V2's answer:</p>
+          <ul>
+            <li>❌ "There's no option"</li>
+            <li>❌ "Liquidity will always remain active"</li>
+            <li>❌ "The formula never stops"</li>
+          </ul>
+          <p>👉 Therefore: IL + Regret</p>
+          <p>
+            📌 In V2, liquidity never becomes invalid until you manually
+            withdraw.
+          </p>
+        </div>
+      </div>
+
+      <!-- PAGE 19 -->
+      <div class="page" id="p19">
+        <div class="page-number">Page 19</div>
+        <h2>🟩 UNISWAP V3 — HERE COMES CONTROL</h2>
+        <p>Now see the same scenario in V3 👇</p>
+        <h3>🎯 You are the LP (V3)</h3>
+        <p>You say:</p>
+        <pre>Range = $2000 – $2800</pre>
+        <p>Meaning: "I will only sell ETH up to $2800"</p>
+        <h3>🔁 Price Moves</h3>
+        <p><strong>$2000 → $2500</strong></p>
+        <ul>
+          <li>LP active</li>
+          <li>ETH is being sold</li>
+          <li>Fees are coming in 💰</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 20 -->
+      <div class="page" id="p20">
+        <div class="page-number">Page 20</div>
+        <h2>🔥 $2800 IS HIT (IMPORTANT MOMENT)</h2>
+        <p>This is exactly where your question fits perfectly.</p>
+        <p>At $2800:</p>
+        <ul>
+          <li>Your ETH = 0</li>
+          <li>Your liquidity = only USDC</li>
+          <li>You are OUT OF RANGE</li>
+        </ul>
+        <div class="box-green">
+          <p>👉 YES, exactly: Your liquidity becomes inactive</p>
+        </div>
+        <h3>🔴 What Happens After $2800?</h3>
+        <ul>
+          <li>Price goes to $3000</li>
+          <li>People keep buying ETH</li>
+        </ul>
+        <p>LP's response:</p>
+        <ul>
+          <li>❌ ETH is not being sold</li>
+          <li>❌ IL is not advancing</li>
+          <li>❌ Fees are also not coming in</li>
+          <li>😌 But no regret either</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 21 -->
+      <div class="page" id="p21">
+        <div class="page-number">Page 21</div>
+        <h2>Your Exact Confusion (Rephrased)</h2>
+        <p>
+          ETH is getting expensive → people are buying ETH → they take ETH from
+          the pool → meaning LP's ETH is selling.
+        </p>
+        <p>
+          So when you said: "I don't want to sell ETH after $2800" — does that
+          mean LP's liquidity becomes invalid when $2800 is hit?
+        </p>
+        <h3>👉 Short Answer</h3>
+        <ul>
+          <li>
+            In V2: <span class="label-red">❌ NO</span> (no control at all)
+          </li>
+          <li>
+            In V3: <span class="label-green">✅ YES</span> (exactly this
+            happens)
+          </li>
+        </ul>
+        <hr class="divider" />
+        <h2>🧠 Now Pause and FEEL This</h2>
+        <p>You are an LP:</p>
+        <ul>
+          <li>You put in money</li>
+          <li>You understand the market</li>
+          <li>You are taking risk</li>
+        </ul>
+        <p>But:</p>
+        <ul>
+          <li>Capital is wasted</li>
+          <li>Skill has no reward</li>
+          <li>No control</li>
+          <li>You remain a passive victim</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 22 -->
+      <div class="page" id="p22">
+        <div class="page-number">Page 22</div>
+        <h2>🔥 Uniswap V3 Was Born from This Pain</h2>
+        <p>Uniswap V3 said: "LPs should get control + efficiency."</p>
+        <p>So V3 brought:</p>
+        <div class="box-green">
+          <ul>
+            <li>🎯 Concentrated Liquidity</li>
+            <li>📍 Custom Price Ranges</li>
+            <li>🧾 LP positions as NFT</li>
+            <li>⚙️ Different fee tiers</li>
+          </ul>
+        </div>
+        <hr class="divider" />
+        <h2>🔥 How Did V3 Solve Capital Waste?</h2>
+        <p>👉 Concentrated Liquidity (CORE IDEA)</p>
+        <h3>🔁 First Remember V2 (Baseline)</h3>
+        <p>In V2:</p>
+        <ul>
+          <li>LP provides liquidity</li>
+          <li>Automatically active: Price = 0 → ∞</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 23 -->
+      <div class="page" id="p23">
+        <div class="page-number">Page 23</div>
+        <h2>The Core Problem</h2>
+        <p>Whether you like it or not:</p>
+        <ul>
+          <li>ETH = $10</li>
+          <li>ETH = $100,000</li>
+        </ul>
+        <p>Your money is locked in both places.</p>
+        <div class="box-red">
+          <p>👉 This was the capital waste</p>
+        </div>
+        <hr class="divider" />
+        <h2>🎯 V3's Solution: Concentrated Liquidity</h2>
+        <p>What can the LP say in V3?</p>
+        <div class="highlight">
+          "I will only provide liquidity in this price range."
+        </div>
+        <p>Example:</p>
+        <ul>
+          <li>ETH / USDC</li>
+          <li>Current price = $2000</li>
+        </ul>
+        <p>You can choose:</p>
+        <ul>
+          <li>Lower Price = $1800</li>
+          <li>Upper Price = $2200</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Your liquidity will only be active inside this range</p>
+        </div>
+      </div>
+
+      <!-- PAGE 24 -->
+      <div class="page" id="p24">
+        <div class="page-number">Page 24</div>
+        <h2>🧑‍💻 Feel It From the LP's POV</h2>
+        <p>You are the LP, you say:</p>
+        <div class="highlight">
+          "90% of trades happen between $1900–$2100. There's no point providing
+          liquidity at $1 and $1,00,000."
+        </div>
+        <p>V3 says: "Perfect. Let's put your money right here."</p>
+        <p>😌 Finally you have control</p>
+        <hr class="divider" />
+        <h2>⚙️ What Happens Internally? (Intuition Only)</h2>
+        <ul>
+          <li>V3 breaks the pool into small price buckets</li>
+          <li>These buckets are called 👉 <strong>Ticks</strong></li>
+          <li>Your capital only works in the selected ticks</li>
+        </ul>
+        <div class="highlight">
+          <p>📌 This means:</p>
+          <ul>
+            <li>Same capital</li>
+            <li>More "depth"</li>
+            <li>More fees</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 25 -->
+      <div class="page" id="p25">
+        <div class="page-number">Page 25</div>
+        <h2>💣 Now the SAME EXAMPLE: V2 vs V3 ($10,000)</h2>
+        <h3>🔢 Setup (same for both)</h3>
+        <ul>
+          <li>Pool: ETH / USDC</li>
+          <li>ETH price = $2000</li>
+          <li>You have = $10,000</li>
+          <li>Daily trading volume (in active range) = $1,000,000</li>
+        </ul>
+        <h3>🟥 Case 1: Uniswap V2</h3>
+        <p>You deposit:</p>
+        <ul>
+          <li>2.5 ETH</li>
+          <li>5000 USDC</li>
+        </ul>
+        <p>Reality:</p>
+        <ul>
+          <li>Liquidity spread = 0 → ∞</li>
+          <li>Effective use ≈ 10%</li>
+        </ul>
+        <p>👉 Effective capital ≈ <strong>$1,000</strong></p>
+        <p>Fees calculation:</p>
+        <ul>
+          <li>Total fees/day = $3,000</li>
+          <li>Pool TVL = $100,000,000</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 26 -->
+      <div class="page" id="p26">
+        <div class="page-number">Page 26</div>
+        <h2>V2 Fee Result</h2>
+        <pre>
+Your share:
+$10,000 / $100,000,000 = 0.01%
+Fees = $0.30/day</pre
+        >
+        <p>🤡</p>
+        <hr class="divider" />
+        <h2>🟩 Case 2: Uniswap V3 (Concentrated Liquidity)</h2>
+        <p>You say:</p>
+        <pre>Range = $1800 – $2200</pre>
+        <p>📌 90% of trades happen here</p>
+        <p>👉 Your entire $10,000 is working in this zone</p>
+        <p>Equivalent feel: "Like you put in $100,000 in V2"</p>
+        <p>Fees (same volume, same pool type):</p>
+        <ul>
+          <li>Your effective liquidity = 10× more</li>
+          <li>Fees: ≈ <strong>$3.00/day</strong></li>
+        </ul>
+        <div class="box-green">
+          <p>🚀 Same capital, ~10x earning</p>
+        </div>
+      </div>
+
+      <!-- PAGE 27 -->
+      <div class="page" id="p27">
+        <div class="page-number">Page 27</div>
+        <h2>⚠️ Important Trade-off (Honest Truth)</h2>
+        <p>If ETH price:</p>
+        <ul>
+          <li>Goes above $2200 ❌</li>
+          <li>OR falls below $1800 ❌</li>
+        </ul>
+        <ul>
+          <li>👉 Your liquidity becomes inactive</li>
+          <li>👉 Fees = 0</li>
+        </ul>
+        <div class="box-yellow">
+          <p>📌 Therefore:<br />V3 LP = Active market participant</p>
+        </div>
+        <div class="killer-line">
+          🛑 Golden Line (remember this)<br />
+          Concentrated Liquidity = Capital Efficiency
+        </div>
+      </div>
+
+      <!-- PAGE 28 -->
+      <div class="page" id="p28">
+        <div class="page-number">Page 28</div>
+        <h2>@Price Ranges (Ticks) — FULL FEEL MODE ON</h2>
+        <h3>🧠 Concept in One Line (First Fix It in Your Mind)</h3>
+        <div class="highlight">
+          Price Range = LP's "operating zone"<br />
+          LP says: "I only want to be a market maker between these prices."
+        </div>
+        <h3>🧑‍💻 Scene Setup (Realistic)</h3>
+        <ul>
+          <li>Pool: ETH / USDC</li>
+          <li>Current ETH price = $2000</li>
+          <li>You are the LP</li>
+          <li>Capital = $10,000</li>
+        </ul>
+        <p>You observed the market:</p>
+        <ul>
+          <li>
+            Last 1 month:
+            <ul>
+              <li>Low ≈ $1850</li>
+              <li>High ≈ $2150</li>
+            </ul>
+          </li>
+          <li>Max trading volume = $1900 – $2100</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 29 -->
+      <div class="page" id="p29">
+        <div class="page-number">Page 29</div>
+        <ul>
+          <li>High ≈ $2150</li>
+          <li>Max trading volume = $1900 – $2100</li>
+        </ul>
+        <h3>🎯 What Do You Choose in V3?</h3>
+        <p>You say:</p>
+        <ul>
+          <li>Lower Price = $1800</li>
+          <li>Upper Price = $2200</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 This is your Price Range</p>
+          <p>👉 Your money will only work inside this range</p>
+        </div>
+        <h3>🔥 FEEL PART: Inside Range vs Outside Range</h3>
+        <div class="box-green">
+          <p>🟢 Case 1: Price = $2000 (inside range)</p>
+          <ul>
+            <li>You are an active LP</li>
+            <li>Trades are using your liquidity</li>
+            <li>Fees are coming in 💰</li>
+          </ul>
+        </div>
+        <div class="box-red">
+          <p>🔴 Case 2: Price = $2300 (above range)</p>
+          <ul>
+            <li>You are out of range</li>
+            <li>Your liquidity = 100% USDC</li>
+            <li>Fees = 0</li>
+          </ul>
+          <p>You think: "I said I don't want to make markets above $2200."</p>
+          <p>😌 Control + Peace</p>
+        </div>
+      </div>
+
+      <!-- PAGE 30 -->
+      <div class="page" id="p30">
+        <div class="page-number">Page 30</div>
+        <h2>Out of Range Scenarios</h2>
+        <div class="box-red">
+          <p>🔴 Case 3: Price = $1700 (below range)</p>
+          <ul>
+            <li>You are out of range</li>
+            <li>Your liquidity = 100% ETH</li>
+            <li>Fees = 0</li>
+          </ul>
+        </div>
+        <hr class="divider" />
+        <h2>📊 Understand With Real Numbers</h2>
+        <p>Your deposit (approx):</p>
+        <ul>
+          <li>Price within range ≈ $2000</li>
+          <li>
+            You deposit:
+            <ul>
+              <li>2.5 ETH</li>
+              <li>5000 USDC</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- PAGE 31 -->
+      <div class="page" id="p31">
+        <div class="page-number">Page 31</div>
+        <h2>❓ Question Repeated (Your Doubt)</h2>
+        <p>
+          How does your liquidity change from ETH + USDC → only USDC or only
+          ETH?
+        </p>
+        <h3>🧠 First Remember a GOLDEN RULE</h3>
+        <div class="highlight">
+          In Uniswap V3, the LP is actually "trading against the price"
+          continuously.<br />
+          LP is not a static locker.<br />
+          <strong>LP = automatic trader</strong>
+        </div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">Feel the Price Movement:</div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>ETH Price</th>
+                <th>Your State</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$2000</td>
+                <td>ETH + USDC</td>
+              </tr>
+              <tr>
+                <td>$2100</td>
+                <td>Little ETH sold</td>
+              </tr>
+              <tr>
+                <td>$2200</td>
+                <td>ETH = 0</td>
+              </tr>
+              <tr>
+                <td>$2300</td>
+                <td>Only USDC</td>
+              </tr>
+              <tr class="row-sep">
+                <td>$1900</td>
+                <td>More ETH</td>
+              </tr>
+              <tr>
+                <td>$1800</td>
+                <td>Only ETH</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="img-block-note">
+            📌 <strong>This is a continuous process — not sudden jumps</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 32 -->
+      <div class="page" id="p32">
+        <div class="page-number">Page 32</div>
+        <h2>🧑‍💻 Scene Setup (Same Example)</h2>
+        <ul>
+          <li>Pool: ETH / USDC</li>
+          <li>Current price = $2000</li>
+          <li>
+            Your price range:
+            <ul>
+              <li>Lower = $1800</li>
+              <li>Upper = $2200</li>
+            </ul>
+          </li>
+        </ul>
+        <p>You deposit (approx):</p>
+        <ul>
+          <li>2.5 ETH</li>
+          <li>5000 USDC</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 This deposit is designed so that:</p>
+          <ul>
+            <li>When within range → ETH + USDC</li>
+            <li>When at the end of range → only one asset</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 33 -->
+      <div class="page" id="p33">
+        <div class="page-number">Page 33</div>
+        <h2>🔥 Now FEEL the PRICE MOVE Step by Step</h2>
+        <div class="box-green">
+          <p>🟢 Case 1: ETH = $2000 (middle of range)</p>
+          <p>You are exactly in the middle.</p>
+          <p>Your position:</p>
+          <ul>
+            <li>ETH present</li>
+            <li>USDC present</li>
+          </ul>
+          <p>📌 Why?</p>
+          <ul>
+            <li>
+              Because the market needs liquidity:
+              <ul>
+                <li>ETH → USDC</li>
+                <li>USDC → ETH</li>
+              </ul>
+            </li>
+            <li>In both directions</li>
+          </ul>
+          <p>👉 You are a proper market maker</p>
+        </div>
+        <div class="box-green">
+          <p>🟢 Case 2: ETH = $2100 (price is rising)</p>
+          <p>Market says: "ETH is getting expensive"</p>
+          <p>So traders:</p>
+        </div>
+      </div>
+
+      <!-- PAGE 34 -->
+      <div class="page" id="p34">
+        <div class="page-number">Page 34</div>
+        <ul>
+          <li>Buying ETH</li>
+          <li>Giving USDC</li>
+        </ul>
+        <p>You are the LP → what are you doing?</p>
+        <div class="highlight">
+          <p>👉 You:</p>
+          <ul>
+            <li>Selling ETH</li>
+            <li>Collecting USDC</li>
+          </ul>
+          <p>📉 ETH decreasing<br />📈 USDC increasing</p>
+          <p>That is why it says: "Selling a little ETH"</p>
+        </div>
+        <h3>❓ Your Confusion</h3>
+        <p>"If ETH is getting expensive, won't traders sell?"</p>
+        <p>✔️ YES — some traders do sell</p>
+        <p>❌ But AMM price moves from net demand, not selling alone</p>
+        <p>This is the core misunderstanding.</p>
+        <h3>🧠 GOLDEN RULE (Remember This First)</h3>
+        <div class="killer-line">
+          Price goes UP when BUY pressure &gt; SELL pressure
+        </div>
+      </div>
+
+      <!-- PAGE 35 -->
+      <div class="page" id="p35">
+        <div class="page-number">Page 35</div>
+        <h2>Whether:</h2>
+        <ul>
+          <li>People are booking profits</li>
+          <li>Or news-based selling is happening</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 If buyers are more aggressive, price goes up.</p>
+        </div>
+        <h3>🔁 Market Reality (Simple Example)</h3>
+        <p>Imagine ETH is at $2000.</p>
+        <p>At one moment:</p>
+        <ul>
+          <li>100 people want to sell</li>
+          <li>150 people want to buy</li>
+        </ul>
+        <div class="box-green">
+          <p>📌 Net result:<br />Buy demand &gt; Sell supply → Price UP</p>
+          <p>Even though sellers are present, buyers dominate.</p>
+        </div>
+        <h3>🧑‍💻 Now Understand From the AMM's POV (Important)</h3>
+        <p>AMM price comes from pool balance, not order book:</p>
+        <pre>Price = USDC / ETH</pre>
+      </div>
+
+      <!-- PAGE 36 -->
+      <div class="page" id="p36">
+        <div class="page-number">Page 36</div>
+        <pre>Price = USDC / ETH</pre>
+        <h3>🔥 Case: ETH price is rising</h3>
+        <p>This means:</p>
+        <ul>
+          <li>ETH is leaving the pool</li>
+          <li>USDC is coming into the pool</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Who is doing this? <strong>BUYERS</strong></p>
+          <p>Buyers:</p>
+          <ul>
+            <li>Giving USDC</li>
+            <li>Taking ETH</li>
+          </ul>
+        </div>
+        <h3>📉 What is happening from the LP's POV?</h3>
+        <p>LP is the pool's owner.</p>
+        <p>When:</p>
+        <ul>
+          <li>ETH goes out</li>
+          <li>USDC comes in</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 LP is effectively:</p>
+          <ul>
+            <li>Selling ETH</li>
+            <li>Receiving USDC</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 37 -->
+      <div class="page" id="p37">
+        <div class="page-number">Page 37</div>
+        <ul>
+          <li>Selling ETH</li>
+          <li>Receiving USDC</li>
+        </ul>
+        <div class="highlight">
+          <p>💡 <strong>LP always takes the opposite side</strong></p>
+        </div>
+        <h3>❓ Question</h3>
+        <p>Why does the LP always take the opposite side?</p>
+        <h3>🧠 Short Answer (Lock This First)</h3>
+        <div class="highlight">
+          LP has no opinion.<br />
+          LP's job is to "provide liquidity", not prediction.<br />
+          That is why LP always provides the opposite of whatever demand is
+          coming in.
+        </div>
+        <hr class="divider" />
+        <h2>🔁 Think From Zero (RESET)</h2>
+        <p>Imagine there are only 2 roles in the market:</p>
+        <ol>
+          <li>Trader – has an opinion</li>
+          <li>Market maker (LP) – has no opinion</li>
+        </ol>
+      </div>
+
+      <!-- PAGE 38 -->
+      <div class="page" id="p38">
+        <div class="page-number">Page 38</div>
+        <h2>👤 Trader's Mindset</h2>
+        <p>Trader says:</p>
+        <ul>
+          <li>"ETH will go up" → BUY</li>
+          <li>"ETH will go down" → SELL</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Trader bets on the future.</p>
+        </div>
+        <h2>🏦 LP's Mindset (Completely Different)</h2>
+        <p>LP says:</p>
+        <div class="highlight">
+          "I don't care if ETH goes up or down. I will do business on both
+          sides."
+        </div>
+        <p>LP's goal:</p>
+        <ul>
+          <li>Earn spread / fees</li>
+          <li>Keep risk neutral</li>
+        </ul>
+        <h3>🔥 Core Mechanism (VERY IMPORTANT)</h3>
+        <p>In AMM:</p>
+        <pre>Price = USDC / ETH</pre>
+      </div>
+
+      <!-- PAGE 39 -->
+      <div class="page" id="p39">
+        <div class="page-number">Page 39</div>
+        <h2>Case 1️⃣: Traders are BUYING (ETH price ↑)</h2>
+        <p>Trader:</p>
+        <ul>
+          <li>Gives USDC</li>
+          <li>Takes ETH</li>
+        </ul>
+        <p>Pool:</p>
+        <ul>
+          <li>ETH ↓</li>
+          <li>USDC ↑</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 What is LP doing?</p>
+          <ul>
+            <li>Giving ETH</li>
+            <li>Taking USDC</li>
+          </ul>
+          <p>➡️ LP = seller</p>
+        </div>
+        <h2>Case 2️⃣: Traders are SELLING (ETH price ↓)</h2>
+        <p>Trader:</p>
+        <ul>
+          <li>Gives ETH</li>
+          <li>Takes USDC</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 40 -->
+      <div class="page" id="p40">
+        <div class="page-number">Page 40</div>
+        <h2>Case 2 Continued</h2>
+        <p>Pool:</p>
+        <ul>
+          <li>ETH ↑</li>
+          <li>USDC ↓</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 What is LP doing?</p>
+          <ul>
+            <li>Taking ETH</li>
+            <li>Giving USDC</li>
+          </ul>
+          <p>➡️ LP = buyer</p>
+        </div>
+        <div class="killer-line">
+          🧠 Feel This in One Line:<br />
+          LP = shock absorber<br />
+          Trader = shock creator
+        </div>
+      </div>
+
+      <!-- PAGE 41 -->
+      <div class="page" id="p41">
+        <div class="page-number">Page 41</div>
+        <h2>💥 What Would Happen If LP Did NOT Take the Opposite Side?</h2>
+        <p>Imagine:</p>
+        <ul>
+          <li>Traders are BUYING</li>
+          <li>LP also BUYS</li>
+        </ul>
+        <div class="box-red">
+          <ul>
+            <li>❌ ETH runs out</li>
+            <li>❌ Pool breaks</li>
+            <li>❌ No liquidity</li>
+          </ul>
+          <p>👉 The market itself would shut down.</p>
+        </div>
+        <h3>🧾 AMM's Reason (Not Math, Logic)</h3>
+        <p>AMM's job:</p>
+        <ul>
+          <li>Always allow trades</li>
+          <li>Adjust price based on supply/demand</li>
+        </ul>
+        <div class="highlight">
+          <p>
+            Therefore: LP always provides the opposite of whichever side is
+            coming in with more demand.
+          </p>
+        </div>
+      </div>
+
+      <!-- PAGE 42 -->
+      <div class="page" id="p42">
+        <div class="page-number">Page 42</div>
+        <h2>🔄 Now the Sell-Side Scenario (Price Falls)</h2>
+        <p>If:</p>
+        <ul>
+          <li>People are panic selling</li>
+          <li>ETH is coming into the pool</li>
+          <li>USDC is leaving the pool</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 For the pool:</p>
+          <p>ETH ↑<br />USDC ↓<br />→ Price DOWN</p>
+          <p>LP:</p>
+          <ul>
+            <li>Is buying ETH</li>
+            <li>Giving USDC</li>
+          </ul>
+        </div>
+        <div class="box-green">
+          <p>🟢 Case 3: ETH = $2200 (upper limit touched)</p>
+          <p>Now the market says: "ETH got even more expensive"</p>
+          <p>You say: "Enough. Up to here."</p>
+          <p>Your state:</p>
+          <ul>
+            <li>ETH = 0</li>
+            <li>Only USDC</li>
+          </ul>
+        </div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">
+            🎯 One-Line Clarity (All Confusion Gone)
+          </div>
+          <blockquote class="img-quote">
+            Whatever the trader does, the LP does the opposite
+          </blockquote>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>Market Action</th>
+                <th>Trader</th>
+                <th>LP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ETH price ↑</td>
+                <td>ETH buy</td>
+                <td class="val-red">ETH sell</td>
+              </tr>
+              <tr>
+                <td>ETH price ↓</td>
+                <td>ETH sell</td>
+                <td class="val-green">ETH buy</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="img-content-block" style="margin-top: 20px">
+          <div class="img-block-title">🔥 Now Revisit Your Original Table</div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>ETH Price</th>
+                <th>Why</th>
+                <th>LP State</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$2100</td>
+                <td>Buyers dominate</td>
+                <td>Little ETH sell</td>
+              </tr>
+              <tr>
+                <td>$2200</td>
+                <td>Buyers took all ETH</td>
+                <td class="val-red"><strong>ETH = 0</strong></td>
+              </tr>
+              <tr>
+                <td>$1900</td>
+                <td>Sellers dominate</td>
+                <td class="val-green">More ETH</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE 43 -->
+      <div class="page" id="p43">
+        <div class="page-number">Page 43</div>
+        <h2>"Enough. Up to here."</h2>
+        <p>Your state:</p>
+        <ul>
+          <li>ETH = 0</li>
+          <li>Only USDC</li>
+        </ul>
+        <div class="highlight">
+          <p>📌 Because you said:</p>
+          <p>"I don't want to sell ETH above $2200"</p>
+        </div>
+        <div class="box-yellow">
+          <p>👉 You automatically:</p>
+          <ul>
+            <li>Converted all your ETH to USDC</li>
+            <li>Went out of range</li>
+          </ul>
+        </div>
+        <h3>🧠 FIRST, LET'S BREAK A WRONG IMAGINATION ❌</h3>
+        <p>
+          Maybe this is going through your mind: "The moment price touched
+          $2200, all ETH instantly converted to USDC in one second."
+        </p>
+        <div class="box-red">
+          <p>❌ That's not what happens</p>
+          <p>👉 Conversion does NOT happen at $2200</p>
+          <p>👉 Conversion happens during the JOURNEY from $2000 → $2200</p>
+        </div>
+      </div>
+
+      <!-- PAGE 44 -->
+      <div class="page" id="p44">
+        <div class="page-number">Page 44</div>
+        <h2>❌ That's Not What Happens</h2>
+        <ul>
+          <li>👉 Conversion does NOT happen at $2200</li>
+          <li>👉 Conversion happens during the JOURNEY from $2000 → $2200</li>
+        </ul>
+        <hr class="divider" />
+        <h2>🔁 REAL FEEL: TIME + PRICE JOURNEY</h2>
+        <p>
+          Imagine you are looking at a TradingView chart and ETH price is slowly
+          rising.
+        </p>
+        <div class="box-green">
+          <h3>🟢 STARTING POINT</h3>
+          <ul>
+            <li>ETH price = $2000</li>
+            <li>Your range = $1800 – $2200</li>
+            <li>You are the LP</li>
+            <li>
+              You deposited:
+              <ul>
+                <li>2.5 ETH</li>
+                <li>5000 USDC</li>
+              </ul>
+            </li>
+          </ul>
+          <p>
+            👉 You are in the middle of range<br />👉 Both ETH + USDC are
+            present
+          </p>
+        </div>
+      </div>
+
+      <!-- PAGE 45 -->
+      <div class="page" id="p45">
+        <div class="page-number">Page 45</div>
+        <h2>📈 PRICE MOVE BEGINS (IMPORTANT PART)</h2>
+        <div class="highlight">
+          <p>🔹 ETH = $2050</p>
+          <p>Traders: buying ETH</p>
+          <p>Pool: ETH leaving a little, USDC coming in a little</p>
+          <p>You (LP):</p>
+          <ul>
+            <li>2.5 → 2.1 ETH</li>
+            <li>5000 → 5800 USDC</li>
+          </ul>
+          <p>👉 Sold a little ETH<br />👉 Nothing sudden</p>
+        </div>
+        <div class="highlight">
+          <p>🔹 ETH = $2100</p>
+          <p>More buying happens.</p>
+          <p>Your state:</p>
+          <ul>
+            <li>~1.6 ETH</li>
+            <li>~6700 USDC</li>
+          </ul>
+          <p>👉 ETH decreasing<br />👉 USDC growing</p>
+        </div>
+      </div>
+
+      <!-- PAGE 46 -->
+      <div class="page" id="p46">
+        <div class="page-number">Page 46</div>
+        <ul>
+          <li>~6700 USDC</li>
+        </ul>
+        <p>👉 ETH decreasing<br />👉 USDC growing</p>
+        <div class="highlight">
+          <p>🔹 ETH = $2150</p>
+          <p>Your state:</p>
+          <ul>
+            <li>~0.9 ETH</li>
+            <li>~8000 USDC</li>
+          </ul>
+          <p>
+            👉 Now you can clearly see: "ETH is getting more expensive and I am
+            slowly selling it."
+          </p>
+        </div>
+        <hr class="divider" />
+        <h2>🔥 NOW COMES $2200 (UPPER LIMIT)</h2>
+        <p>
+          This is not a "magic switch" — this is the END POINT of the journey.
+        </p>
+        <p>By the time price reaches $2200:</p>
+        <p>Your state:</p>
+        <ul>
+          <li>ETH ≈ 0</li>
+          <li>USDC ≈ $10,000</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 47 -->
+      <div class="page" id="p47">
+        <div class="page-number">Page 47</div>
+        <ul>
+          <li>👉 ETH runs out when the price reaches here</li>
+          <li>
+            👉 ETH doesn't run out by arriving here — it runs out before
+            arriving
+          </li>
+        </ul>
+        <h3>🧠 NOW YOU SHOULD FEEL IT</h3>
+        <p>Think about it — you were saying:</p>
+        <div class="highlight">
+          "I want to slowly sell ETH between $2000 and $2200"
+        </div>
+        <p>And exactly that happened.</p>
+        <div class="box-red">
+          <p>🔴 Case 4: ETH = $2300 (outside range)</p>
+          <p>Price is outside your boundary.</p>
+          <p>What are you?</p>
+          <ul>
+            <li>Inactive LP</li>
+            <li>Market making = ❌</li>
+            <li>Fees = ❌</li>
+          </ul>
+          <p>Your holding: 100% USDC</p>
+        </div>
+      </div>
+
+      <!-- PAGE 48 -->
+      <div class="page" id="p48">
+        <div class="page-number">Page 48</div>
+        <p>😌 You are relaxed: "I said I don't want to play here."</p>
+        <hr class="divider" />
+        <h2>✔️ Your Statement — CORRECT</h2>
+        <div class="box-green">
+          "Outside the range my ETH = 0 and 100% USDC, because inside the range
+          I sold all my ETH."
+        </div>
+        <p>Yes. Exactly that happened.</p>
+        <h3>🧠 Just Keep This One Thing Clear (IMPORTANT NUANCE)</h3>
+        <div class="box-red">
+          <p>❌ You did NOT sell ETH all at once</p>
+        </div>
+        <div class="box-green">
+          <p>✅ You sold ETH gradually, step by step with the price</p>
+        </div>
+        <h3>🔁 One-Line Flow (Remember This Mentally)</h3>
+        <ul>
+          <li>Inside range → ETH gradually sold → USDC gradually increased</li>
+          <li>Upper range touched → "Sell complete" → ETH = 0 → 100% USDC</li>
+          <li>Outside range → You are doing nothing → Just holding USDC</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 49 -->
+      <div class="page" id="p49">
+        <div class="page-number">Page 49</div>
+        <!-- <h2>🎯 Say It in Trading Language</h2>
+        <div class="killer-line">
+          Uniswap V3 LP = Automatic Ladder Sell Strategy
+        </div>
+        <ul>
+          <li>Lower price → more ETH</li>
+          <li>Middle → ETH + USDC</li>
+          <li>Upper price → ETH finished, USDC full</li>
+        </ul>
+        <div class="highlight">
+          Therefore:<br />
+          Upper range = "sell finish line"<br />
+          Not a sudden sell button
+        </div> -->
+        <hr class="divider" />
+        <h2>🧩 Very Important Follow-up (Future Clarity)</h2>
+        <p>If price comes back inside the range later:</p>
+        <ul>
+          <li>You start buying ETH again</li>
+          <li>USDC → ETH converts</li>
+          <li>Liquidity auto-activates</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 You didn't click anything.</p>
+          <p>👉 Ticks + math handled everything.</p>
+        </div>
+
+        <style>
+          .custom-behavior-section {
+            font-family:
+              -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+              Arial, sans-serif;
+            margin-top: 40px;
+          }
+          .custom-heading {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 700;
+            margin: 40px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .custom-heading::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: #f97316;
+            border-radius: 2px;
+          }
+          .custom-case-box {
+            background: #13141b;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid #1f2029;
+            box-shadow:
+              0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+          .custom-case-box p {
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            font-size: 15px;
+            line-height: 1.6;
+          }
+          .custom-case-box p:last-child {
+            margin-bottom: 0;
+          }
+          .custom-case-box ul {
+            color: #e2e8f0;
+            margin-left: 20px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            line-height: 1.6;
+          }
+          .custom-case-box li {
+            margin-bottom: 6px;
+          }
+          .case-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fbd38d;
+          }
+          .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+          }
+          .dot.green {
+            background: radial-gradient(circle at 30% 30%, #4ade80, #16a34a);
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+          }
+          .dot.yellow {
+            background: radial-gradient(circle at 30% 30%, #fde047, #ca8a04);
+            box-shadow: 0 0 8px rgba(253, 224, 71, 0.4);
+          }
+          .dot.teal {
+            background: radial-gradient(circle at 30% 30%, #2dd4bf, #0f766e);
+            box-shadow: 0 0 8px rgba(45, 212, 191, 0.4);
+          }
+          .dot.red {
+            background: radial-gradient(circle at 30% 30%, #f87171, #dc2626);
+            box-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+          }
+          .dot.blue {
+            background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+          }
+
+          .border-green {
+            border-left: 4px solid #22c55e;
+          }
+          .border-yellow {
+            border-left: 4px solid #eab308;
+          }
+          .border-teal {
+            border-left: 4px solid #14b8a6;
+          }
+          .border-red {
+            border-left: 4px solid #ef4444;
+          }
+          .border-blue {
+            border-left: 4px solid #3b82f6;
+          }
+          .border-orange {
+            border-left: 4px solid #f97316;
+          }
+
+          .one-line-rule-label {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 16px;
+            font-weight: 600;
+          }
+        </style>
+
+        <div class="custom-behavior-section">
+          <div class="custom-heading">
+            How Your Position Behaves at Different Prices(Summary)
+          </div>
+
+          <div class="custom-case-box border-green">
+            <div class="case-title">
+              <span class="dot green"></span>
+              Case 1 — Price = $2,000 (Inside Range, Middle)
+            </div>
+            <p>
+              You are an active LP. Trades are using your liquidity. You hold
+              both ETH and USDC (roughly equal value). You are earning fees in
+              both directions. This is the ideal state — you are a proper
+              two-sided market maker.
+            </p>
+          </div>
+
+          <div class="custom-case-box border-yellow">
+            <div class="case-title">
+              <span class="dot yellow"></span>
+              Case 2 — Price = $2,100 (Inside Range, Rising)
+            </div>
+            <p>
+              ETH is getting more expensive. Traders are buying ETH. As the LP,
+              you are selling ETH and collecting USDC. Your ETH balance is
+              declining, USDC is accumulating. Fees are still flowing in. You
+              are slightly more USDC-heavy now.
+            </p>
+          </div>
+
+          <div class="custom-case-box border-teal">
+            <div class="case-title">
+              <span class="dot teal"></span>
+              Case 3 — Price = $2,200 (Upper Limit Touched)
+            </div>
+            <p>
+              The upper boundary of your range has been reached. By the time
+              price gets here, your ETH has been
+              <em style="color: #94a3b8">gradually</em> converted to USDC
+              throughout the journey from $2,000 to $2,200. At this exact
+              moment:
+            </p>
+            <ul>
+              <li>ETH balance = 0</li>
+              <li>Position = 100% USDC</li>
+              <li>You are now "out of range"</li>
+            </ul>
+            <p>
+              <strong style="color: white">Important:</strong> This conversion
+              did NOT happen in one instant at $2,200. It happened gradually as
+              price rose from $2,000 to $2,200. The upper limit is the "sell
+              complete" finish line, not a sudden sell button.
+            </p>
+          </div>
+
+          <div class="custom-case-box border-red">
+            <div class="case-title">
+              <span class="dot red"></span>
+              Case 4 — Price = $2,300 (Above Range)
+            </div>
+            <p>
+              You are an inactive LP. You hold 100% USDC. You earn zero fees.
+              You are not selling any more ETH. You said "$2,200 is my limit"
+              and the system honored that exactly.
+            </p>
+            <p>
+              You feel relaxed: "I said I wouldn't play here." No forced
+              exposure, no regret.
+            </p>
+          </div>
+
+          <div class="custom-case-box border-blue">
+            <div class="case-title">
+              <span class="dot blue"></span>
+              Case 5 — Price = $1,900 (Inside Range, Falling)
+            </div>
+            <p>
+              ETH is getting cheaper. Traders are selling ETH. As the LP, you
+              are buying ETH with USDC. Your ETH balance grows, USDC declines.
+              You are more ETH-heavy now. Fees still flowing in.
+            </p>
+          </div>
+
+          <div class="custom-case-box border-red">
+            <div class="case-title">
+              <span class="dot red"></span>
+              Case 6 — Price = $1,800 (Lower Limit Touched)
+            </div>
+            <p>
+              By the time price reaches your lower bound, all your USDC has been
+              gradually converted to ETH throughout the journey from $2,000 down
+              to $1,800. Your position is now 100% ETH. USDC = 0. You are out of
+              range again.
+            </p>
+            <p>
+              You said "$1,800 is where I stop buying" — and the protocol
+              respected that.
+            </p>
+          </div>
+
+          <div class="custom-heading">The Grand Intuition (Lock This)</div>
+
+          <div class="custom-case-box border-orange">
+            <div class="one-line-rule-label">ONE-LINE RULE</div>
+            <ul>
+              <li>
+                <strong style="color: white">Price going UP</strong> → LP
+                gradually sells ETH, accumulates USDC
+              </li>
+              <li>
+                <strong style="color: white">Price going DOWN</strong> → LP
+                gradually buys ETH, spends USDC
+              </li>
+              <li>
+                <strong style="color: white">At Upper Price</strong> → ETH is
+                fully gone, 100% USDC
+              </li>
+              <li>
+                <strong style="color: white">At Lower Price</strong> → USDC is
+                fully gone, 100% ETH
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 50 -->
+      <div class="page" id="p50">
+        <div class="page-number">Page 50</div>
+        <!-- <h2>🧠 ONE-LINE FIRST (LOCK THIS)</h2>
+        <pre>
+Ticks = rules
+Math = machine
+Price = trigger</pre
+        > -->
+        <!-- <p>LP does not do anything manually. The system reacts on its own.</p> -->
+        <hr class="divider" />
+        <h2>🎬 SCENE SETUP (COMPLETELY REAL)</h2>
+        <ul>
+          <li>Pool: ETH / USDC</li>
+          <li>Fee tier: 0.30%</li>
+          <li>TickSpacing = 60</li>
+          <li>You are the LP</li>
+        </ul>
+        <p>You said:</p>
+        <pre>Range: $1800 – $2200</pre>
+        <p>The protocol internally wrote:</p>
+        <pre>
+lowerTick = 198600
+upperTick = 199800</pre
+        >
+        <!-- <p>(example)</p> -->
+      </div>
+
+      <!-- PAGE 51 -->
+      <div class="page" id="p51">
+        <div class="page-number">Page 51</div>
+        <p>And the protocol wrote one rule:</p>
+        <div class="highlight">
+          "This LP's liquidity will only be active when<br />
+          <strong>lowerTick ≤ currentTick &lt; upperTick</strong>"
+        </div>
+        <p>That's it. Autopilot starts from here.</p>
+        <hr class="divider" />
+        <h2>🚗 PRICE MOVE STARTS (AUTOPILOT ON)</h2>
+        <div class="box-green">
+          <p>STEP 1️⃣: Price $2000 (middle of range)</p>
+          <p>Protocol's internal state:</p>
+          <ul>
+            <li>currentTick = 199200</li>
+            <li>Condition true ✅</li>
+          </ul>
+          <p>👉 LP ACTIVE</p>
+          <p>Math does:</p>
+          <ul>
+            <li>Trader buys → ETH leaves</li>
+            <li>USDC comes in</li>
+            <li>LP's ETH decreases a little</li>
+            <li>LP's USDC increases a little</li>
+          </ul>
+          <p>👉 Smooth, continuous</p>
+        </div>
+      </div>
+
+      <!-- PAGE 52 -->
+      <div class="page" id="p52">
+        <div class="page-number">Page 52</div>
+        <div class="box-green">
+          <p>STEP 2️⃣: Price keeps rising ($2050 → $2100)</p>
+          <p>Price rising = sqrtPriceX96 smoothly moving</p>
+          <p>At each small move:</p>
+          <ul>
+            <li>LP gives a little ETH</li>
+            <li>LP takes a little USDC</li>
+          </ul>
+        </div>
+        <div class="highlight">
+          <p>
+            🧠 Important FEEL:<br />
+            This ETH selling is not an "event" — it is a "process"
+          </p>
+        </div>
+        <div class="box-yellow">
+          <p>STEP 3️⃣: TICK BOUNDARY ARRIVES (KEY MOMENT)</p>
+          <p>As price keeps rising:</p>
+          <pre>currentTick = 199800</pre>
+          <p>🔥 THIS IS THE MOMENT WHEN TICK IS HIT</p>
+          <p>Protocol instantly checks:</p>
+          <pre>currentTick == upperTick ?</pre>
+          <p>Answer: ✅ YES</p>
+        </div>
+      </div>
+
+      <!-- PAGE 53 -->
+      <div class="page" id="p53">
+        <div class="page-number">Page 53</div>
+        <h2>💥 NOW WHAT DOES THE MATH DO (AUTOPILOT ACTION)</h2>
+        <p>Protocol's rules say:</p>
+        <div class="highlight">
+          Rule 1: "Upper tick crossed? Remove this LP's liquidity."
+        </div>
+        <p>So math does:</p>
+        <ul>
+          <li>LP's liquidity = REMOVED from ACTIVE SET</li>
+          <li>No emotion</li>
+          <li>No decision</li>
+          <li>No IF-ELSE drama</li>
+        </ul>
+        <p>👉 Pure rule-following</p>
+        <div class="box-green">
+          <p>STEP 4️⃣: LP'S FINAL STATE (FEEL PART)</p>
+          <p>The moment your liquidity is removed:</p>
+          <ul>
+            <li>ETH balance = 0</li>
+            <li>USDC balance = 100%</li>
+            <li>Fees stop</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 54 -->
+      <div class="page" id="p54">
+        <div class="page-number">Page 54</div>
+        <ul>
+          <li>ETH selling stops</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 ETH didn't become zero because the tick was hit</p>
+          <p>
+            ETH became zero because BEFORE the tick was hit, ETH had already
+            been sold
+          </p>
+        </div>
+        <h3>🧠 NOW SEE FROM THE POOL'S EYES</h3>
+        <p>Pool says:</p>
+        <div class="highlight">
+          "Price is going up. This LP said 'I will only work up to here.' Now
+          ignore it."
+        </div>
+        <p>Other LPs (with wider ranges):</p>
+        <ul>
+          <li>Still active</li>
+          <li>Market keeps going</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 55 -->
+      <div class="page" id="p55">
+        <div class="page-number">Page 55</div>
+        <h2>🔁 IF PRICE GOES EVEN HIGHER?</h2>
+        <ul>
+          <li>sqrtPriceX96 moves further ahead</li>
+          <li>currentTick &gt; upperTick</li>
+          <li>Your LP is ignored</li>
+          <li>Zero ETH selling</li>
+          <li>Zero buying</li>
+          <li>Zero fees</li>
+        </ul>
+        <p>😌 Autopilot freeze</p>
+      </div>
+
+      <!-- PAGE 56 -->
+      <div class="page" id="p56">
+        <div class="page-number">Page 56</div>
+        <h2>🔄 PRICE COMES BACK (RE-ENTRY MAGIC)</h2>
+        <p>Price falls:</p>
+        <p>$2300 → $2200 → $2150</p>
+        <p>At $2200:</p>
+        <pre>currentTick &lt; upperTick</pre>
+        <p>🔥 Rule is true again</p>
+        <p>Math does:</p>
+        <ul>
+          <li>LP liquidity = ADD back to ACTIVE SET</li>
+          <li>LP now starts BUYING ETH</li>
+          <li>USDC → ETH converts</li>
+        </ul>
+        <p>👉 Autopilot resumes</p>
+        <hr class="divider" />
+        <h2>🧠 HOW IS ALL THIS POSSIBLE? (BIG REASON)</h2>
+        <p>Because in Uniswap V3:</p>
+        <ul>
+          <li>LP liquidity is not a continuous number</li>
+          <li>LP liquidity is stored at tick boundaries</li>
+        </ul>
+        <p>Internally:</p>
+        <pre>
+at lowerTick:  +L liquidity
+at upperTick:  -L liquidity</pre
+        >
+        <p>As soon as price crosses a tick:</p>
+        <ul>
+          <li>Liquidity auto add / remove</li>
+          <li>O(1) operation</li>
+          <li>Gas efficient</li>
+          <li>Deterministic</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 57 -->
+      <div class="page" id="p57">
+        <div class="page-number">Page 57</div>
+        <h2>🎯 BEST REAL-LIFE ANALOGY (LOCK THIS)</h2>
+        <div class="highlight">
+          <p>The elevator (price) is running</p>
+          <p>Floors (ticks) are fixed</p>
+          <p>You said: "I will work from the 5th to the 8th floor"</p>
+          <ul>
+            <li>Elevator at 6th floor → you are at work</li>
+            <li>Elevator at 8th floor → you completed your work</li>
+            <li>Elevator at 9th floor → you are home 😄</li>
+          </ul>
+        </div>
+        <div class="killer-line">
+          🛑 ONE FINAL FEEL LINE (REMEMBER THIS)<br />
+          Ticks decided "when"<br />
+          Math executed "how"<br />
+          LP only set the rule
+        </div>
+      </div>
+
+      <!-- PAGE 58 -->
+      <div class="page" id="p58">
+        <div class="page-number">Page 58</div>
+        <h2>🔄 Now the Price Goes Down (Reverse FEEL)</h2>
+        <div class="box-green">
+          <p>🟢 Case 5: ETH = $1900</p>
+          <p>Market says: "ETH is getting cheaper"</p>
+          <p>Traders:</p>
+          <ul>
+            <li>Selling ETH</li>
+            <li>Taking USDC</li>
+          </ul>
+          <p>You are the LP → you:</p>
+          <ul>
+            <li>Buying ETH</li>
+            <li>Giving USDC</li>
+          </ul>
+          <p>📈 ETH increasing<br />📉 USDC decreasing</p>
+          <p>That is why it says: "More ETH"</p>
+        </div>
+      </div>
+
+      <!-- PAGE 59 -->
+      <div class="page" id="p59">
+        <div class="page-number">Page 59</div>
+        <div class="box-green">
+          <p>🟢 Case 6: ETH = $1800 (lower limit)</p>
+          <p>You say: "Enough. Up to here."</p>
+          <p>Your final state:</p>
+          <ul>
+            <li>Only ETH</li>
+            <li>USDC = 0</li>
+          </ul>
+          <p>📌 Meaning: You said: "I won't buy ETH below $1800"</p>
+        </div>
+        <hr class="divider" />
+        <h2>🧠 ONE BIG INTUITION (Everything Will Clear Up)</h2>
+        <div class="highlight">
+          <p>Price goes UP → LP sells ETH</p>
+          <p>Price goes DOWN → LP buys ETH</p>
+          <p>And:</p>
+          <ul>
+            <li>At upper price = ETH finished</li>
+            <li>At lower price = USDC finished</li>
+          </ul>
+        </div>
+        <h3>🔥 Compare With V2 (1 Line)</h3>
+        <ul>
+          <li>V2: LP always trades without saying anything</li>
+          <li>V3: LP says: "After this price, I will go silent."</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 60 -->
+      <div class="page" id="p60">
+        <div class="page-number">Page 60</div>
+        <div class="killer-line">
+          🛑 Killer Line (Remember This)<br />
+          Price move = imbalance<br />
+          LP = imbalance absorber
+        </div>
+        <h3>🤯 How Is This Different From V2?</h3>
+        <div class="box-red">
+          <p>V2:</p>
+          <ul>
+            <li>A little trade at every price</li>
+            <li>Control = ❌</li>
+          </ul>
+        </div>
+        <div class="box-green">
+          <p>V3:</p>
+          <ul>
+            <li>You say: "Outside this boundary, I won't play."</li>
+            <li>Control = ✅</li>
+            <li>Capital efficiency = 🚀</li>
+          </ul>
+        </div>
+        <h3>⚙️ A Little Technical Intuition (No Math)</h3>
+        <ul>
+          <li>V3 pool's price is divided in a line</li>
+          <li>Each division = Tick</li>
+          <li>Price range = an interval of ticks</li>
+        </ul>
+        <div class="highlight">
+          <p>📌 You say: "I want to remain active from tick 20000 to 21000"</p>
+        </div>
+      </div>
+
+      <!-- PAGE 61 -->
+      <div class="page" id="p61">
+        <div class="page-number">Page 61</div>
+        <ul>
+          <li>Each division = Tick</li>
+          <li>Price range = an interval of ticks</li>
+        </ul>
+        <div class="highlight">
+          <p>📌 You say: "I want to remain active from tick 20000 to 21000"</p>
+        </div>
+      </div>
+
+      <!-- PAGE 62 -->
+      <div class="page" id="p62">
+        <div class="page-number">Page 62</div>
+        <h2>@Ticks &amp; TickSpacing — VISUAL + FEEL INTUITION</h2>
+        <h3>🧠 Idea in One Line (Lock This First)</h3>
+        <div class="highlight">
+          Tick = one fixed step in price<br />
+          TickSpacing = how many steps you can skip when choosing an LP range
+        </div>
+        <h3>🔁 First Think of Price as a "Line"</h3>
+        <p>Imagine ETH price as a straight road:</p>
+        <div class="staircase">
+          $1500 ---- $1600 ---- $1700 ---- $1800 ---- $1900 ---- $2000 ----
+          $2100 ---- $2200 ---- $2300
+        </div>
+        <p>This is a smooth, continuous price.</p>
+        <p>But a smart contract cannot understand a smooth thing.</p>
+        <h3>⚙️ So What Does V3 Do?</h3>
+        <p>V3 breaks this road into small blocks.</p>
+        <p>Each block = Tick</p>
+        <div class="staircase">| tick | tick | tick | tick | tick | tick |</div>
+        <p>👉 Each tick represents a fixed price ratio.</p>
+      </div>
+
+      <!-- PAGE 63 -->
+      <div class="page" id="p63">
+        <div class="page-number">Page 63</div>
+        <div class="staircase">| tick | tick | tick | tick | tick | tick |</div>
+        <p>👉 Each tick represents a fixed price ratio.</p>
+        <!-- <h3>🔢 Real-ish Numbers (ETH/USDC Feel)</h3>
+        <p>In Uniswap V3:</p>
+        <pre>price = 1.0001 ^ tick</pre>
+        <p>You don't need to remember the formula ❌</p> -->
+        <p>Just keep the intuition:</p>
+        <p>Next tick = price slightly up / down</p>
+        <hr class="divider" />
+        <h2>🔥 BRILLIANT QUESTION</h2>
+        <p>
+          This question comes when the mind says: "If everything depends on the
+          tick, how does the tick itself move?"
+        </p>
+        <p>
+          Now I will explain this all the way to the root cause, with feel +
+          flow.
+        </p>
+        <div class="highlight">
+          <p>🧠 ONE-LINE ANSWER (LOCK THIS)</p>
+          <p>
+            The tick itself does not move.<br />
+
+            sqrtPriceX96 moves because of swaps.The price ratio changes because
+            of swaps.Each swap alters the token reserves, which changes the
+            price ratio.When the price ratio changes, the price of each token
+            changes relative to the other.This is why the price changes.<br />
+
+            Price is derived from sqrtPriceX96, so when sqrtPriceX96 moves,
+            price moves.<br />
+
+            When sqrtPriceX96 crosses a tick boundary, the tick updates.<br />
+
+            Tick does not move — it only updates.<br /><br />
+
+            Price and price ratio are the same. Internally, sqrtPriceX96 moves
+            because of the swaps, which causes the price (ratio) to change.
+          </p>
+        </div>
+      </div>
+
+      <!-- PAGE 64 -->
+      <div class="page" id="p64">
+        <div class="page-number">Page 64</div>
+        <div class="highlight">
+          <p>Tick = price's label / index</p>
+          <p>Price ratio = the real thing that changes</p>
+        </div>
+        <div class="box-red">
+          <p>❌ Wrong thinking (it's natural): "Tick is going up and down"</p>
+        </div>
+        <div class="box-green">
+          <p>
+            ❌ No<br />
+            ✔️ Price ratio is going up and down<br />
+            ✔️ Tick is just mapping the current price ratio(means price)
+          </p>
+        </div>
+        <h3>🎬 REAL-LIFE ANALOGY (BEST)</h3>
+        <h3>🛗 Elevator &amp; Floor (Perfect Fit)</h3>
+        <ul>
+          <li>Elevator = Price</li>
+          <li>Floor number = Tick</li>
+        </ul>
+        <p>Elevator:</p>
+        <ul>
+          <li>Actually moves</li>
+        </ul>
+        <p>Floor:</p>
+        <ul>
+          <li>Fixed</li>
+          <li>Only the display changes</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 65 -->
+      <div class="page" id="p65">
+        <div class="page-number">Page 65</div>
+        <p>👉 When elevator passes 5th floor:</p>
+        <ul>
+          <li>Display shows "5"</li>
+        </ul>
+        <p>👉 When elevator passes 6th floor:</p>
+        <ul>
+          <li>Display shows "6"</li>
+        </ul>
+        <div class="highlight">
+          <p>
+            ❌ Floor is NOT moving<br />
+            ✔️ Elevator IS moving
+          </p>
+        </div>
+        <h3>🔁 EXACTLY THIS HAPPENS IN UNISWAP V3</h3>
+        <p>Protocol has:</p>
+        <ul>
+          <li><code>sqrtPriceX96</code> → live moving price meter</li>
+          <li><code>currentTick</code> → price's nearest floor</li>
+        </ul>
+        <h3>🔥 FLOW STEP-BY-STEP (REAL FEEL)</h3>
+        <p>STEP 1️⃣: Trader makes a swap</p>
+        <p>Example: Trader BUYS ETH (with USDC)</p>
+        <p>In the pool:</p>
+        <ul>
+          <li>ETH ↓</li>
+          <li>USDC ↑</li>
+        </ul>
+        <p>👉 Price increases</p>
+      </div>
+
+      <!-- PAGE 66 -->
+      <div class="page" id="p66">
+        <div class="page-number">Page 66</div>
+        <ul>
+          <li>ETH ↓</li>
+          <li>USDC ↑</li>
+        </ul>
+        <p>👉 Price increases</p>
+        <div class="highlight">
+          <p>STEP 2️⃣: sqrtPriceX96 moves</p>
+          <ul>
+            <li>This is a continuous number</li>
+            <li>Changes a little with each swap</li>
+          </ul>
+          <p>Imagine: <code>price meter: ───▶</code></p>
+        </div>
+        <div class="highlight">
+          <p>🧠 ONE-LINE ANSWER (LOCK THIS)</p>
+          <p>
+            The tick itself does not move.<br />
+
+            sqrtPriceX96 moves because of swaps. Each swap alters the token
+            reserves, which changes the price ratio between the tokens. When the
+            price ratio changes, the price of each token changes relative to the
+            other.This is why the price changes.<br />
+
+            Price is derived from sqrtPriceX96, so when sqrtPriceX96 moves,
+            price moves.<br />
+
+            When sqrtPriceX96 crosses a tick boundary, the tick updates.<br />
+
+            Tick does not move — it only updates.<br /><br />
+
+            Price and price ratio are the same. Internally, sqrtPriceX96 moves
+            because of the swaps, which causes the price (ratio) to change.
+          </p>
+        </div>
+        <div
+          class="highlight"
+          style="
+            background: #1a1a2e;
+            border-left: 4px solid #a78bfa;
+            padding: 18px 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+          "
+        >
+          <h3
+            style="
+              margin-top: 0;
+              color: #c4b5fd;
+              font-size: 1.1rem;
+              margin-bottom: 10px;
+            "
+          >
+            🧠 Want to Dive Deeper?
+          </h3>
+          <p style="margin-bottom: 14px; line-height: 1.6; color: #e8e8e8">
+            You can understand this in detail in <strong>Part 2</strong>:
+            exactly how a swap moves <code>sqrtPriceX96</code>, how that
+            mechanically shifts the price, and how the price change ultimately
+            updates the tick.
+          </p>
+          <a
+            href="sqrtToTickToPrice_English.html"
+            target="_blank"
+            style="
+              display: inline-block;
+              padding: 8px 16px;
+              background: #6c63ff;
+              color: white;
+              border-radius: 6px;
+              text-decoration: none;
+              font-weight: bold;
+              font-size: 0.9rem;
+            "
+          >
+            📖 Read Part 2: sqrtPriceX96 → Price → Tick
+          </a>
+        </div>
+
+        <div class="highlight">
+          <p>STEP 3️⃣: Protocol calculates the tick</p>
+          <p>Protocol does:</p>
+          <pre>currentTick = f(sqrtPriceX96)</pre>
+
+          <p>
+            👉 <strong>As you saw in Part 2</strong>, this is the exact function
+            that calculates how the changing <code>sqrtPriceX96</code> shifts
+            the price and updates the tick!
+          </p>
+        </div>
+      </div>
+
+      <!-- PAGE 67 -->
+      <div class="page" id="p67">
+        <div class="page-number">Page 67</div>
+        <div class="highlight">
+          <p>STEP 4️⃣: When price crosses the next boundary</p>
+          <p>Example:</p>
+          <ul>
+            <li>Price $2099 → tick 199740</li>
+            <li>Price $2101 → tick 199800</li>
+          </ul>
+          <p>🔥 Tick UPDATES</p>
+          <p>
+            ❌ Tick does NOT move<br />
+            ✔️ Tick changes because price crossed a boundary
+          </p>
+        </div>
+        <h3>🧱 IMPORTANT: Ticks Are Fixed</h3>
+        <p>Think of ticks like milestones:</p>
+        <div class="staircase">$2000 tick A | $2100 tick B | $2200 tick C</div>
+        <p>Price:</p>
+        <ul>
+          <li>$2000 → $2050 → $2100 → $2150</li>
+        </ul>
+        <p>Tick:</p>
+        <ul>
+          <li>A → A → B → B</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Tick only changes when a milestone is crossed</p>
+        </div>
+      </div>
+
+      <!-- PAGE 68 -->
+      <div class="page" id="p68">
+        <div class="page-number">Page 68</div>
+        <h2>🔁 UP vs DOWN (BOTH SIDES)</h2>
+        <div class="box-green">
+          <p>📈 Price up</p>
+          <ul>
+            <li>ETH BUY pressure</li>
+            <li>sqrtPriceX96 ↑</li>
+            <li>Tick number ↑</li>
+          </ul>
+        </div>
+        <div class="box-red">
+          <p>📉 Price down</p>
+          <ul>
+            <li>ETH SELL pressure</li>
+            <li>sqrtPriceX96 ↓</li>
+            <li>Tick number ↓</li>
+          </ul>
+        </div>
+        <p>Same logic, reverse direction.</p>
+        <div class="killer-line">
+          🧠 KEY INSIGHT (VERY IMPORTANT)<br />
+          Tick is not a driver.<br />
+          Tick is a consequence.<br />
+          Driver = swap / trade<br />
+          Consequence = price change → tick update
+        </div>
+      </div>
+
+      <!-- PAGE 69 -->
+      <div class="page" id="p69">
+        <div class="page-number">Page 69</div>
+        <h2>🌍 REAL-WORLD UNISWAP V3 EXAMPLE (ETH / USDC)</h2>
+        <h3>🧱 0️⃣ Market Reality (Actual Style)</h3>
+        <ul>
+          <li>Pair: ETH / USDC</li>
+          <li>Fee tier: 0.30% (most common)</li>
+          <li>TickSpacing: 60</li>
+          <li>Current ETH price (TradingView): $2,000</li>
+          <li>Pool TVL: $500M+ (assume)</li>
+        </ul>
+        <p>Uniswap is already live. You are just one LP who is joining.</p>
+        <h3>🧠 1️⃣ Price Ladder Already Exists (REALITY)</h3>
+        <p>Uniswap has already created a price grid:</p>
+        <pre>price = 1.0001 ^ tick</pre>
+        <p>You see prices in the UI. Protocol sees ticks internally.</p>
+        <p>Approximate mapping (realistic):</p>
+      </div>
+
+      <!-- PAGE 70 -->
+      <div class="page" id="p70">
+        <div class="page-number">Page 70</div>
+        <table class="price-table">
+          <tr>
+            <th>Tick</th>
+            <th>Price</th>
+          </tr>
+          <tr>
+            <td>199200</td>
+            <td>$1985</td>
+          </tr>
+          <tr>
+            <td>199260</td>
+            <td>$1993</td>
+          </tr>
+          <tr class="current-row">
+            <td>199320</td>
+            <td>$2000 ← CURRENT</td>
+          </tr>
+          <tr>
+            <td>199380</td>
+            <td>$2008</td>
+          </tr>
+          <tr>
+            <td>199440</td>
+            <td>$2016</td>
+          </tr>
+          <tr>
+            <td>199500</td>
+            <td>$2024</td>
+          </tr>
+          <tr>
+            <td>199560</td>
+            <td>$2032</td>
+          </tr>
+          <tr>
+            <td>199620</td>
+            <td>$2040</td>
+          </tr>
+          <tr>
+            <td>199680</td>
+            <td>$2048</td>
+          </tr>
+          <tr>
+            <td>199740</td>
+            <td>$2056</td>
+          </tr>
+        </table>
+        <div class="box-yellow">
+          <p>⚠️ Important:</p>
+          <ul>
+            <li>These ticks are FIXED</li>
+            <li>Price moves smoothly between them</li>
+          </ul>
+        </div>
+        <hr class="divider" />
+        <!-- <h2>🔥 EXACT CORE QUESTION</h2>
+        <p>If you understand this, the tick mystery is 100% gone.</p>
+        <p>
+          You are asking: "How is the tick → price table built? On what basis
+          does 199320 = $2000 come?"
+        </p> -->
+      </div>
+
+      <!-- PAGE 71 -->
+      <!-- <div class="page" id="p71">
+        <div class="page-number">Page 71</div>
+        <p>
+          I will explain this from first principle, step-by-step, with real math
+          + feel.
+        </p>
+        <h3>🧠 ONE LINE ANSWER (LOCK THIS)</h3>
+        <div class="highlight">
+          Uniswap broke price on a log-scale and each tick = fixed % price step
+          (1.0001×).<br />
+          That is why this table is a predefined mathematical grid, not random,
+          not market-driven.
+        </div>
+        <h3>🔢 BASE FORMULA (SOURCE OF TRUTH)</h3>
+        <p>Uniswap V3's fundamental relation:</p>
+        <pre>price = 1.0001 ^ tick</pre>
+        <p>This means:</p>
+        <ul>
+          <li>Each 1 tick = +0.01% price change</li>
+          <li>Tick increases linearly</li>
+          <li>Price increases exponentially</li>
+        </ul>
+      </div> -->
+
+      <!-- PAGE 72 -->
+      <div class="page" id="p72">
+        <div class="page-number">Page 72</div>
+        <h2>🧱 STEP 1: Understand What "1.0001" Means (VERY IMPORTANT)</h2>
+        <pre>1.0001 = 1 + 0.0001 = +0.01%</pre>
+        <p>So:</p>
+        <ul>
+          <li>Tick +1 → price × 1.0001</li>
+          <li>Tick −1 → price ÷ 1.0001</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Uniform percentage steps (not uniform dollar steps)</p>
+        </div>
+        <hr class="divider" />
+        <h2>🧮 STEP 2: Price → Tick Relation (REAL FEEL)</h2>
+        <p>If you want the tick of any real price:</p>
+        <pre>tick = log(price) / log(1.0001)</pre>
+        <p>(Don't remember the formula, keep the FEEL)</p>
+      </div>
+
+      <!-- PAGE 73 -->
+      <div class="page" id="p73">
+        <div class="page-number">Page 73</div>
+        <h2>🔍 STEP 3: REAL WORLD CALCULATION (ACTUAL FEEL)</h2>
+        <p>ETH price ≈ $2000</p>
+        <p>Calculate tick:</p>
+        <pre>
+tick ≈ ln(2000) / ln(1.0001)
+Values:
+● ln(2000) ≈ 7.6009
+● ln(1.0001) ≈ 0.000099995
+
+tick ≈ 7.6009 / 0.000099995
+tick ≈ 76,010</pre
+        >
+        <div class="box-yellow">
+          <p>⚠️ This is the relative tick.</p>
+          <p>
+            Uniswap internally uses a base shift (that is why mainnet tick ≈
+            199,320 comes).
+          </p>
+        </div>
+        <div class="highlight">
+          <p>👉 Key idea: Price ↔ Tick is fixed purely by math</p>
+        </div>
+      </div>
+
+      <!-- PAGE 74 -->
+      <div class="page" id="p74">
+        <div class="page-number">Page 74</div>
+        <h2>🧱 STEP 4: TickSpacing's Effect (WHY 60 GAP?)</h2>
+        <p>In the table, tick jumps:</p>
+        <pre>199200 → 199260 → 199320 → ...</pre>
+        <p>Difference: = <strong>60 ticks</strong></p>
+        <p>Why?</p>
+        <p>Because:</p>
+        <ul>
+          <li>Fee tier = 0.30%</li>
+          <li>TickSpacing = 60</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 LP boundaries are only allowed at multiples of 60</p>
+        </div>
+        <div class="box-yellow">
+          <p>⚠️ But price moves freely in between</p>
+        </div>
+      </div>
+
+      <!-- PAGE 75 -->
+      <div class="page" id="p75">
+        <div class="page-number">Page 75</div>
+        <h2>📊 STEP 5: Now See the EXACT Logic of the Table</h2>
+        <p>Let's verify one row properly:</p>
+        <pre>
+Tick = 199320
+price = 1.0001 ^ 199320
+Approx: ≈ $2000
+
+Tick = 199380 ( +60 )
+price ratio = 1.0001 ^ 60 ≈ 1.006
+So: 2000 × 1.006 ≈ $2012
+(UI rounding + oracle smoothing makes it ~$2008–$2010)
+
+Tick = 199260 ( −60 )
+price ratio = 1 / 1.0001 ^ 60 ≈ 0.994
+So: 2000 × 0.994 ≈ $1988</pre
+        >
+        <div class="killer-line">
+          🧠 IMPORTANT FEEL POINT (THIS IS KEY)<br />
+          Tick table is NOT built from the market<br />
+          Tick table is built from MATH<br />
+          Market only decides: which tick is currently active
+        </div>
+      </div>
+
+      <!-- PAGE 76 -->
+      <div class="page" id="p76">
+        <div class="page-number">Page 76</div>
+        <h2>👤 2️⃣ You Decide to Become an LP (REAL THINKING)</h2>
+        <p>You think:</p>
+        <div class="highlight">
+          "ETH is strong, but risky below $1800, and I don't want to sell above
+          $2200."
+        </div>
+        <p>You select in the UI:</p>
+        <ul>
+          <li>Lower price = $1800</li>
+          <li>Upper price = $2200</li>
+          <li>Capital = $10,000</li>
+        </ul>
+        <h3>🔢 3️⃣ UI → Protocol (REAL CONVERSION)</h3>
+        <p>Uniswap internally does:</p>
+        <pre>
+$1800 → lowerTick ≈ 198600
+$2200 → upperTick ≈ 199800</pre
+        >
+        <p>Check:</p>
+        <ul>
+          <li>TickSpacing = 60 ✅</li>
+          <li>Both are multiples of 60 ✅</li>
+        </ul>
+        <p>Protocol writes the rule:</p>
+        <pre>
+LP ACTIVE if:
+198600 ≤ currentTick &lt; 199800</pre
+        >
+      </div>
+
+      <!-- PAGE 77 -->
+      <div class="page" id="p77">
+        <div class="page-number">Page 77</div>
+        <pre>
+LP ACTIVE if:
+198600 ≤ currentTick &lt; 199800</pre
+        >
+        <hr class="divider" />
+        <h2>💰 4️⃣ REAL DEPOSIT CALCULATION (IMPORTANT FEEL)</h2>
+        <p>Current price = $2000 (within range)</p>
+        <p>So you deposit both assets:</p>
+        <p>Approx (realistic):</p>
+        <ul>
+          <li>ETH ≈ 2.4</li>
+          <li>USDC ≈ 5,200</li>
+          <li>Total ≈ $10,000</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 You have NOT started selling ETH yet</p>
+          <p>👉 You have only provided liquidity</p>
+        </div>
+      </div>
+
+      <!-- PAGE 78 -->
+      <div class="page" id="p78">
+        <div class="page-number">Page 78</div>
+        <h2>🧠 FIRST A SIMPLE QUESTION (KEEP THE ANSWER IN YOUR MIND)</h2>
+        <p>If you only have USDC and ETH price is $2000</p>
+        <div class="highlight">
+          <p>👉 Can you sell ETH?</p>
+          <p>❌ No, because there's no ETH.</p>
+          <p>That's it. Everything revolves around this sentence.</p>
+        </div>
+        <hr class="divider" />
+        <h2>🎬 ONE REAL STORY (NO JUMPS)</h2>
+        <h3>📍 Market Situation</h3>
+        <ul>
+          <li>ETH price = $2000</li>
+          <li>You have = $10,000 USDC</li>
+          <li>ETH = 0</li>
+        </ul>
+        <h3>🟡 WHAT YOU SAY (NORMAL HUMAN LINE)</h3>
+        <div class="highlight">
+          "ETH is expensive. I will buy ETH at $1800."
+        </div>
+        <p>👉 Meaning:</p>
+        <ul>
+          <li>Don't do anything right now</li>
+          <li>Just wait</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 79 -->
+      <div class="page" id="p79">
+        <div class="page-number">Page 79</div>
+        <p>What do you do?</p>
+        <ul>
+          <li>Keep USDC on the side</li>
+          <li>Don't take ETH right now</li>
+        </ul>
+        <div class="highlight">
+          <p>📌 This is a LIMIT BUY ORDER</p>
+          <p>The same thing happens in the stock market too.</p>
+        </div>
+        <h3>🔥 NOW THIS SAME SCENE IN UNISWAP V3</h3>
+        <p>You set:</p>
+        <pre>
+Range: $1600 – $1800
+Current price: $2000</pre
+        >
+        <p>Price is above the range.</p>
+        <p>Question: 👉 Do you want ETH right now? ❌ No</p>
+        <p>👉 Do you want ETH in the future? ✅ Yes</p>
+        <p>Therefore:</p>
+        <ul>
+          <li>You only deposit USDC</li>
+          <li>ETH = 0</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 80 -->
+      <div class="page" id="p80">
+        <div class="page-number">Page 80</div>
+        <div class="highlight">
+          <p>🧠 FEEL LINE: "I am not in the trade yet"</p>
+        </div>
+        <h3>⛔ IMPORTANT PAUSE (THIS IS THE CLICK)</h3>
+        <p>Having only USDC does NOT mean you are selling ETH.</p>
+        <p>It means: <strong>You are not doing anything at all.</strong></p>
+        <p>Like:</p>
+        <ul>
+          <li>Money is sitting in a bank account</li>
+          <li>You have not opened any trade at all</li>
+        </ul>
+        <hr class="divider" />
+        <h2>🔄 NOW THE MAGIC MOMENT (PRICE MOVES)</h2>
+        <p>Market falls:</p>
+        <p>$2000 → $1900 → $1800</p>
+      </div>
+
+      <!-- PAGE 81 -->
+      <div class="page" id="p81">
+        <div class="page-number">Page 81</div>
+        <h2>🔥 $1800 TOUCHED</h2>
+        <p>Now suddenly:</p>
+        <ul>
+          <li>Your range starts</li>
+          <li>Your "waiting order" activates</li>
+        </ul>
+        <div class="highlight">
+          <p>System says: "Now you will start buying ETH"</p>
+        </div>
+        <h3>📉 PRICE FALLS FURTHER</h3>
+        <p>$1800 → $1700 → $1600</p>
+        <p>Your USDC:</p>
+        <ul>
+          <li>Slowly converts to ETH</li>
+        </ul>
+        <p>At the end:</p>
+        <ul>
+          <li>USDC = 0</li>
+          <li>ETH = full</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 You bought ETH between $1800 → $1600</p>
+        </div>
+      </div>
+
+      <!-- PAGE 82 -->
+      <div class="page" id="p82">
+        <div class="page-number">Page 82</div>
+        <h2>🧠 NOW FEEL IT (HONESTLY)</h2>
+        <p>Throughout the whole process:</p>
+        <ul>
+          <li>When did you sell ETH? ❌</li>
+          <li>When did you get forced to sell? ❌</li>
+        </ul>
+        <p>What did you do?</p>
+        <div class="highlight">
+          <p>Just placed a limit buy and waited.</p>
+        </div>
+        <hr class="divider" />
+        <h2>🔁 SAME THING REVERSED (SELL SIDE)</h2>
+        <p>You have:</p>
+        <ul>
+          <li>5 ETH</li>
+          <li>ETH price = $2000</li>
+        </ul>
+        <p>You say: "I will sell ETH at $2400"</p>
+        <p>You set:</p>
+        <pre>
+Range: $2400 – $2800
+Current price: $2000</pre
+        >
+        <p>Price is below the range.</p>
+      </div>
+
+      <!-- PAGE 83 -->
+      <div class="page" id="p83">
+        <div class="page-number">Page 83</div>
+        <ul>
+          <li>USDC = 0</li>
+        </ul>
+        <p>Because:</p>
+        <ul>
+          <li>You will take USDC in the future</li>
+          <li>Not right now</li>
+        </ul>
+        <h3>🚀 PRICE RISES</h3>
+        <p>$2000 → $2400 → $2600 → $2800</p>
+        <p>ETH:</p>
+        <ul>
+          <li>Gradually sells</li>
+          <li>USDC keeps building</li>
+        </ul>
+        <p>At the end:</p>
+        <ul>
+          <li>ETH = 0</li>
+          <li>USDC = full</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 You gradually sold ETH</p>
+        </div>
+      </div>
+
+      <!-- PAGE 84 -->
+      <div class="page" id="p84">
+        <!-- <div name="page-number">Page 84</div> -->
+        <div class="page-number">Page 84</div>
+        <div class="killer-line">
+          🛑 FINAL FEEL LINE (PLEASE READ SLOWLY)<br /><br />
+          Single-asset liquidity means: "I am not in the trade right now"<br />
+          Dual-asset liquidity means: "I am now a market maker"
+        </div>
+        <hr class="divider" />
+        <h2>🖼️ 5️⃣ LP NFT IS MINTED (REAL WORLD)</h2>
+        <p>On the blockchain, this happens:</p>
+        <pre>
+Mint ERC-721 NFT
+NFT data:
+  Pair       : ETH / USDC
+  Fee        : 0.30%
+  LowerTick  : 198600 ($1800)
+  UpperTick  : 199800 ($2200)
+  Liquidity  : L
+  FeesOwed   : 0</pre
+        >
+        <div class="highlight">
+          <p>👉 This NFT is the legal document of your strategy</p>
+        </div>
+      </div>
+
+      <!-- PAGE 85 -->
+      <div class="page" id="p85">
+        <div class="page-number">Page 85</div>
+        <h2>🚀 6️⃣ REAL TRADE HAPPENS (ACTUAL MARKET)</h2>
+        <p>News comes in the market 📢: ETH is bullish.</p>
+        <p>A trader comes:</p>
+        <div class="highlight">"I will BUY ETH with 1,000,000 USDC"</div>
+        <h3>🔁 What Happens Inside the Swap (REAL ENGINE)</h3>
+        <ul>
+          <li>Step A: USDC comes into the pool</li>
+          <li>Step B: ETH leaves the pool</li>
+          <li>Step C: ETH becomes scarce → price goes up</li>
+          <li>Step D: sqrtPriceX96 smoothly increases</li>
+          <li>Step E: Tick updates (when a boundary is crossed)</li>
+        </ul>
+        <h3>📈 7️⃣ PRICE MOVE + TICK MOVE (REAL FEEL)</h3>
+        <p>ETH price path (TradingView):</p>
+        <pre>$2000 → $2030 → $2070 → $2120 → $2180 → $2200</pre>
+        <p>Inside the protocol:</p>
+      </div>
+
+      <!-- PAGE 86 -->
+      <div class="page" id="p86">
+        <div class="page-number">Page 86</div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">
+            💰 8️⃣ What Your LP Position Is Doing (Real Pain / Feel)
+          </div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>ETH Price</th>
+                <th>ETH Balance</th>
+                <th>USDC Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$2000</td>
+                <td class="val-green">2.40</td>
+                <td>5,200</td>
+              </tr>
+              <tr>
+                <td>$2030</td>
+                <td class="val-green">1.95</td>
+                <td>6,200</td>
+              </tr>
+              <tr>
+                <td>$2070</td>
+                <td>1.30</td>
+                <td>7,600</td>
+              </tr>
+              <tr>
+                <td>$2120</td>
+                <td class="val-red">0.80</td>
+                <td>8,800</td>
+              </tr>
+              <tr>
+                <td>$2180</td>
+                <td class="val-red">0.30</td>
+                <td>9,600</td>
+              </tr>
+              <tr style="background: #1a0a0a">
+                <td><strong>$2200</strong></td>
+                <td class="val-red"><strong>0.00</strong></td>
+                <td class="val-green"><strong>~10,100</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="img-block-note">
+            🔥 <strong>ETH has been sold gradually</strong><br />
+            ❌ No instant sell &nbsp;&nbsp; ❌ No button pressed
+          </div>
+        </div>
+        <pre>
+tick path:
+199320 → 199500 → 199620 → 199740 → 199800</pre
+        >
+        <hr class="divider" />
+        <h2>⛔ 9️⃣ UPPER RANGE HIT = REAL AUTOPILOT</h2>
+        <p>At ETH = $2200:</p>
+        <pre>currentTick == upperTick</pre>
+        <p>Protocol code-level logic:</p>
+        <pre>
+if (currentTick >= upperTick) {
+  removeLiquidity(LP);
+}</pre
+        >
+        <p>Immediately:</p>
+      </div>
+
+      <!-- PAGE 87 -->
+      <div class="page" id="p87">
+        <div class="page-number">Page 87</div>
+        <ul>
+          <li>You are OUT OF RANGE</li>
+          <li>Your ETH = 0</li>
+          <li>Only USDC</li>
+          <li>ETH selling STOPS</li>
+          <li>Fees STOP</li>
+        </ul>
+        <div class="highlight">
+          <p>
+            👉 You had said: "$2200 ke baad nahi bechna" (I don't want to sell
+            after $2200)
+          </p>
+        </div>
+        <h3>🚀 1️⃣0️⃣ ETH Goes to $2500 (REALITY)</h3>
+        <p>Market: $2200 → $2500</p>
+        <p>You:</p>
+        <ul>
+          <li>❌ Not selling ETH</li>
+          <li>❌ IL is not advancing</li>
+          <li>❌ No regret</li>
+          <li>😌 Peace</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 88 -->
+      <div class="page" id="p88">
+        <div class="page-number">Page 88</div>
+        <h2>🔄 1️⃣1️⃣ PRICE COMES BACK (REAL MAGIC)</h2>
+        <p>ETH dumps:</p>
+        <p>$2500 → $2300 → $2200 → $2100</p>
+        <p>As soon as:</p>
+        <pre>currentTick &lt; upperTick</pre>
+        <p>Protocol does:</p>
+        <pre>addLiquidity(LP);</pre>
+        <p>Now:</p>
+        <ul>
+          <li>You start buying ETH</li>
+          <li>USDC → ETH converts</li>
+          <li>LP auto-activates</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 You didn't click anything</p>
+        </div>
+      </div>
+
+      <!-- PAGE 89 -->
+      <div class="page" id="p89">
+        <div class="page-number">Page 89</div>
+        <h2>🧩 1️⃣2️⃣ NOW ALL IN ONE LINE: REALITY</h2>
+        <p>In the real world:</p>
+        <ul>
+          <li>Traders move the price ratio (price) (by swapping)</li>
+          <li>Price moves sqrtPriceX96</li>
+          <li>Tick only says "which level are we at now"</li>
+          <li>When tick crosses → liquidity on/off</li>
+          <li>LP strategy executes automatically</li>
+        </ul>
+        <div class="killer-line">
+          🛑 FINAL REAL-WORLD SENTENCE (LOCK THIS)<br /><br />
+          Uniswap V3 in the real world is an on-chain automated trading strategy
+          where you define your sell/buy zone in advance.
+        </div>
+      </div>
+
+      <!-- PAGE 90 -->
+      <div class="page" id="p90">
+        <div class="page-number">Page 90</div>
+        <h2>🎯 Now LP's POV (IMPORTANT)</h2>
+        <p>You are the LP. You say:</p>
+        <div class="highlight">
+          "I will only provide liquidity from tick 200000 to 210000"
+        </div>
+        <p>Meaning:</p>
+        <ul>
+          <li>ETH trades only in this price range</li>
+          <li>Outside this = you are inactive</li>
+        </ul>
+        <div class="highlight">
+          <p>👉 Tick range = price range</p>
+        </div>
+        <hr class="divider" />
+        <h2>🔥 TickSpacing = "Grid Size"</h2>
+        <p>Now confusion comes: "Can I choose any tick?"</p>
+        <div class="box-red">
+          <p>❌ No</p>
+        </div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">
+            TickSpacing is determined by Fee Tier
+          </div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>Fee Tier</th>
+                <th>TickSpacing</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0.05%</td>
+                <td><strong>10</strong></td>
+                <td>More fine control</td>
+              </tr>
+              <tr>
+                <td>0.30%</td>
+                <td><strong>60</strong></td>
+                <td>Medium</td>
+              </tr>
+              <tr>
+                <td>1.00%</td>
+                <td><strong>200</strong></td>
+                <td>Rough</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE 91 -->
+      <div class="page" id="p91">
+        <div class="page-number">Page 91</div>
+        <h2>🧠 Feel Example</h2>
+        <p>You choose the 0.30% pool.</p>
+        <p>TickSpacing = 60</p>
+        <p>Meaning:</p>
+        <div class="highlight">
+          <p>You can only set range start/end at:</p>
+          <pre>0, 60, 120, 180, 240...</pre>
+          <p>type ticks (i.e. multiples of 60)</p>
+          <p>👉 Middle ticks are skipped</p>
+        </div>
+        <h3>🔥 Real Price Feel (Simple)</h3>
+        <p>Assume:</p>
+        <ul>
+          <li>Tick 200000 ≈ $1800</li>
+          <li>Tick 200060 ≈ $1810</li>
+          <li>Tick 200120 ≈ $1820</li>
+        </ul>
+        <p>You say:</p>
+        <pre>
+Lower tick = 200000
+Upper tick = 200600</pre
+        >
+        <p>👉 Approximate price range: $1800 – $2200</p>
+
+        <hr class="divider" />
+        <h2>❗ First correction</h2>
+        <p>
+          Tick spacing of 60 does NOT mean that prices do not exist in between
+          ❌
+        </p>
+        <div class="highlight">
+          <p>👉 This is the most important point</p>
+        </div>
+
+        <h3>✅ Reality</h3>
+        <p>
+          Every integer tick has a corresponding price<br />
+          BUT<br />
+          Liquidity can only be placed at multiples of 60 (for the 0.3% fee
+          tier)
+        </p>
+
+        <h3>🧠 Example</h3>
+        <pre>
+tick = 199360 → price ≈ 2000
+tick = 199420 → price ≈ 2012</pre
+        >
+
+        <p>👉 The question is:</p>
+        <div class="highlight">
+          <p>“What about the prices in between?”</p>
+        </div>
+
+        <h3>🔥 ANSWER: Prices in between DO exist ✅</h3>
+        <p>💡 Example: Intermediate ticks also exist:</p>
+        <pre>
+199360  
+199361  
+199362  
+...  
+199419  
+199420</pre
+        >
+        <p>👉 Each of these ticks has its own price</p>
+
+        <h3>⚠️ BUT IMPORTANT TWIST</h3>
+        <p>In the 0.3% fee tier:</p>
+        <div class="box-red">
+          <p>valid ticks = 199360, 199420, 199480 ...</p>
+        </div>
+        <p>👉 This means:</p>
+        <ul>
+          <li>Liquidity can only be placed at these ticks</li>
+          <li>BUT price can move freely between them</li>
+        </ul>
+
+        <h3>🎯 Visual intuition</h3>
+        <pre>
+[199360] ---- ---- ---- ---- [199420]
+              ↑ price moves smoothly</pre
+        >
+
+        <h3>🔥 Key understanding</h3>
+        <p>👉 Suppose current state:</p>
+        <ul>
+          <li>tick ≈ 199390</li>
+          <li>price ≈ ~2006</li>
+        </ul>
+        <div class="box-green">
+          <p>✔️ This is valid</p>
+          <p>✔️ The system tracks this using <code>sqrtPriceX96</code></p>
+        </div>
+      </div>
+
+      <!-- PAGE 92 -->
+      <div class="page" id="p92">
+        <div class="page-number">Page 92</div>
+        <h2>🧱 Visual Stacking (Important Intuition)</h2>
+        <p>LP positions stack on top of each other.</p>
+        <!-- <div class="staircase">
+          Price ↑ │ │ LP3 ██████████ │ │ LP2 ███████████████ │ │ LP1
+          █████████████████████ │ └───────────────────────────
+        </div> -->
+        <ul>
+          <li>
+            At whichever price there are more LPs → more liquidity there → less
+            slippage
+          </li>
+        </ul>
+      </div>
+
+      <!-- PAGE 93 -->
+      <div class="page" id="p93">
+        <div class="page-number">Page 93</div>
+        <h2>🔄 What Happens as Price Moves?</h2>
+        <p>As price:</p>
+        <ul>
+          <li>Crosses the next tick</li>
+        </ul>
+        <p>Protocol:</p>
+        <ul>
+          <li>One LP range exits</li>
+          <li>Another LP range enters</li>
+        </ul>
+        <div class="highlight">
+          <p>📌 Like a switch ON / OFF</p>
+        </div>
+        <div class="killer-line">
+          🛑 One Killer Analogy (Best One)<br />
+          Ticks = building floors<br />
+          LP says: "I will work from the 3rd to the 7th floor"<br />
+          Elevator:<br />
+          ● At 8th floor → you are not on duty<br />
+          ● At 5th floor → you are active
+        </div>
+        <h3>⚠️ Important Clarity</h3>
+        <ul>
+          <li>Tick ≠ random number</li>
+          <li>Tick = log-scale price step</li>
+          <li>
+            Therefore:
+            <ul>
+              <li>Small price move = few ticks</li>
+              <li>Big move = many ticks</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- PAGE 94 -->
+      <div class="page" id="p94">
+        <div class="page-number">Page 94</div>
+        <h2>🧠 First LOCK ONE LINE</h2>
+        <div class="highlight">
+          Tick = price's one small fixed step (log-scale)<br />
+          Price looks smooth, but the protocol sees it like stairs.
+        </div>
+        <h3>🪜 Price = Staircase (BEST VISUAL)</h3>
+        <p>Imagine price is a staircase:</p>
+        <div class="staircase">
+          Step 1 → $2000 Step 2 → $2002 Step 3 → $2004 Step 4 → $2006 ...
+        </div>
+        <div class="highlight">
+          <p>👉 Each step = 1 tick</p>
+        </div>
+      </div>
+
+      <!-- PAGE 95 -->
+      <div class="page" id="p95">
+        <div class="page-number">Page 95</div>
+        <h2>🔹 Small Price Move = Few Ticks</h2>
+        <p>Example:</p>
+        <pre>
+ETH price: $2000 → $2006
+Difference: $6
+
+Steps crossed:
+2000 → 2002 → 2004 → 2006
+= 3 ticks</pre
+        >
+        <div class="highlight">
+          <p>👉 Therefore: Small move = few ticks crossed</p>
+          <p>LP perspective:</p>
+          <ul>
+            <li>Few LP ranges on/off</li>
+            <li>Liquidity changes a little</li>
+            <li>Slippage is smooth</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 96 -->
+      <div class="page" id="p96">
+        <div class="page-number">Page 96</div>
+        <h2>🔹 Big Price Move = Many Ticks</h2>
+        <p>Example:</p>
+        <pre>
+ETH price: $2000 → $2600
+Difference: $600
+
+Steps crossed:
+2000 → 2020 → 2100 → 2300 → 2500 → 2600
+= MANY ticks</pre
+        >
+        <div class="highlight">
+          <p>👉 Therefore: Big move = many ticks crossed</p>
+          <p>LP perspective:</p>
+          <ul>
+            <li>Many LPs go out of range</li>
+            <li>Liquidity is removed layer by layer</li>
+            <li>Slippage keeps increasing</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 97 -->
+      <div class="page" id="p97">
+        <div class="page-number">Page 97</div>
+        <h2>🧠 IMPORTANT PART (Log-Scale Intuition)</h2>
+        <div class="highlight">
+          Ticks are NOT linear price changes. They are percentage-based.<br />
+          Each tick ≈ +0.01%<br /><br />
+          So:<br />
+          ● $2000 → $2002 = ~0.1%<br />
+          ● $2000 → $2200 = ~10% → many more ticks<br /><br />
+          Therefore: The same $100 move has a different tick count at low price
+          vs high price.
+        </div>
+        <h3>🎯 Real Market FEEL</h3>
+        <div class="box-green">
+          <p>Quiet market day:</p>
+          <ul>
+            <li>ETH: $2000 → $2020</li>
+            <li>10–20 ticks</li>
+            <li>LP ranges mostly active</li>
+            <li>Smooth fees</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 98 -->
+      <div class="page" id="p98">
+        <div class="page-number">Page 98</div>
+        <div class="box-red">
+          <p>Volatile day:</p>
+          <ul>
+            <li>ETH: $2000 → $2800</li>
+            <li>Hundreds / thousands of ticks</li>
+            <li>Narrow LPs wiped out</li>
+            <li>Only wide-range LPs survive</li>
+          </ul>
+        </div>
+        <div class="killer-line">
+          🧠 Golden Line (Remember This)<br />
+          V3 price looks continuous, but liquidity is discrete (in ticks)
+        </div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">🔥 LP Strategy Feel</div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>LP Type</th>
+                <th>Range</th>
+                <th>Tick Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Narrow Range LP</td>
+                <td>$1950–$2050</td>
+                <td class="val-red">Few ticks → OUT</td>
+              </tr>
+              <tr>
+                <td>Wide Range LP</td>
+                <td>$1500–$3000</td>
+                <td class="val-green">Many ticks survive</td>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            class="img-block-note"
+            style="border-left: 3px solid #ef4444; background: #2d0f0f"
+          >
+            🔴 <strong>ONE KILLER LINE (LOCK IT)</strong><br />
+            Ticks count price movement in "steps", not dollars
+          </div>
+          <div class="img-block-title" style="margin-top: 18px">
+            🔁 Ultra-Simple Mental Model
+          </div>
+          <ul style="margin: 8px 0 12px 20px; color: #ccc">
+            <li>Price move = elevator movement</li>
+            <li>Tick = floor</li>
+          </ul>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>Movement</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2 floors</td>
+                <td>Small move</td>
+              </tr>
+              <tr>
+                <td>50 floors</td>
+                <td>Big move</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE 99 -->
+      <div class="page" id="p99">
+        <div class="page-number">Page 99</div>
+        <h2>🔁 RESET: Give Ticks a New Mental Model</h2>
+        <h3>🧠 First Lock One Thing</h3>
+        <div class="highlight">
+          Tick is not some magic thing.<br />
+          Tick is simply a "PRICE MARKER."
+        </div>
+        <h3>🛣️ Think of Price as a Highway (BEST VISUAL)</h3>
+        <p>Imagine ETH price is a highway:</p>
+        <div class="staircase">
+          $1500 ---- $1600 ---- $1700 ---- $1800 ---- $1900 ---- $2000 ----
+          $2100 ---- $2200
+        </div>
+        <p>
+          Now imagine the government said: "You can only set up a shop every 10
+          meters."
+        </p>
+        <div class="highlight">
+          <p>👉 Every 10 meters = Tick</p>
+        </div>
+      </div>
+
+      <!-- PAGE 100 -->
+      <div class="page" id="p100">
+        <div class="page-number">Page 100</div>
+        <h2>🧱 Now Think of LP as Building Floors</h2>
+        <p>Imagine a building:</p>
+        <div class="staircase">
+          Floor 10 ─── $2200 Floor 9 ─── $2100 Floor 8 ─── $2000 Floor 7 ───
+          $1900 Floor 6 ─── $1800
+        </div>
+        <p>Tick = Floor number</p>
+        <h3>🧑‍💻 Now You Are the LP (ACTUAL FEEL)</h3>
+        <p>You say: "I will work between Floor 6 and Floor 10"</p>
+        <p>Meaning: $1800 ≤ ETH ≤ $2200</p>
+        <h3>🔄 The Elevator (price) moves</h3>
+        <div class="box-green">
+          <p>Elevator at $2000 (Floor 8)</p>
+          <ul>
+            <li>You are on duty ✅</li>
+            <li>Fees coming in 💰</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 101 -->
+      <div class="page" id="p101">
+        <div class="page-number">Page 101</div>
+        <div class="box-red">
+          <p>Elevator at $2300 (Floor 11)</p>
+          <ul>
+            <li>Your duty is off ❌</li>
+            <li>Fees = 0</li>
+          </ul>
+        </div>
+        <div class="box-red">
+          <p>Elevator at $1700 (Floor 5)</p>
+          <ul>
+            <li>Duty off ❌</li>
+          </ul>
+        </div>
+        <div class="highlight">
+          <p>📌 This is all tick does</p>
+        </div>
+        <hr class="divider" />
+        <h2>⚙️ Now TickSpacing in Completely Normal Language</h2>
+        <div class="highlight">
+          TickSpacing = "How many floors you can skip when selecting a range"
+        </div>
+        <p>Example:</p>
+        <p>The government says: "You can only set up shops on even floors"</p>
+        <p>Meaning:</p>
+        <pre>Floor: 2, 4, 6, 8, 10</pre>
+      </div>
+
+      <!-- PAGE 102 -->
+      <div class="page" id="p102">
+        <div class="page-number">Page 102</div>
+        <h2>🔥 NOW THE MOST IMPORTANT "CLICK" MOMENT</h2>
+        <p>Question: How does the protocol know if an LP is active or not?</p>
+
+        <div class="img-content-block">
+          <div class="img-block-title">
+            📋 This Is Exactly What Happens in Uniswap
+          </div>
+          <p style="color: #aaa; margin-bottom: 10px; font-size: 0.9rem">
+            Fee tier decides:
+          </p>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>Fee</th>
+                <th>TickSpacing</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0.05%</td>
+                <td><strong>10</strong></td>
+                <td>Every 10 floors</td>
+              </tr>
+              <tr>
+                <td>0.30%</td>
+                <td><strong>60</strong></td>
+                <td>Every 60 floors</td>
+              </tr>
+              <tr>
+                <td>1%</td>
+                <td><strong>200</strong></td>
+                <td>Every 200 floors</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="img-block-note">
+            You: Can only choose Start / End range at
+            <strong>allowed floors</strong>
+          </div>
+        </div>
+        <div class="highlight">
+          <p>Answer:</p>
+          <p>Current price's tick</p>
+          <p>vs</p>
+          <p>LP's tick range</p>
+          <p>If:</p>
+          <pre>lowerTick ≤ currentTick &lt; upperTick</pre>
+          <p>→ LP ACTIVE</p>
+          <p>Else</p>
+          <p>→ LP INACTIVE</p>
+        </div>
+      </div>
+
+      <!-- PAGE 103 -->
+      <div class="page" id="p103">
+        <div class="page-number">Page 103</div>
+        <div class="highlight">
+          <p>That's it. No magic. No confusion.</p>
+        </div>
+        <h3>🧠 One Final Microscopic Example (SUPER SIMPLE)</h3>
+        <ul>
+          <li>Current tick = 8</li>
+          <li>Your range = 6 → 10</li>
+        </ul>
+        <div class="box-green">
+          <p>👉 Active</p>
+        </div>
+        <ul>
+          <li>Price moved → tick = 11</li>
+        </ul>
+        <div class="box-red">
+          <p>👉 Inactive</p>
+        </div>
+        <hr class="divider" />
+        <h2>🔁 Checkpoint (Important)</h2>
+        <p>Now honestly say:</p>
+        <ul>
+          <li>✅ Tick = price marker</li>
+          <li>✅ Tick range = LP duty zone</li>
+          <li>✅ TickSpacing = allowed gates</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 104 -->
+      <div class="page" id="p104">
+        <div class="page-number">Page 104</div>
+        <h2>🧠 First LOCK ONE LINE (Very Important)</h2>
+        <div class="highlight">
+          In Uniswap V3, there is no "manager".<br />
+          Everything happens automatically through RULES + DATA STRUCTURE.<br />
+          Meaning:<br />
+          ● No person is sitting there<br />
+          ● No one is manually turning LPs on/off<br />
+          ● Price move = ticks cross = LP auto on/off
+        </div>
+        <hr class="divider" />
+        <h2>🎬 REAL TRADE SIMULATION (FULL FEEL)</h2>
+        <h3>Scene Setup (Same ETH/USDC)</h3>
+        <ul>
+          <li>Pool: ETH / USDC</li>
+          <li>Current price = $2000</li>
+          <li>Current tick = 8 (assume)</li>
+          <li>Fee tier = 0.3% → TickSpacing = 1 (easy feel)</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 105 -->
+      <div class="page" id="p105">
+        <div class="page-number">Page 105</div>
+        <ul>
+          <li>Current price = $2000</li>
+          <li>Current tick = 8 (assume)</li>
+          <li>Fee tier = 0.3% → TickSpacing = 1 (for easy feel)</li>
+        </ul>
+        <h3>👥 LPs in the Pool (Realistic)</h3>
+        <p>Imagine these LPs are already there:</p>
+
+        <div class="img-content-block">
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>LP</th>
+                <th>Price Range</th>
+                <th>Tick Range</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>LP1</strong></td>
+                <td>$1500 – $2500</td>
+                <td>5 – 11</td>
+              </tr>
+              <tr>
+                <td><strong>LP2</strong></td>
+                <td>$1800 – $2200</td>
+                <td>6 – 10</td>
+              </tr>
+              <tr>
+                <td><strong>LP3</strong></td>
+                <td>$1950 – $2050</td>
+                <td>7 – 9</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="img-block-note">
+            📌 Different strategy, different confidence
+          </div>
+        </div>
+        <hr class="divider" />
+        <h2>🔴 NOW A REAL TRADER COMES</h2>
+        <p>Trader says:</p>
+        <div class="highlight">"I want to BUY ETH with $100,000 USDC"</div>
+        <p>Magic starts from here ✨</p>
+      </div>
+
+      <!-- PAGE 106 -->
+      <div class="page" id="p106">
+        <div class="page-number">Page 106</div>
+        <h2>🔁 STEP 1: What Does the Protocol See?</h2>
+        <p>First:</p>
+        <ul>
+          <li>Current tick = 8</li>
+          <li>Which LPs are active?</li>
+        </ul>
+        <p>Condition:</p>
+        <pre>lowerTick ≤ currentTick &lt; upperTick</pre>
+        <p>At tick 8:</p>
+        <ul>
+          <li>LP1 ✅</li>
+          <li>LP2 ✅</li>
+          <li>LP3 ✅</li>
+        </ul>
+        <p>👉 All three are active</p>
+      </div>
+
+      <!-- PAGE 107 -->
+      <div class="page" id="p107">
+        <div class="page-number">Page 107</div>
+        <h2>🔁 STEP 2: Trade Executes (Inside ONE Tick)</h2>
+        <p>Trader:</p>
+        <ul>
+          <li>Gives USDC</li>
+          <li>Takes ETH</li>
+        </ul>
+        <p>Pool:</p>
+        <ul>
+          <li>ETH decreases</li>
+          <li>USDC increases</li>
+        </ul>
+        <p>📈 Price goes up a little — but still inside tick 8</p>
+        <p>All LPs:</p>
+        <ul>
+          <li>Selling a little ETH</li>
+          <li>Earning a little USDC</li>
+          <li>Fees coming in 💰</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 108 -->
+      <div class="page" id="p108">
+        <div class="page-number">Page 108</div>
+        <h2>🔁 STEP 3: Price Rises and Touches a Tick Boundary</h2>
+        <p>Now ETH price = $2050</p>
+        <p>Tick moves:</p>
+        <pre>8 → 9</pre>
+        <div class="highlight">
+          <p>🔥 THIS IS THE KEY MOMENT</p>
+          <p>Tick 9 is a checkpoint.</p>
+          <p>
+            Protocol says: "Tick 9 crossed? Let's see which LPs will exit /
+            enter."
+          </p>
+        </div>
+        <h3>🚪 What Happens at Tick 9?</h3>
+        <p>LP ranges are checked:</p>
+        <ul>
+          <li>LP3's upperTick = 9 → LP3 OUT ❌</li>
+          <li>LP1, LP2 still in range → Active</li>
+        </ul>
+        <div class="highlight">
+          <p>
+            📌 All this happens through automatic math + mapping. No manual
+            decision.
+          </p>
+        </div>
+      </div>
+
+      <!-- PAGE 109 -->
+      <div class="page" id="p109">
+        <div class="page-number">Page 109</div>
+        <h2>🔁 STEP 4: Trade Continues (Next Tick)</h2>
+        <p>Now trader's remaining order:</p>
+        <ul>
+          <li>Will use LP1 + LP2 liquidity</li>
+          <li>LP3 is completely ignored</li>
+        </ul>
+        <p>For the trader:</p>
+        <ul>
+          <li>Price will move a little more</li>
+          <li>(because liquidity decreased)</li>
+        </ul>
+        <hr class="divider" />
+        <h2>🔁 STEP 5: Next Boundary Hit</h2>
+        <p>Price = $2200</p>
+        <p>Tick:</p>
+        <pre>9 → 10</pre>
+        <p>Now:</p>
+        <ul>
+          <li>LP2's upperTick = 10 → LP2 OUT ❌</li>
+          <li>Only LP1 remains active</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 110 -->
+      <div class="page" id="p110">
+        <div class="page-number">Page 110</div>
+        <div class="highlight">
+          <p>🧑‍💻 FEEL THIS MOMENT (IMPORTANT)</p>
+          <p>You are LP2.</p>
+          <p>You had said:</p>
+          <p>"I don't want to do market making after $2200."</p>
+          <p>And exactly that happened.</p>
+          <ul>
+            <li>No emotion.</li>
+            <li>No panic.</li>
+            <li>Pure rule-based.</li>
+          </ul>
+          <p>😌 This is V3 power.</p>
+        </div>
+        <hr class="divider" />
+        <h2>🔁 STEP 6: If Price Goes Further Up?</h2>
+        <p>Only LP1 remains:</p>
+        <ul>
+          <li>Slippage will increase more</li>
+          <li>Price will move faster</li>
+        </ul>
+        <h3>🧠 NOW FEEL IL + ASSET CHANGE</h3>
+        <p>You are LP2 ($1800–$2200):</p>
+      </div>
+
+      <!-- PAGE 111 -->
+      <div class="page" id="p111">
+        <div class="page-number">Page 111</div>
+
+        <div class="img-content-block">
+          <div class="img-block-title">You are LP2 ($1800–$2200):</div>
+          <table class="img-table">
+            <thead>
+              <tr>
+                <th>Price</th>
+                <th>Your Holding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$2000</td>
+                <td>ETH + USDC</td>
+              </tr>
+              <tr>
+                <td>$2100</td>
+                <td>ETH ↓, USDC ↑</td>
+              </tr>
+              <tr>
+                <td>$2200</td>
+                <td class="val-red"><strong>ETH = 0</strong></td>
+              </tr>
+              <tr>
+                <td>$2300</td>
+                <td>Only USDC</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="img-block-note">
+            🔥 <strong>This was continuous selling. Not sudden.</strong>
+          </div>
+        </div>
+        <h2>🧩 "How Is It Managed?" — FINAL ANSWER</h2>
+        <div class="box-green">
+          <p>1️⃣ When LP deposits:</p>
+          <ul>
+            <li>Chooses their lowerTick &amp; upperTick</li>
+            <li>Pool mints an NFT</li>
+            <li>
+              Internally writes:
+              <pre>
+tickLower → liquidity +X
+tickUpper → liquidity -X</pre
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="box-green">
+          <p>2️⃣ Pool in every trade:</p>
+          <ul>
+            <li>Tracks current tick</li>
+            <li>
+              As soon as a boundary crosses:
+              <ul>
+                <li>Adds/removes liquidity</li>
+                <li>LP auto on/off</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAGE 112 -->
+      <div class="page" id="p112">
+        <div class="page-number">Page 112</div>
+        <div class="box-green">
+          <p>3️⃣ Everything happens through this structure:</p>
+          <ul>
+            <li>No loops over LPs</li>
+            <li>No heavy computation</li>
+            <li>Only tick crossings</li>
+          </ul>
+        </div>
+        <div class="killer-line">🔥 Gas Efficient + Deterministic</div>
+        <hr class="divider" />
+        <div
+          style="
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: #1a1a2e;
+            border-radius: 16px;
+            border: 2px solid #6c63ff;
+          "
+        >
+          <p style="font-size: 2rem; margin-bottom: 16px">✅</p>
+          <h2 style="color: #6c63ff; margin-bottom: 12px">End of Document</h2>
+          <p style="color: #aaa">
+            Uniswap V3 — Complete Guide (112 Pages)<br />
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- end main -->
+  </body>
+</html>

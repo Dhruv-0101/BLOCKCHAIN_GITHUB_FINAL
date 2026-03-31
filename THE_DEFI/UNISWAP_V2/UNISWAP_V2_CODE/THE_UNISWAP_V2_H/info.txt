@@ -1,0 +1,4 @@
+forge init .
+forge install https://github.com/Uniswap/v2-core --no-git
+forge install https://github.com/Uniswap/v2-periphery --no-git
+forge install OpenZeppelin/openzeppelin-contracts --no-git

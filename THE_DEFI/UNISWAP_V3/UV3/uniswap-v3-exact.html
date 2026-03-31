@@ -1,0 +1,3939 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uniswap V3 — Complete Guide</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #f7f5f0;
+        --white: #ffffff;
+        --ink: #1a1a2e;
+        --ink2: #2d2d4a;
+        --muted: #6b6b8a;
+        --accent: #e85d04;
+        --accent2: #4361ee;
+        --accent3: #06b96f;
+        --accent4: #f4a261;
+        --border: #e0ddd6;
+        --code-bg: #1a1a2e;
+        --page-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        background: #e8e4dc;
+        font-family: "Outfit", sans-serif;
+        color: var(--ink);
+        line-height: 1.7;
+        padding: 40px 20px;
+        min-height: 100vh;
+      }
+
+      /* ─── PAGE WRAPPER ─── */
+      .page {
+        background: var(--white);
+        max-width: 800px;
+        margin: 0 auto 48px auto;
+        border-radius: 4px;
+        box-shadow: var(--page-shadow);
+        padding: 60px 64px;
+        position: relative;
+        border-top: 4px solid var(--accent);
+        page-break-after: always;
+      }
+
+      .page-number {
+        position: absolute;
+        top: 20px;
+        right: 28px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 1px;
+      }
+
+      /* ─── TYPOGRAPHY ─── */
+      h1 {
+        font-family: "Fraunces", serif;
+        font-size: 52px;
+        font-weight: 900;
+        line-height: 1.05;
+        color: var(--ink);
+        margin-bottom: 20px;
+        letter-spacing: -1px;
+      }
+
+      h2 {
+        font-family: "Fraunces", serif;
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1.15;
+        color: var(--ink);
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+      }
+
+      h3 {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 28px 0 12px;
+        color: var(--ink);
+      }
+
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 20px 0 8px;
+        color: var(--ink2);
+      }
+
+      p {
+        font-size: 15.5px;
+        margin-bottom: 14px;
+        color: var(--ink2);
+      }
+
+      ul,
+      ol {
+        padding-left: 22px;
+        margin-bottom: 14px;
+      }
+
+      li {
+        font-size: 15.5px;
+        margin-bottom: 6px;
+        color: var(--ink2);
+      }
+
+      strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 500;
+      }
+
+      /* ─── SPECIAL ELEMENTS ─── */
+      .big-emoji {
+        font-size: 28px;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .lock-box {
+        background: var(--ink);
+        color: #fff;
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 20px 0;
+      }
+
+      .lock-box .label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent4);
+        margin-bottom: 8px;
+      }
+
+      .lock-box p {
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .callout {
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 16px 0;
+      }
+
+      .callout-orange {
+        background: #fff4ee;
+        border-left: 4px solid var(--accent);
+      }
+
+      .callout-blue {
+        background: #eef1ff;
+        border-left: 4px solid var(--accent2);
+      }
+
+      .callout-green {
+        background: #edfbf4;
+        border-left: 4px solid var(--accent3);
+      }
+
+      .callout-yellow {
+        background: #fff8ee;
+        border-left: 4px solid var(--accent4);
+      }
+
+      .callout-red {
+        background: #fff0ee;
+        border-left: 4px solid #e63946;
+      }
+
+      .callout-dark {
+        background: var(--ink);
+        color: #fff;
+        border-left: 4px solid var(--accent4);
+      }
+
+      .callout-dark p,
+      .callout-dark li {
+        color: #e0e0f0;
+      }
+
+      .callout p:last-child,
+      .callout li:last-child {
+        margin-bottom: 0;
+      }
+
+      .callout-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        opacity: 0.65;
+      }
+
+      .code {
+        background: var(--code-bg);
+        color: #a5f3fc;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        padding: 18px 20px;
+        border-radius: 8px;
+        margin: 14px 0;
+        line-height: 1.9;
+        overflow-x: auto;
+        white-space: pre;
+      }
+
+      .math {
+        background: #f0f0f8;
+        border: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        padding: 14px 20px;
+        border-radius: 8px;
+        margin: 14px 0;
+        color: var(--accent2);
+        text-align: center;
+        line-height: 1.8;
+      }
+
+      .big-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        color: var(--accent3);
+        background: #edfbf4;
+        border: 1px solid #c6f6e4;
+        padding: 10px 16px;
+        border-radius: 6px;
+        word-break: break-all;
+        margin: 12px 0;
+        display: block;
+      }
+
+      .inline-code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        background: #f0f0f8;
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: var(--accent2);
+      }
+
+      /* ─── TABLE ─── */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+
+      th {
+        background: var(--ink);
+        color: #fff;
+        padding: 10px 14px;
+        text-align: left;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      tr:nth-child(even) td {
+        background: #faf9f7;
+      }
+
+      .yes {
+        color: #06b96f;
+        font-weight: 700;
+      }
+      .no {
+        color: #e63946;
+        font-weight: 700;
+      }
+
+      /* ─── FLOW BOX ─── */
+      .flow {
+        background: var(--ink);
+        color: #a5f3fc;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        padding: 24px;
+        border-radius: 10px;
+        margin: 16px 0;
+        text-align: center;
+        line-height: 2.2;
+      }
+
+      /* ─── STEP ─── */
+      .step {
+        display: flex;
+        gap: 16px;
+        margin: 16px 0;
+        align-items: flex-start;
+      }
+
+      .step-badge {
+        flex-shrink: 0;
+        background: var(--accent);
+        color: #fff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      .step-body {
+        flex: 1;
+      }
+      .step-body p {
+        margin-bottom: 6px;
+      }
+
+      /* ─── SECTION CARD GRID ─── */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px;
+      }
+
+      .card .card-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .card h4 {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 10px;
+      }
+
+      .card ul {
+        margin: 0;
+      }
+      .card li {
+        font-size: 13.5px;
+      }
+
+      /* ─── DIVIDER ─── */
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 28px 0;
+        color: var(--muted);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ─── ANALOGY CARD ─── */
+      .analogy {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px 22px;
+        margin: 16px 0;
+      }
+
+      .analogy-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent2);
+        margin-bottom: 10px;
+      }
+
+      /* ─── BACK TO TOP ─── */
+      .back-btn {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(232, 93, 4, 0.4);
+        transition: transform 0.2s;
+        z-index: 999;
+      }
+      .back-btn:hover {
+        transform: translateY(-3px);
+      }
+
+      /* ─── PAGE TITLE STYLE ─── */
+      .page-title-section {
+        text-align: center;
+        padding: 20px 0 30px;
+      }
+
+      .page-title-section .emoji-big {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 16px;
+      }
+
+      /* ─── HIGHLIGHT TEXT ─── */
+      .hl-orange {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .hl-blue {
+        color: var(--accent2);
+        font-weight: 600;
+      }
+      .hl-green {
+        color: var(--accent3);
+        font-weight: 600;
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 36px 24px;
+        }
+        h1 {
+          font-size: 36px;
+        }
+        h2 {
+          font-size: 26px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ════════════════════════════════════ PAGE 1 ════════════════════════════════════ -->
+    <div class="page" id="page1">
+      <div class="page-number">PAGE 1</div>
+
+      <div class="callout callout-orange" style="margin-bottom: 30px">
+        <div class="callout-label">📢 Prerequisite Notice</div>
+        <p>
+          <strong>Important:</strong> You are currently reading
+          <strong>Part 3</strong> of the Uniswap V3 series.
+        </p>
+        <p>
+          Since all concepts are deeply interconnected, it is highly recommended
+          to read <strong>Part 1</strong> and <strong>Part 2</strong> before
+          proceeding here to ensure a complete understanding and flow.
+        </p>
+      </div>
+
+      <div
+        style="
+          margin-bottom: 24px;
+          font-family: &quot;Fraunces&quot;, serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--accent);
+        "
+      >
+        Author: Dhruv Patel
+      </div>
+      <div class="lock-box">
+        <div class="label">🧠 Lock This One Line First</div>
+        <p>
+          sqrtPriceX96 = the smart, safe and fast format to store price
+          on-chain. That's it.
+        </p>
+      </div>
+
+      <h2>❓ Simple Question: Why Not Store Price Directly?</h2>
+
+      <p>Imagine ETH/USDC price = 2000</p>
+
+      <p><strong>Solidity problem:</strong></p>
+      <ul>
+        <li>Ethereum has no decimal / floating point numbers</li>
+        <li>Only integers</li>
+      </ul>
+
+      <p>If you write:</p>
+      <div class="code">price = 2000.123456</div>
+
+      <p>❌ Solidity says: "bro what is this?"</p>
+
+      <h3>🧱 Problem #1: Precision</h3>
+
+      <p>Crypto prices:</p>
+      <ul>
+        <li>Very small changes</li>
+        <li>Very large ranges</li>
+      </ul>
+
+      <p>Example:</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 2 ════════════════════════════════════ -->
+    <div class="page" id="page2">
+      <div class="page-number">PAGE 2</div>
+
+      <ul>
+        <li>USDC/DAI ≈ 1.0001</li>
+        <li>SHITCOIN/ETH ≈ 0.00000023</li>
+        <li>BTC/USDC ≈ 70,000</li>
+      </ul>
+
+      <p>👉 All of these must be handled in the same system</p>
+      <p>👉 High precision is required</p>
+
+      <h3>🧱 Problem #2: Liquidity Math</h3>
+
+      <p>In Uniswap V3:</p>
+      <ul>
+        <li>Liquidity math is based on square roots</li>
+        <li>Price movement = √price movement</li>
+      </ul>
+
+      <p>Therefore:</p>
+      <p>Storing price in √(price) form is far more efficient</p>
+
+      <h3>🧠 So What Did Uniswap Do?</h3>
+
+      <p>Uniswap said:</p>
+
+      <div class="callout callout-blue">
+        <p>"Let's store price in this form:"</p>
+        <div class="math">sqrtPriceX96 = √(price) × 2^96</div>
+      </div>
+
+      <p>Now let's break it down and really feel it 👇</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 3 ════════════════════════════════════ -->
+    <div class="page" id="page3">
+      <div class="page-number">PAGE 3</div>
+
+      <h2>🧩 Part-by-Part FEEL</h2>
+
+      <h3>1️⃣ price</h3>
+      <p>ETH/USDC example:</p>
+      <div class="math">price = 2000</div>
+
+      <h3>2️⃣ sqrt(price)</h3>
+      <div class="math">√2000 ≈ 44.72</div>
+
+      <p>👉 Why sqrt?</p>
+      <ul>
+        <li>Liquidity formulas become linear</li>
+        <li>Price movement becomes smooth</li>
+      </ul>
+
+      <div class="callout callout-orange">
+        <p>(Trust this — it's design genius 🔥)</p>
+      </div>
+
+      <h3>3️⃣ × 2^96 (What "X96" Means)</h3>
+
+      <div class="big-num">2^96 ≈ 79,228,162,514,264,337,593,543,950,336</div>
+
+      <p>😳 Big number, I know</p>
+
+      <p><strong>Why?</strong> To convert decimals into integers.</p>
+
+      <p>So:</p>
+      <div class="math">sqrtPriceX96 ≈ 44.72 × 2^96</div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 4 ════════════════════════════════════ -->
+    <div class="page" id="page4">
+      <div class="page-number">PAGE 4</div>
+
+      <p>Now this:</p>
+      <ul>
+        <li>Is an integer</li>
+        <li>Is ultra-precise</li>
+        <li>Is Solidity-friendly</li>
+      </ul>
+
+      <div class="lock-box">
+        <div class="label">🧠 ONE-LINE ANSWER — LOCK THIS</div>
+        <p>
+          Solidity / EVM cannot understand decimal numbers at all.<br /><br />
+          sqrtPriceX96 is not a decimal number —<br />
+          it is a
+          <strong style="color: var(--accent4)">FIXED-POINT INTEGER</strong
+          >.<br /><br />
+          The illusion of a decimal is for us humans.<br />
+          For the machine, it's always a pure integer.
+        </p>
+      </div>
+
+      <h3>❌ First, Let's Break a Wrong Assumption</h3>
+
+      <p>You might be thinking:</p>
+      <div class="math">44.72 × 2^96 = decimal × integer = decimal</div>
+
+      <p>
+        In math this is correct ❌<br />
+        For Computer / EVM, this is NOT correct ❌
+      </p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 5 ════════════════════════════════════ -->
+    <div class="page" id="page5">
+      <div class="page-number">PAGE 5</div>
+
+      <div class="callout callout-dark">
+        <div class="callout-label">✅ EVM REALITY — VERY IMPORTANT</div>
+        <p>Solidity / EVM supports:</p>
+        <p>❌ float<br />❌ double<br />❌ decimal</p>
+        <p>Only:</p>
+        <p>✅ INTEGER<br />✅ uint256, uint160, etc.</p>
+        <p><br />So Uniswap said:<br />"Encode the decimal into an integer."</p>
+      </div>
+
+      <h3>🧱 FIXED-POINT IDEA (Core Concept)</h3>
+
+      <p>Imagine you want to store:</p>
+      <div class="math">44.72</div>
+      <p>But decimals are not allowed.</p>
+
+      <p>What do you do?</p>
+
+      <p><strong>Normal world:</strong></p>
+      <div class="math">44.72</div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 6 ════════════════════════════════════ -->
+    <div class="page" id="page6">
+      <div class="page-number">PAGE 6</div>
+
+      <p><strong>Computer world:</strong></p>
+      <div class="math">44.72 × 10^2 = 4472 (integer)</div>
+
+      <p>And you remember:</p>
+      <div class="callout callout-blue">
+        <p>"The last 2 digits were the decimal part"</p>
+      </div>
+
+      <p>👉 This is fixed-point representation</p>
+
+      <div class="divider">What Uniswap Did</div>
+
+      <h3>🔁 What Uniswap Did</h3>
+
+      <p>Uniswap said:</p>
+      <div class="callout callout-orange">
+        <p>
+          "I will store the sqrt of price and multiply by 2^96 for decimal
+          precision"
+        </p>
+      </div>
+
+      <p>That's why the name:</p>
+      <div class="lock-box">
+        <p
+          style="
+            text-align: center;
+            font-size: 22px;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          sqrtPriceX96
+        </p>
+      </div>
+
+      <h3>🧮 Now See the Actual Calculation (Real Feel)</h3>
+
+      <p><strong>Step 1️⃣: Take the price</strong></p>
+      <div class="math">ETH price = $2000</div>
+
+      <p><strong>Step 2️⃣: Square root</strong></p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 7 ════════════════════════════════════ -->
+    <div class="page" id="page7">
+      <div class="page-number">PAGE 7</div>
+
+      <div class="math">sqrt(2000) ≈ 44.72135955</div>
+
+      <p><strong>Step 3️⃣: Scale it</strong></p>
+      <div class="math">44.72135955 × 2^96</div>
+
+      <p>Now:</p>
+      <div class="big-num">2^96 ≈ 79,228,162,514,264,337,593,543,950,336</div>
+
+      <p>Multiply:</p>
+      <div class="math">≈ 3.544e+30 (VERY BIG NUMBER)</div>
+
+      <div class="callout callout-orange">
+        <div class="callout-label">🔥 Important Moment</div>
+        <p>What does Solidity do?</p>
+      </div>
+
+      <div class="code">
+        uint160 sqrtPriceX96 = uint160( sqrt(price) * 2**96 );
+      </div>
+
+      <p>
+        👉 The decimal part is CUT OFF (truncated)<br />
+        👉 Result = PURE INTEGER
+      </p>
+
+      <p>No rounding drama. No decimals stored.</p>
+
+      <h3>🧠 So Why Does It "Feel" Like a Decimal?</h3>
+
+      <p>Because we humans decode it when reading back.</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 8 ════════════════════════════════════ -->
+    <div class="page" id="page8">
+      <div class="page-number">PAGE 8</div>
+
+      <p>When decoding:</p>
+      <div class="math">real_sqrt_price = sqrtPriceX96 / 2^96</div>
+
+      <p>When you do this:</p>
+      <ul>
+        <li>The decimal comes back</li>
+        <li>You feel "this is a float"</li>
+      </ul>
+
+      <p>❌ But on-chain, it was never a float to begin with</p>
+
+      <h3>🎯 EXACT ANALOGY — Lock This 🔒</h3>
+
+      <div class="analogy">
+        <div class="analogy-label">📺 Video Resolution Analogy</div>
+        <ul>
+          <li>Real resolution: 1920.5 px ❌ (not allowed)</li>
+          <li>Stored resolution: 19205 (integer)</li>
+          <li>Scale factor: 10</li>
+        </ul>
+        <p style="margin-top: 12px">When you decode it:</p>
+        <div class="math" style="margin: 10px 0">19205 / 10 = 1920.5</div>
+        <p>👉 Screen is smooth<br />👉 Memory stays integer</p>
+        <p style="margin-top: 12px; font-weight: 600">
+          Exactly the same with sqrtPriceX96
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 9 ════════════════════════════════════ -->
+    <div class="page" id="page9">
+      <div class="page-number">PAGE 9</div>
+
+      <h2>🧠 Very Important Detail — Why 96?</h2>
+
+      <p>You might ask: "Why specifically 96?"</p>
+
+      <p><strong>Reason:</strong></p>
+      <ul>
+        <li>2^96 gives precision ≈ 28 decimal digits</li>
+        <li>
+          Enough for:
+          <ul>
+            <li>Huge prices</li>
+            <li>Tiny price changes</li>
+            <li>Zero rounding errors in swaps</li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="callout callout-green">
+        <p><strong>Balance achieved:</strong></p>
+        <p>✔ Precision<br />✔ Gas efficiency<br />✔ Overflow safety</p>
+      </div>
+
+      <div class="divider">🔥 Goal — Be Clear First</div>
+
+      <p>You want to understand:</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 10 ════════════════════════════════════ -->
+    <div class="page" id="page10">
+      <div class="page-number">PAGE 10</div>
+
+      <p>
+        In a real trade, how does the protocol ignore price and work using
+        sqrtPriceX96 + tick instead.
+      </p>
+
+      <p>I'll use actual ETH/USDC numbers.</p>
+
+      <h3>🧱 Real Pool Setup (Mainnet Style)</h3>
+
+      <ul>
+        <li><strong>Pair:</strong> ETH / USDC</li>
+        <li><strong>Fee tier:</strong> 0.30%</li>
+        <li><strong>TickSpacing:</strong> 60</li>
+      </ul>
+
+      <p>Current UI price:</p>
+      <div class="math">1 ETH = 2000 USDC</div>
+
+      <h3>🔢 Step 1: Real Price → Real sqrtPriceX96</h3>
+
+      <p>UI price (human):</p>
+      <div class="math">price = 2000</div>
+
+      <p>Protocol calculation:</p>
+      <div class="math">sqrt(price) = sqrt(2000) ≈ 44.72135955</div>
+
+      <p>Scale (Q96):</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 11 ════════════════════════════════════ -->
+    <div class="page" id="page11">
+      <div class="page-number">PAGE 11</div>
+
+      <div class="big-num">2^96 = 79228162514264337593543950336</div>
+
+      <p><strong>Real sqrtPriceX96:</strong></p>
+
+      <div class="code">
+        sqrtPriceX96 = 44.72135955 × 2^96 ≈ 3543191142285914205922034323210
+      </div>
+
+      <div class="callout callout-green">
+        <div class="callout-label">
+          📌 This Is The Actual Number Type Stored On-Chain
+        </div>
+        <p>• integer<br />• no decimals<br />• uint160</p>
+      </div>
+
+      <h3>🔢 Step 2: Real sqrtPriceX96 → Real Tick</h3>
+
+      <p>Formula (protocol internal):</p>
+      <div class="math">tick = floor(log₁.₀₀₀₁(price))</div>
+
+      <p>For price ≈ 2000:</p>
+      <div class="math">tick ≈ 199320</div>
+
+      <p>So protocol state is:</p>
+      <div class="code">
+        sqrtPriceX96 = 3543191142285914205922034323210 currentTick = 199320
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 12 ════════════════════════════════════ -->
+    <div class="page" id="page12">
+      <div class="page-number">PAGE 12</div>
+
+      <div class="callout callout-red">
+        <div class="callout-label">❗ Notice</div>
+        <p>
+          Protocol still has NO "$2000"<br />Only these two numbers exist
+          on-chain
+        </p>
+      </div>
+
+      <h3>👤 Step 3: Real LP Position (You)</h3>
+
+      <p>You are the LP.</p>
+
+      <p>You choose:</p>
+      <div class="math">Lower price = 1800 &nbsp; Upper price = 2200</div>
+
+      <p>Protocol converts:</p>
+      <div class="code">
+        $1800 → lowerTick ≈ 198600 $2200 → upperTick ≈ 199800
+      </div>
+
+      <p>LP rule stored:</p>
+      <div class="callout callout-blue">
+        <p>
+          <span class="inline-code">198600 ≤ currentTick &lt; 199800</span> →
+          ACTIVE
+        </p>
+        <p>At tick 199320 → ✅ ACTIVE</p>
+      </div>
+
+      <h3>💰 Step 4: Real LP Deposit (Mainnet Style)</h3>
+
+      <p>Total capital:</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 13 ════════════════════════════════════ -->
+    <div class="page" id="page13">
+      <div class="page-number">PAGE 13</div>
+
+      <div class="math">$10,000</div>
+
+      <p>At price ≈ 2000, Uniswap calculates deposit:</p>
+      <div class="code">ETH ≈ 2.42 USDC ≈ 5,160</div>
+
+      <p><em>(Exact math uses sqrtPriceX96 + liquidity formula)</em></p>
+
+      <p>LP NFT minted with:</p>
+      <div class="code">
+        lowerTick = 198600 upperTick = 199800 liquidity = L
+      </div>
+
+      <h3>🚀 Step 5: Real Trade Comes In</h3>
+
+      <p>Trader does a realistic swap:</p>
+
+      <div class="lock-box">
+        <div class="label">Trader's Action</div>
+        <p>
+          Trader swaps:
+          <strong style="color: var(--accent4)">100,000 USDC → ETH</strong>
+        </p>
+      </div>
+
+      <h3>⚙️ Step 6: What the Engine Actually Does</h3>
+
+      <div class="callout callout-red">
+        <p>
+          ❌ Engine does NOT do:<br />
+          <span class="inline-code">price = 2000 → 2050</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 14 ════════════════════════════════════ -->
+    <div class="page" id="page14">
+      <div class="page-number">PAGE 14</div>
+
+      <div class="callout callout-green">
+        <p>✅ Engine DOES:</p>
+        <p>It updates sqrtPriceX96 using swap math:</p>
+      </div>
+
+      <div class="code">
+        old sqrtPriceX96 = 3543191142285914205922034323210 After part of swap:
+        new sqrtPriceX96 = 3561000000000000000000000000000
+      </div>
+
+      <div class="callout callout-blue">
+        <p>
+          📌 This is an INTEGER move<br />
+          📌 No price involved
+        </p>
+      </div>
+
+      <h3>🔁 Step 7: Tick Update (Real)</h3>
+
+      <p>Protocol recomputes tick from sqrtPriceX96:</p>
+
+      <div class="code">
+        sqrtPriceX96 increased → price ratio increased → tick increased
+      </div>
+
+      <p>Tick moves:</p>
+      <div class="math">199320 → 199380</div>
+
+      <p>Still:</p>
+      <div class="callout callout-green">
+        <p>
+          199380 &lt; 199800<br />
+          👉 LP still <strong>ACTIVE</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 15 ════════════════════════════════════ -->
+    <div class="page" id="page15">
+      <div class="page-number">PAGE 15</div>
+
+      <h3>💸 Step 8: LP Balance Change (Real Feel)</h3>
+
+      <p>Because traders are BUYING ETH:</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Pool State</div>
+          <ul>
+            <li>ETH ↓</li>
+            <li>USDC ↑</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">LP (Opposite Side)</div>
+          <ul>
+            <li>ETH 2.42 → 2.05</li>
+            <li>USDC 5160 → 5900</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-red">
+        <p>
+          ❗ This happened because:<br />
+          • sqrtPriceX96 moved<br />
+          • NOT because "price hit $2100"
+        </p>
+      </div>
+
+      <h3>🔥 Step 9: Upper Tick Hit (Real Event)</h3>
+
+      <p>More buying happens.</p>
+
+      <p>sqrtPriceX96 crosses the threshold that maps to:</p>
+      <div class="math">currentTick = 199800</div>
+
+      <p>Protocol check:</p>
+      <div class="code">currentTick >= upperTick</div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 16 ════════════════════════════════════ -->
+    <div class="page" id="page16">
+      <div class="page-number">PAGE 16</div>
+
+      <div class="callout callout-green">
+        <p>✅ TRUE</p>
+      </div>
+
+      <p>Protocol executes:</p>
+      <div class="code">removeLiquidity(LP)</div>
+
+      <h3>🧠 Step 10: LP Final State (Important)</h3>
+
+      <p>By the time tick = 199800:</p>
+      <div class="code">ETH ≈ 0 USDC ≈ 10,100</div>
+
+      <div class="callout callout-red">
+        <p>
+          ❗ ETH is already gone<br />
+          ❗ NOT sold at this moment<br />
+          ❗ It was sold gradually during sqrtPriceX96 movement
+        </p>
+      </div>
+
+      <h3>🚫 Step 11: Price Goes to $2500</h3>
+
+      <p>Market keeps buying.</p>
+
+      <p>Protocol state:</p>
+      <div class="code">sqrtPriceX96 ↑ currentTick > 199800</div>
+
+      <p>LP:</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 17 ════════════════════════════════════ -->
+    <div class="page" id="page17">
+      <div class="page-number">PAGE 17</div>
+
+      <ul>
+        <li>ignored</li>
+        <li>ETH selling ❌</li>
+        <li>fees ❌</li>
+        <li>IL stopped ✅</li>
+      </ul>
+
+      <h3>🔄 Step 12: Price Falls Back</h3>
+
+      <p>Traders SELL ETH.</p>
+      <p>sqrtPriceX96 decreases.</p>
+
+      <p>When:</p>
+      <div class="math">currentTick &lt; 199800</div>
+
+      <p>Protocol:</p>
+      <div class="code">addLiquidity(LP)</div>
+
+      <p>LP automatically:</p>
+      <ul>
+        <li>starts BUYING ETH</li>
+        <li>USDC → ETH</li>
+      </ul>
+
+      <h3>🧠 Final Real Flow (No Theory)</h3>
+
+      <div class="flow">
+        Trader swap ↓ sqrtPriceX96 moves (INTEGER) ↓ tick recalculated ↓ tick
+        boundary crossed? ↓ liquidity on / off ↓ LP ETH / USDC changes ↓ UI
+        price updates LAST
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 18 ════════════════════════════════════ -->
+    <div class="page" id="page18">
+      <div class="page-number">PAGE 18</div>
+
+      <div class="lock-box">
+        <div class="label">🛑 Final Lock Sentence — Remember This</div>
+        <p>
+          sqrtPriceX96 is never a decimal.<br />
+          It is always an integer.<br />
+          Decimals only appear when we humans decode it.
+        </p>
+      </div>
+
+      <h3>🔗 Relationship Map (Very Important)</h3>
+
+      <p>Think like this:</p>
+
+      <div class="flow">
+        sqrtPriceX96 ──► tick ──► price │ │ └─────► price ◄──────┘
+      </div>
+
+      <ul>
+        <li>sqrtPriceX96 can directly give you price</li>
+        <li>tick can also give you price</li>
+        <li>Both are derived from sqrtPriceX96</li>
+      </ul>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 19 ════════════════════════════════════ -->
+    <div class="page" id="page19">
+      <div class="page-number">PAGE 19</div>
+
+      <h3>🔗 Relationship (Once Again — Final Form)</h3>
+
+      <div class="flow">sqrtPriceX96 ──► price │ └──► tick</div>
+
+      <div class="callout callout-orange">
+        <p>
+          👉 Driver = sqrtPriceX96<br />
+          👉 Tick &amp; price = derived values
+        </p>
+      </div>
+
+      <div class="divider">Real Pool Setup</div>
+
+      <h3>🧱 Step 0: Real Pool Setup (Mainnet Style)</h3>
+
+      <ul>
+        <li><strong>Pair:</strong> ETH / USDC</li>
+      </ul>
+
+      <p>Meaning:</p>
+      <div class="callout callout-blue">
+        <p>price = USDC per ETH</p>
+      </div>
+
+      <p>Suppose UI shows:</p>
+      <div class="math">1 ETH = 2000 USDC</div>
+
+      <h3>🔢 Step 1: Real Price → Real sqrtPriceX96</h3>
+
+      <p>1️⃣ Start with real price</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 20 ════════════════════════════════════ -->
+    <div class="page" id="page20">
+      <div class="page-number">PAGE 20</div>
+
+      <div class="math">price = 2000</div>
+
+      <p>2️⃣ Take square root (VERY IMPORTANT)</p>
+
+      <div class="math">sqrt(price) = √2000 ≈ 44.72135955</div>
+
+      <div class="callout callout-blue">
+        <p>
+          👉 Uniswap takes square root because swap math becomes linear (deep
+          reason later).
+        </p>
+      </div>
+
+      <p>3️⃣ Scale by Q96 (fixed-point encoding)</p>
+
+      <p>Uniswap doesn't allow decimals, so it scales:</p>
+      <div class="big-num">2^96 = 79228162514264337593543950336</div>
+
+      <p>4️⃣ Multiply</p>
+
+      <div class="code">
+        sqrtPriceX96 = 44.72135955 × 2^96 ≈ 3543191142285914205922034323210
+      </div>
+
+      <div class="callout callout-orange">
+        <div class="callout-label">🔥 This Is The Real On-Chain Number</div>
+        <p>• Integer<br />• No decimal<br />• Stored as uint160</p>
+      </div>
+
+      <h3>🧠 Important Pause (Please Feel This)</h3>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 21 ════════════════════════════════════ -->
+    <div class="page" id="page21">
+      <div class="page-number">PAGE 21</div>
+
+      <p>At this moment:</p>
+      <div class="callout callout-red">
+        <p>
+          ❌ Protocol does NOT have "$2000"<br />
+          ✅ Protocol has ONLY this integer:
+        </p>
+        <div class="big-num">
+          sqrtPriceX96 = 3543191142285914205922034323210
+        </div>
+      </div>
+
+      <h3>🔄 Step 2: sqrtPriceX96 → Price (Decoding)</h3>
+
+      <p>
+        Now imagine you are a UI or analytics tool and you need to display the
+        price.
+      </p>
+
+      <p>1️⃣ Undo scaling</p>
+
+      <div class="code">
+        sqrtPrice = sqrtPriceX96 / 2^96 So: sqrtPrice ≈
+        3543191142285914205922034323210 / 79228162514264337593543950336 ≈
+        44.72135955
+      </div>
+
+      <p>2️⃣ Square it</p>
+
+      <div class="math">price = (sqrtPrice)^2 = 44.72135955^2 ≈ 2000</div>
+
+      <h3>🎯 This Is Where Price Comes From</h3>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 22 ════════════════════════════════════ -->
+    <div class="page" id="page22">
+      <div class="page-number">PAGE 22</div>
+
+      <div class="lock-box">
+        <div class="label">🧠 One-Line Lock</div>
+        <p>
+          The protocol calculates price.<br />Price does not drive the protocol.
+        </p>
+      </div>
+
+      <h3>🔁 Step 3: Real Trade Arrives</h3>
+
+      <p>A trader comes in and says:</p>
+
+      <div class="callout callout-orange">
+        <p>Swap: 100,000 USDC → ETH</p>
+      </div>
+
+      <h3>⚙️ Step 4: What the Engine Does (Real Logic)</h3>
+
+      <div class="callout callout-red">
+        <p>❌ Engine does NOT do this:</p>
+        <div class="code" style="margin: 10px 0">price = 2000 → 2050</div>
+      </div>
+
+      <div class="callout callout-green">
+        <p>✅ Engine DOES this:</p>
+        <div class="code" style="margin: 10px 0">sqrtPriceX96 = old + Δ</div>
+        <p>Suppose after swap:</p>
+        <div class="big-num" style="margin: 8px 0">
+          new sqrtPriceX96 ≈ 3600000000000000000000000000000
+        </div>
+        <p>(Still integer)</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 23 ════════════════════════════════════ -->
+    <div class="page" id="page23">
+      <div class="page-number">PAGE 23</div>
+
+      <h3>🔢 Step 5: New sqrtPriceX96 → New Price</h3>
+
+      <p>Decode again:</p>
+
+      <div class="code">
+        sqrtPrice = 3600000000000000000000000000000 / 2^96 ≈ 45.44 Square: price
+        ≈ 45.44^2 ≈ 2064
+      </div>
+
+      <div class="callout callout-green">
+        <p>
+          👉 UI now shows:<br />
+          <strong>ETH ≈ $2064</strong>
+        </p>
+      </div>
+
+      <h3>🔄 Step 6: sqrtPriceX96 → Tick (Real)</h3>
+
+      <p>Tick formula (intuition level):</p>
+      <div class="math">tick ≈ log₁.₀₀₀₁(price)</div>
+
+      <p>For:</p>
+      <div class="math">price ≈ 2064</div>
+
+      <p>Tick becomes:</p>
+      <div class="math">199320 → 199380 (example)</div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 24 ════════════════════════════════════ -->
+    <div class="page" id="page24">
+      <div class="page-number">PAGE 24</div>
+
+      <h3>🧠 Important: Why Does Tick Exist?</h3>
+
+      <p>Tick's job:</p>
+      <ul>
+        <li>Turn LP ranges ON / OFF</li>
+        <li>Manage liquidity boundaries</li>
+      </ul>
+
+      <p>Tick:</p>
+      <ul>
+        <li>❌ does NOT move price</li>
+        <li>❌ does NOT execute swaps</li>
+        <li>✅ is only a gatekeeper</li>
+      </ul>
+
+      <h3>🔥 Full Real Flow (No Confusion)</h3>
+
+      <div class="flow">
+        Trader swap ↓ sqrtPriceX96 (INTEGER) moves ↓ price = (sqrtPriceX96 /
+        2^96)² ← UI ↓ tick = log₁.₀₀₀₁(price) ↓ LP range check ↓ liquidity on /
+        off
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 25 ════════════════════════════════════ -->
+    <div class="page" id="page25">
+      <div class="page-number">PAGE 25</div>
+
+      <h3>🧠 Why sqrtPriceX96 Directly Connects to Price</h3>
+
+      <p>Because:</p>
+      <div class="math">price = (sqrtPriceX96 / 2^96)^2</div>
+
+      <div class="callout callout-blue">
+        <p>
+          👉 No tick needed for this<br />
+          👉 Tick is only for optimization / structure
+        </p>
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🛑 Final Sentence — Very Important</div>
+        <p>
+          In Uniswap V3, sqrtPriceX96 is the single truth.<br />
+          Price and tick are different views of that truth.
+        </p>
+      </div>
+
+      <h3>🔄 What Happens During a Swap? (Real Feel)</h3>
+
+      <p>Trader buys ETH (price ↑)</p>
+
+      <p>In the pool:</p>
+      <ul>
+        <li>ETH decreases</li>
+        <li>USDC increases</li>
+      </ul>
+
+      <p>
+        👉 sqrtPriceX96 increases<br />
+        👉 Tick boundaries cross<br />
+        👉 LPs turn on / off
+      </p>
+
+      <div class="callout callout-orange">
+        <p>
+          <strong>Important:</strong><br />
+          Protocol never directly deals with price.<br />
+          Everything happens through sqrtPriceX96.
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 26 ════════════════════════════════════ -->
+    <div class="page" id="page26">
+      <div class="page-number">PAGE 26</div>
+
+      <h3>🪙 How It's Used in LP Positions</h3>
+
+      <p>Inside an LP NFT:</p>
+      <ul>
+        <li><span class="inline-code">tickLower</span></li>
+        <li><span class="inline-code">tickUpper</span></li>
+      </ul>
+
+      <p>Internally:</p>
+      <ul>
+        <li>Ticks are mapped to sqrtPriceX96 values</li>
+      </ul>
+
+      <p>LP is active or not:</p>
+      <div class="math">
+        sqrtPriceLower ≤ currentSqrtPrice &lt; sqrtPriceUpper
+      </div>
+
+      <h3>🔥 Small vs Big Price Move (Connected to Previous Topic)</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Small price change</div>
+          <ul>
+            <li>sqrtPriceX96 changes a little</li>
+            <li>Few ticks cross</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">Big price change</div>
+          <ul>
+            <li>sqrtPriceX96 moves a lot</li>
+            <li>Many ticks cross</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>
+        👉 Now you should be able to feel the relationship between ticks +
+        sqrtPriceX96
+      </p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 27 ════════════════════════════════════ -->
+    <div class="page" id="page27">
+      <div class="page-number">PAGE 27</div>
+
+      <h3>🛑 Very Important Clarity</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">❌ sqrtPriceX96 is NOT for</div>
+          <p>Users / humans</p>
+        </div>
+        <div class="card">
+          <div class="card-label">✅ sqrtPriceX96 IS</div>
+          <p>Machine format</p>
+        </div>
+      </div>
+
+      <p>For the user:</p>
+      <div class="callout callout-blue">
+        <p>UI displays: $2000</p>
+      </div>
+
+      <p>For the protocol:</p>
+      <div class="big-num">
+        sqrtPriceX96 = 56022770974786139918731938227 (example)
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🧠 One Killer Line — Remember This</div>
+        <p>sqrtPriceX96 = the "binary DNA" of price</p>
+      </div>
+
+      <h3>🔁 Quick Recap — Check Yourself</h3>
+
+      <ul>
+        <li>✔ Solidity doesn't understand decimals</li>
+        <li>✔ So price had to be made into an integer</li>
+        <li>✔ Liquidity math is based on sqrt</li>
+        <li>✔ So √price × 2^96 is stored</li>
+      </ul>
+
+      <div class="callout callout-green">
+        <p>If this is clear → you are at the core math layer of V3 🔥</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 28 ════════════════════════════════════ -->
+    <div class="page" id="page28">
+      <div class="page-number">PAGE 28</div>
+
+      <h2>🔥 First, a Seed Question (Important)</h2>
+
+      <div class="callout callout-orange">
+        <p>
+          If Uniswap V3 had an ERC-20 token for LP,<br />
+          what would break?
+        </p>
+        <p>Answer this → reason for NFT becomes automatic.</p>
+      </div>
+
+      <h3>🔁 Reset: V2 LP Token Feel (Quick Reminder)</h3>
+
+      <p>In V2:</p>
+      <ul>
+        <li>Pool: ETH / USDC</li>
+        <li>
+          All LPs:
+          <ul>
+            <li>Same price rule (0 → ∞)</li>
+            <li>Same fee (0.3%)</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>You deposit:</p>
+      <div class="code">1 ETH + 2000 USDC</div>
+
+      <p>You receive:</p>
+      <div class="callout callout-green">
+        <p>👉 ERC-20 LP token</p>
+      </div>
+
+      <p>Why did it work?</p>
+
+      <p>Because:</p>
+      <div class="callout callout-blue">
+        <p>
+          Every LP was exactly the same.<br />
+          So: 1 LP token = another LP token
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 29 ════════════════════════════════════ -->
+    <div class="page" id="page29">
+      <div class="page-number">PAGE 29</div>
+
+      <ul>
+        <li>All interchangeable (fungible)</li>
+      </ul>
+
+      <div class="callout callout-green">
+        <p>ERC-20 worked perfectly here ✅</p>
+      </div>
+
+      <h3>💥 Now V3 Arrives — This Is Where ERC-20 Breaks</h3>
+
+      <p>In V3, an LP can say:</p>
+      <ul>
+        <li>My price range is different</li>
+        <li>My fee tier is different</li>
+        <li>My liquidity size is different</li>
+        <li>My risk is different</li>
+        <li>My active time is different</li>
+      </ul>
+
+      <p>Now honestly tell me:</p>
+      <div class="callout callout-red">
+        <p>Do all of these look like "the same thing"? ❌</p>
+      </div>
+
+      <h3>🎬 Real Life Scene (Feel Mode)</h3>
+
+      <p>
+        Pool: ETH / USDC<br />
+        Current price = $2000
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">👤 LP A — Safe Guy</div>
+          <h4>Range: $1500–$3000</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 30 ════════════════════════════════════ -->
+    <div class="page" id="page30">
+      <div class="page-number">PAGE 30</div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">👤 LP A — Safe Guy</div>
+          <ul>
+            <li>Range: $1500 – $3000</li>
+            <li>Fee: 0.05%</li>
+            <li>Capital: $10,000</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">👤 LP B — Smart Guy</div>
+          <ul>
+            <li>Range: $1900 – $2100</li>
+            <li>Fee: 0.30%</li>
+            <li>Capital: $10,000</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">👤 LP C — Degen 😄</div>
+          <ul>
+            <li>Range: $1990 – $2010</li>
+            <li>Fee: 1%</li>
+            <li>Capital: $5,000</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>❓ Now Think (Important Pause)</h3>
+
+      <p>If all these LPs got ERC-20 tokens:</p>
+      <ul>
+        <li>Which LP token is more valuable?</li>
+        <li>Which is riskier?</li>
+        <li>Which is earning more fees?</li>
+        <li>Which is currently active?</li>
+      </ul>
+
+      <div class="callout callout-red">
+        <p>👉 Impossible to represent</p>
+        <p>Therefore:</p>
+        <p><strong>ERC-20 is logically impossible here</strong></p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 31 ════════════════════════════════════ -->
+    <div class="page" id="page31">
+      <div class="page-number">PAGE 31</div>
+
+      <h3>🧠 This Is Where the Need for NFT Comes From</h3>
+
+      <p>ERC-721 says:</p>
+      <div class="callout callout-blue">
+        <p>"Each token can be unique"</p>
+        <p>Exactly what V3 needs.</p>
+      </div>
+
+      <h3>🧾 What's Inside an LP NFT? (Real Data)</h3>
+
+      <p>Every LP gets 1 NFT.</p>
+      <p>Inside that NFT is written:</p>
+
+      <div class="code">
+        Token0 = ETH Token1 = USDC Fee tier = 0.30% Lower price = $1900 Upper
+        price = $2100 Liquidity = 10,000 Fees earned = dynamic
+      </div>
+
+      <div class="callout callout-orange">
+        <p>
+          👉 This is not just a token<br />
+          👉 This is the <strong>COMPLETE RECORD OF YOUR STRATEGY</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 32 ════════════════════════════════════ -->
+    <div class="page" id="page32">
+      <div class="page-number">PAGE 32</div>
+
+      <h3>🔥 Feel This Hard (Important)</h3>
+
+      <div class="lock-box">
+        <div class="label">LP NFT = Your Personal Market-Making Robot</div>
+        <p>Robot's rules:</p>
+        <p>
+          • When it works<br />
+          • When it stops<br />
+          • How much fee it takes<br />
+          • How much risk it takes
+        </p>
+        <p style="margin-top: 12px">And this robot:</p>
+        <p>
+          • Can be transferred<br />
+          • Can be sold<br />
+          • Can become collateral
+        </p>
+      </div>
+
+      <h3>🔄 NFT's Role in a Real Trade</h3>
+
+      <p>Trader arrives:</p>
+      <p>"I want to buy ETH"</p>
+
+      <p>Protocol checks:</p>
+      <div class="math">Current price = $2005</div>
+
+      <p>Who is active?</p>
+      <ul>
+        <li>LP A ✅ (range covers it)</li>
+        <li>LP B ✅ (range covers it)</li>
+      </ul>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 33 ════════════════════════════════════ -->
+    <div class="page" id="page33">
+      <div class="page-number">PAGE 33</div>
+
+      <ul>
+        <li>LP C ❌ (out of range)</li>
+      </ul>
+
+      <div class="callout callout-green">
+        <p>
+          👉 Only active LP NFTs:<br />
+          • Earn fees<br />
+          • Provide liquidity
+        </p>
+      </div>
+
+      <div class="callout callout-blue">
+        <p>
+          Other NFTs:<br />
+          • Sleeping 😴
+        </p>
+      </div>
+
+      <h3>💰 Fees Feel (Numbers)</h3>
+
+      <p>Suppose:</p>
+      <div class="math">Total fees = $1000</div>
+
+      <p>Distribution:</p>
+      <table>
+        <tr>
+          <th>LP</th>
+          <th>Earnings</th>
+        </tr>
+        <tr>
+          <td>LP A (wide range)</td>
+          <td>$200</td>
+        </tr>
+        <tr>
+          <td>LP B (mid range)</td>
+          <td>$600</td>
+        </tr>
+        <tr>
+          <td>LP C (inactive)</td>
+          <td>$0</td>
+        </tr>
+      </table>
+
+      <div class="callout callout-orange">
+        <p>All of this accounting happens inside the NFT</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 34 ════════════════════════════════════ -->
+    <div class="page" id="page34">
+      <div name="page-number">PAGE 34</div>
+
+      <h3>🔁 Why NFT Is Necessary — In One Line</h3>
+
+      <div class="callout callout-blue">
+        <p>In Uniswap V3:</p>
+        <p>LP position = identity + strategy + state</p>
+        <p>And:</p>
+        <p>
+          • Identity is unique<br />
+          • Strategy is unique<br />
+          • State is unique
+        </p>
+        <p>👉 Unique = NFT</p>
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🧠 Strongest Analogy — Remember This</div>
+        <p>
+          • ERC-20 LP token = Bank Fixed Deposit<br />
+          • ERC-721 LP NFT = Custom Insurance Policy
+        </p>
+        <p style="margin-top: 12px">Each policy:</p>
+        <p>
+          • Different coverage<br />
+          • Different premium<br />
+          • Different risk
+        </p>
+        <p style="margin-top: 12px">
+          Therefore:<br />
+          Each policy needs its own document (NFT)
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 35 ════════════════════════════════════ -->
+    <div class="page" id="page35">
+      <div class="page-number">PAGE 35</div>
+
+      <h2>5️⃣ Fee Tiers (0.05%, 0.3%, 1%) — Pure Feel Mode</h2>
+
+      <div class="lock-box">
+        <div class="label">🧠 Core Idea in One Line — Lock This</div>
+        <p>
+          Fee tier = LP's "risk premium"<br /><br />
+          More risk → more fee<br />
+          Less risk → less fee
+        </p>
+      </div>
+
+      <h3>📋 First, a Real-Life Analogy (Strong)</h3>
+
+      <p>Think of yourself as an insurance company:</p>
+
+      <table>
+        <tr>
+          <th>Situation</th>
+          <th>Premium</th>
+        </tr>
+        <tr>
+          <td>Healthy person</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>Smoker</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>Extreme sports</td>
+          <td>High</td>
+        </tr>
+      </table>
+
+      <div class="callout callout-orange">
+        <p>👉 Same logic applies in Uniswap V3</p>
+      </div>
+
+      <h3>🔥 What Do the Actual Fee Tiers Say?</h3>
+
+      <table>
+        <tr>
+          <th>Fee Tier</th>
+          <th>Typical Use</th>
+          <th>Risk</th>
+        </tr>
+        <tr>
+          <td>0.05%</td>
+          <td>Stable pairs</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>0.30%</td>
+          <td>Normal volatile pairs</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>1.00%</td>
+          <td>Highly volatile / illiquid</td>
+          <td>High</td>
+        </tr>
+      </table>
+
+      <h3>🧑‍💻 Same Pool, Different Tiers (Feel This)</h3>
+
+      <p>
+        Pool: <strong>ETH / USDC</strong><br />
+        Current price = $2000
+      </p>
+
+      <p>
+        Three separate pools are created (important:
+        <strong>separate pools</strong>):
+      </p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 36 ════════════════════════════════════ -->
+    <div class="page" id="page36">
+      <div class="page-number">PAGE 36</div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Pool A — 0.05%</div>
+          <h4>Target: Low Slippage</h4>
+          <p>LP expectation: price will stay stable</p>
+        </div>
+        <div class="card">
+          <div class="card-label">Pool B — 0.30%</div>
+          <h4>Default Uniswap Style</h4>
+          <p>Balanced risk / reward</p>
+        </div>
+        <div class="card">
+          <div class="card-label">Pool C — 1.00%</div>
+          <h4>High Risk</h4>
+          <p>LP says: "If someone trades, I want good money"</p>
+        </div>
+      </div>
+
+      <h3>🎯 Now from LP's POV — Feel It</h3>
+
+      <div class="card">
+        <div class="card-label">👤 LP 1 — Safe Player</div>
+        <h4>Fee: 0.05%</h4>
+        <ul>
+          <li>Range: $1900 – $2100</li>
+          <li>Capital: $10,000</li>
+        </ul>
+        <p>👉 Expectation:</p>
+        <ul>
+          <li>Very high volume</li>
+          <li>Low fee per trade</li>
+          <li>Stable earnings</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 37 ════════════════════════════════════ -->
+    <div class="page" id="page37">
+      <div class="page-number">PAGE 37</div>
+
+      <div class="card">
+        <div class="card-label">👤 LP 2 — Balanced Player</div>
+        <h4>Fee: 0.30%</h4>
+        <ul>
+          <li>Range: $1800 – $2200</li>
+          <li>Capital: $10,000</li>
+        </ul>
+        <p>👉 Expectation:</p>
+        <ul>
+          <li>Medium volume</li>
+          <li>Medium fees</li>
+          <li>Default choice</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 38 ════════════════════════════════════ -->
+    <div class="page" id="page38">
+      <div class="page-number">PAGE 38</div>
+
+      <div class="card">
+        <div class="card-label">👤 LP 3 — Risky Player</div>
+        <h4>Fee: 1.00%</h4>
+        <ul>
+          <li>Range: $1950 – $2050</li>
+          <li>Capital: $5,000</li>
+        </ul>
+        <p>👉 Expectation:</p>
+        <ul>
+          <li>Fewer trades</li>
+          <li>But when a trade happens → heavy fees</li>
+        </ul>
+      </div>
+
+      <h3>🔄 Trader's POV (Important)</h3>
+
+      <p>Trader always asks:</p>
+      <div class="callout callout-blue">
+        <p>"Where do I get the cheapest ETH?"</p>
+      </div>
+
+      <p>Trader looks at:</p>
+      <ul>
+        <li>Slippage</li>
+        <li>Fee</li>
+        <li>Liquidity depth</li>
+      </ul>
+
+      <p>Result:</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 39 ════════════════════════════════════ -->
+    <div class="page" id="page39">
+      <div class="page-number">PAGE 39</div>
+
+      <table>
+        <tr>
+          <th>Market Condition</th>
+          <th>Pool Selected</th>
+        </tr>
+        <tr>
+          <td>Stable market</td>
+          <td>0.05% pool</td>
+        </tr>
+        <tr>
+          <td>Normal market</td>
+          <td>0.30% pool</td>
+        </tr>
+        <tr>
+          <td>Panic / illiquid market</td>
+          <td>1% pool</td>
+        </tr>
+      </table>
+
+      <div class="callout callout-orange">
+        <p>👉 Market self-selects the fee tier</p>
+      </div>
+
+      <h3>📊 Real Numbers (Feel Guaranteed)</h3>
+
+      <p>Scenario: $1,000,000 daily volume</p>
+
+      <table>
+        <tr>
+          <th>Pool</th>
+          <th>Fees Generated</th>
+        </tr>
+        <tr>
+          <td>0.05% pool</td>
+          <td>$500</td>
+        </tr>
+        <tr>
+          <td>0.30% pool</td>
+          <td>$3,000</td>
+        </tr>
+        <tr>
+          <td>1.00% pool</td>
+          <td>$10,000</td>
+        </tr>
+      </table>
+
+      <div class="callout callout-red">
+        <p>
+          📌 But remember:<br />
+          Volume in 1% pool is usually very low
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 40 ════════════════════════════════════ -->
+    <div class="page" id="page40">
+      <div class="page-number">PAGE 40</div>
+
+      <h3>🧠 Why V3 Did This (Very Important)</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">V2 Problem</div>
+          <ul>
+            <li>Everyone paid 0.30%</li>
+            <li>Stable pairs overpaid</li>
+            <li>Risky pairs underpaid</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">V3 Solution</div>
+          <p>"Let the market decide what risk and fee makes sense"</p>
+        </div>
+      </div>
+
+      <div class="callout callout-dark">
+        <div class="callout-label">🔥 Big Click Moment</div>
+        <p>Fee tier decides TickSpacing:</p>
+        <table style="margin: 10px 0">
+          <tr>
+            <th>Fee</th>
+            <th>TickSpacing</th>
+            <th>Meaning</th>
+          </tr>
+          <tr>
+            <td>0.05%</td>
+            <td>10</td>
+            <td>Fine control</td>
+          </tr>
+          <tr>
+            <td>0.30%</td>
+            <td>60</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>1%</td>
+            <td>200</td>
+            <td>Rough</td>
+          </tr>
+        </table>
+        <p>
+          • Low fee = tight ranges possible<br />
+          • High fee = coarse ranges
+        </p>
+      </div>
+
+      <h3>⚠️ Common Beginner Mistake (Don't Do This)</h3>
+
+      <p>❌ "1% is always better because more fees"</p>
+      <p><strong>Wrong.</strong></p>
+      <p>If:</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 41 ════════════════════════════════════ -->
+    <div class="page" id="page41">
+      <div class="page-number">PAGE 41</div>
+
+      <ul>
+        <li>Volume didn't come</li>
+        <li>You went out of range</li>
+      </ul>
+
+      <div class="callout callout-red">
+        <p>👉 Fees = 0</p>
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🛑 One Line Summary — Lock This</div>
+        <p>Fee tier = LP's bet on volatility</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 42 ════════════════════════════════════ -->
+    <div class="page" id="page42">
+      <div class="page-number">PAGE 42</div>
+
+      <h2>Swap Flow — Uniswap V2 vs Uniswap V3 (Feel Mode)</h2>
+
+      <div class="lock-box">
+        <div class="label">🧠 One-Line Difference — Lock This First</div>
+        <p>
+          V2: one single pool, one liquidity blob<br />
+          V3: liquidity turns ON/OFF along with price
+        </p>
+        <p>That's it.</p>
+      </div>
+
+      <h3>🎬 Same Scene for Both</h3>
+
+      <ul>
+        <li>Pool: ETH / USDC</li>
+        <li>ETH price = $2000</li>
+        <li>Trader wants: 👉 Buy ETH with 100,000 USDC</li>
+      </ul>
+
+      <div class="divider">Part A — Uniswap V2</div>
+
+      <h3>🟥 Part A: Uniswap V2 — Swap Flow</h3>
+
+      <div class="callout callout-blue">
+        <p>V2 pool says:</p>
+        <p>
+          "I have one big container.<br />
+          All LP's money is in it."
+        </p>
+      </div>
+
+      <ul>
+        <li>Liquidity = 0 → ∞</li>
+        <li>All LPs always active</li>
+      </ul>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 43 ════════════════════════════════════ -->
+    <div class="page" id="page43">
+      <div class="page-number">PAGE 43</div>
+
+      <h3>🔁 Step-by-Step V2 Swap</h3>
+
+      <div class="step">
+        <div class="step-badge">1</div>
+        <div class="step-body">
+          <p>Trader calls swap</p>
+          <div class="code">swapExactTokensForETH(100,000 USDC)</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">2</div>
+        <div class="step-body">
+          <p>Pool checks balances</p>
+          <div class="code">ETH = 10,000 USDC = 20,000,000</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">3</div>
+        <div class="step-body">
+          <p>Constant Product math</p>
+          <div class="math">x * y = k</div>
+          <p>
+            USDC came in → ETH must go out<br />
+            Price adjusts automatically
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">4</div>
+        <div class="step-body">
+          <p>ETH sent to trader</p>
+          <ul>
+            <li>ETH ↓</li>
+            <li>USDC ↑</li>
+            <li>Price ↑</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">5</div>
+        <div class="step-body">
+          <p>Fees</p>
+          <ul>
+            <li>0.30% fixed</li>
+            <li>All LPs get it pro-rata</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>👉 END</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 44 ════════════════════════════════════ -->
+    <div class="page" id="page44">
+      <div class="page-number">PAGE 44</div>
+
+      <h3>🧠 V2 Feel</h3>
+
+      <div class="callout callout-blue">
+        <p>
+          • No LP on / off<br />
+          • No ranges<br />
+          • No layers
+        </p>
+        <p>One swap → one liquidity mass handles everything</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 45 ════════════════════════════════════ -->
+    <div class="page" id="page45">
+      <div class="page-number">PAGE 45</div>
+
+      <h3>🟩 Part B: Uniswap V3 — Swap Flow (Real Magic)</h3>
+
+      <p>Now same trade in V3 👇</p>
+
+      <div class="callout callout-dark">
+        <p>V3 pool says:</p>
+        <p>
+          "I have layers.<br />
+          Each layer is only active at certain prices."
+        </p>
+      </div>
+
+      <p>LPs already present:</p>
+
+      <table>
+        <tr>
+          <th>LP</th>
+          <th>Price Range</th>
+        </tr>
+        <tr>
+          <td>LP A</td>
+          <td>$1500 – $3000</td>
+        </tr>
+        <tr>
+          <td>LP B</td>
+          <td>$1800 – $2200</td>
+        </tr>
+        <tr>
+          <td>LP C</td>
+          <td>$1950 – $2050</td>
+        </tr>
+      </table>
+
+      <p>Current price = <strong>$2000</strong></p>
+      <div class="callout callout-green">
+        <p>👉 All three LPs are ACTIVE</p>
+      </div>
+
+      <h3>🔁 Step-by-Step V3 Swap</h3>
+
+      <div class="step">
+        <div class="step-badge">1</div>
+        <div class="step-body">
+          <p>Trader calls swap</p>
+          <div class="code">swapExactInput(100,000 USDC)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 46 ════════════════════════════════════ -->
+    <div class="page" id="page46">
+      <div class="page-number">PAGE 46</div>
+
+      <div class="step">
+        <div class="step-badge">2</div>
+        <div class="step-body">
+          <p>Pool checks current tick</p>
+          <div class="math">currentTick ≈ $2000</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">3</div>
+        <div class="step-body">
+          <p>ACTIVE LPs detected</p>
+          <p>Condition:</p>
+          <div class="math">lowerTick ≤ currentTick &lt; upperTick</div>
+          <p>
+            👉 LP A, B, C included<br />
+            👉 Others ignored
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">4</div>
+        <div class="step-body">
+          <p>Swap STARTS (inside first tick range)</p>
+          <ul>
+            <li>Trader gives USDC</li>
+            <li>ETH goes out</li>
+            <li>Price ↑ slightly</li>
+            <li>sqrtPriceX96 moves smoothly</li>
+          </ul>
+          <p>Fees:</p>
+          <ul>
+            <li>Only active LPs earn</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 47 ════════════════════════════════════ -->
+    <div class="page" id="page47">
+      <div class="page-number">PAGE 47</div>
+
+      <div class="step">
+        <div class="step-badge">5</div>
+        <div class="step-body">
+          <p>💥 Tick boundary hit</p>
+          <p>Price reaches $2050</p>
+          <ul>
+            <li>LP C's upper range ENDS</li>
+          </ul>
+          <div class="callout callout-orange" style="margin: 10px 0">
+            <p>🔥 Tick cross event</p>
+            <p>Protocol does:</p>
+            <p>
+              • LP C liquidity REMOVE<br />
+              • LP C OUT ❌
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">6</div>
+        <div class="step-body">
+          <p>Swap CONTINUES (next layer)</p>
+          <p>Now only:</p>
+          <ul>
+            <li>LP A + LP B active</li>
+          </ul>
+          <p>Liquidity decreased</p>
+          <p>
+            👉 Price moves faster<br />
+            👉 Slippage increased slightly
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">7</div>
+        <div class="step-body">
+          <p>Next boundary hit</p>
+          <p>Price reaches $2200</p>
+          <ul>
+            <li>LP B OUT ❌</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 48 ════════════════════════════════════ -->
+    <div class="page" id="page48">
+      <div class="page-number">PAGE 48</div>
+
+      <p>Now only LP A is active</p>
+
+      <div class="step">
+        <div class="step-badge">8</div>
+        <div class="step-body">
+          <p>Trade ENDS</p>
+          <ul>
+            <li>Trader got ETH</li>
+            <li>Final price maybe $2220</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>🧠 V3 Feel (Important)</h3>
+
+      <div class="callout callout-blue">
+        <p>
+          • Swap did NOT happen in one place<br />
+          • Swap traveled along with price<br />
+          • Liquidity was consumed layer by layer
+        </p>
+      </div>
+
+      <h3>🔥 One Big "Click" Moment</h3>
+
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th>V2</th>
+          <th>V3</th>
+        </tr>
+        <tr>
+          <td>Liquidity</td>
+          <td>Always on</td>
+          <td>Price-dependent</td>
+        </tr>
+        <tr>
+          <td>LP control</td>
+          <td class="no">❌</td>
+          <td class="yes">✅</td>
+        </tr>
+        <tr>
+          <td>Fee distribution</td>
+          <td>All LPs</td>
+          <td>Only active LPs</td>
+        </tr>
+        <tr>
+          <td>Slippage</td>
+          <td>High for low TVL</td>
+          <td>Lower (efficient)</td>
+        </tr>
+        <tr>
+          <td>Complexity</td>
+          <td>Simple</td>
+          <td>Layered</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 49 ════════════════════════════════════ -->
+    <div class="page" id="page49">
+      <div class="page-number">PAGE 49</div>
+
+      <div class="callout callout-orange">
+        <p>
+          V3 swap is not a straight line —<br />
+          it's like a <strong>staircase</strong>
+        </p>
+        <p>
+          • Each step = tick<br />
+          • Each step has different liquidity
+        </p>
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🛑 One Line Summary — Lock This</div>
+        <p>
+          Uniswap V2 swap = single math operation<br />
+          Uniswap V3 swap = a price journey
+        </p>
+      </div>
+
+      <div class="callout callout-green">
+        <p>🔥 Best Possible Moment to Learn IL</p>
+        <p>Because now you:</p>
+        <p>
+          • Understand the LP's role<br />
+          • Understand ticks / ranges / swap flow
+        </p>
+        <p>
+          Now you'll feel Impermanent Loss from V3's POV — not just the
+          definition.
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 50 ════════════════════════════════════ -->
+    <div class="page" id="page50">
+      <div class="page-number">PAGE 50</div>
+
+      <h2>8️⃣ Impermanent Loss — Uniswap V3 Style (Feel Mode)</h2>
+
+      <h3>🧠 First, One LINE RESET (Very Important)</h3>
+
+      <div class="lock-box">
+        <div class="label">Core Idea</div>
+        <p>
+          Impermanent Loss = cost of being an LP<br />
+          when the market moves differently from your expectation
+        </p>
+        <p style="margin-top: 12px">
+          IL is not a bug<br />
+          IL = design trade-off
+        </p>
+      </div>
+
+      <h3>🔁 First Recall V2's IL in 10 Seconds</h3>
+
+      <p>In V2:</p>
+      <ul>
+        <li>You are an LP</li>
+        <li>Liquidity = 0 → ∞</li>
+        <li>
+          No matter how much price moves:
+          <ul>
+            <li>You keep trading</li>
+            <li>ETH keeps selling / buying</li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="callout callout-red">
+        <p>👉 IL was unavoidable + uncontrolled</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 51 ════════════════════════════════════ -->
+    <div class="page" id="page51">
+      <div class="page-number">PAGE 51</div>
+
+      <h3>💥 What Did V3 Change?</h3>
+
+      <p>V3 gave IL an "ON/OFF" switch</p>
+
+      <div class="lock-box">
+        <p>
+          Switch's name:<br />
+          👉 <strong style="color: var(--accent4)">Price Range</strong>
+        </p>
+      </div>
+
+      <h3>🎬 Real Scene (Full Feel)</h3>
+
+      <p>
+        Pool: ETH / USDC<br />
+        Current ETH price = $2000
+      </p>
+
+      <p>
+        You are LP<br />
+        Capital = $10,000
+      </p>
+
+      <p>You choose:</p>
+      <div class="code">Range = $1800 – $2200 Fee tier = 0.30%</div>
+
+      <h3>🧠 Your Thinking (Very Human)</h3>
+
+      <div class="callout callout-blue">
+        <p>
+          "ETH will move a bit up and down<br />
+          but won't go above $2200<br />
+          and won't go below $1800"
+        </p>
+      </div>
+
+      <div class="callout callout-orange">
+        <p>📌 IL is always related to expectations</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 52 ════════════════════════════════════ -->
+    <div class="page" id="page52">
+      <div class="page-number">PAGE 52</div>
+
+      <h3>🔁 Price Move — Step by Step Feel</h3>
+
+      <div class="callout callout-green">
+        <div class="callout-label">🟢 Case 1: Price = $2000 → $2100</div>
+        <p>
+          Market: ETH is being bought<br />
+          You (LP) → selling ETH
+        </p>
+        <p>Your holdings:</p>
+        <ul>
+          <li>ETH ↓</li>
+          <li>USDC ↑</li>
+        </ul>
+        <p>
+          😌 Fees are coming in<br />
+          😌 IL is minor
+        </p>
+        <p>👉 Normal LP behavior</p>
+      </div>
+
+      <div class="callout callout-yellow">
+        <div class="callout-label">🟡 Case 2: Price = $2200 (Upper Bound)</div>
+        <div
+          class="callout callout-orange"
+          style="margin: 10px 0; padding: 10px"
+        >
+          <p>🔥 CRITICAL MOMENT</p>
+        </div>
+        <p>Your state:</p>
+        <ul>
+          <li>ETH = 0</li>
+          <li>Only USDC left</li>
+        </ul>
+        <p>You say:</p>
+        <p>"Done. Stop right here."</p>
+        <p>👉 IL STOPPED</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 53 ════════════════════════════════════ -->
+    <div class="page" id="page53">
+      <div class="page-number">PAGE 53</div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">📌 In V2:</div>
+          <ul>
+            <li>You'd still be selling ETH</li>
+            <li>IL would keep growing</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">📌 In V3:</div>
+          <ul>
+            <li>You exited the market</li>
+            <li>IL is STOPPED ✅</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-red">
+        <div class="callout-label">🔴 Case 3: Price = $3000 (Big Pump)</div>
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-label">V3 LP</div>
+            <ul>
+              <li>OUT OF RANGE</li>
+              <li>Fees = 0</li>
+              <li>IL = fixed (no more damage)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-label">V2 LP</div>
+            <ul>
+              <li>Still selling ETH</li>
+              <li>ETH exposure keeps falling</li>
+              <li>IL explodes 📈</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🔥 THIS IS THE BIG DIFFERENCE</div>
+        <p>
+          V3 IL = capped loss<br />
+          V2 IL = unlimited
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 54 ════════════════════════════════════ -->
+    <div class="page" id="page54">
+      <div class="page-number">PAGE 54</div>
+
+      <h3>🧠 Reverse Scene (Dump)</h3>
+
+      <p>Price = $2000 → $1700</p>
+
+      <ul>
+        <li>You are buying ETH</li>
+        <li>Giving USDC</li>
+      </ul>
+
+      <p>At $1800:</p>
+      <ul>
+        <li>Only ETH remains</li>
+        <li>You are OUT OF RANGE</li>
+      </ul>
+
+      <div class="callout callout-green">
+        <p>👉 IL is frozen / stopped</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 55 ════════════════════════════════════ -->
+    <div class="page" id="page55">
+      <div class="page-number">PAGE 55</div>
+
+      <div class="callout callout-blue">
+        <div class="callout-label">📌 Why?</div>
+        <p>
+          • V3 stopped selling at $2200<br />
+          • Fees + capped IL
+        </p>
+      </div>
+
+      <h3>🧠 Important Realization (Deep)</h3>
+
+      <div class="lock-box">
+        <div class="label">Key Insight</div>
+        <p>V3 LP = automated limit strategy</p>
+        <p style="margin-top: 10px">
+          • Upper range = take-profit<br />
+          • Lower range = buy-the-dip
+        </p>
+      </div>
+
+      <p>Therefore:</p>
+      <div class="callout callout-orange">
+        <p>IL is now "strategy-dependent"</p>
+      </div>
+
+      <h3>📊 Numbers Feel (Simple)</h3>
+
+      <p>Assume:</p>
+      <ul>
+        <li>Fees earned (inside range): <strong>$400</strong></li>
+      </ul>
+
+      <p>Scenario: ETH goes to $3000</p>
+
+      <table>
+        <tr>
+          <th>Strategy</th>
+          <th>Result</th>
+        </tr>
+        <tr>
+          <td>HODL</td>
+          <td>ETH worth $15,000</td>
+        </tr>
+        <tr>
+          <td>V2 LP</td>
+          <td>~$13,200</td>
+        </tr>
+        <tr>
+          <td>V3 LP</td>
+          <td>~$14,400</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 56 ════════════════════════════════════ -->
+    <div class="page" id="page56">
+      <div class="page-number">PAGE 56</div>
+
+      <h3>⚠️ But Be Honest (Dark Side)</h3>
+
+      <p>If you:</p>
+      <ul>
+        <li>Choose a very narrow range</li>
+        <li>Price moves out quickly</li>
+      </ul>
+
+      <div class="callout callout-red">
+        <p>
+          👉 Fewer fees earned<br />
+          👉 Opportunity missed<br />
+          👉 Regret
+        </p>
+      </div>
+
+      <div class="callout callout-orange">
+        <p>📌 V3 LP = active risk management</p>
+      </div>
+
+      <h3>🧠 Final Feel Analogy (Best)</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">V2 LP</div>
+          <p>You are trading without a stop-loss</p>
+        </div>
+        <div class="card">
+          <div class="card-label">V3 LP</div>
+          <p>You have already set:</p>
+          <ul>
+            <li>Stop-loss</li>
+            <li>Take-profit</li>
+          </ul>
+          <p>before entering the market</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 57 ════════════════════════════════════ -->
+    <div class="page" id="page57">
+      <div class="page-number">PAGE 57</div>
+
+      <div class="lock-box">
+        <div class="label">🛑 One Line That Should Stick</div>
+        <p>
+          Impermanent Loss in V3 is less "impermanent"<br />
+          and more "controlled"
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 58 ════════════════════════════════════ -->
+    <div class="page" id="page58">
+      <div class="page-number">PAGE 58</div>
+
+      <h2>Oracle (TWAP) in Uniswap V3 — Pure Feel Mode</h2>
+
+      <div class="lock-box">
+        <div class="label">🧠 First, a Hard Truth — Lock This</div>
+        <p>
+          An AMM's "current price" = dangerous<br />
+          Because anyone can manipulate it for 1 block.
+        </p>
+        <p style="margin-top: 10px">
+          Therefore:<br />
+          Instant price ≠ Trustworthy price
+        </p>
+      </div>
+
+      <h3>😈 Attack Story (For Feel)</h3>
+
+      <p>Imagine a DeFi lending app:</p>
+      <ul>
+        <li>It reads ETH price from Uniswap</li>
+        <li>Rule: "Give loan up to 50% of ETH value"</li>
+      </ul>
+
+      <div class="callout callout-red">
+        <p>⚡ What the attacker does:</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 59 ════════════════════════════════════ -->
+    <div class="page" id="page59">
+      <div class="page-number">PAGE 59</div>
+
+      <div class="step">
+        <div class="step-badge">1</div>
+        <div class="step-body"><p>Takes a flash loan 💸</p></div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">2</div>
+        <div class="step-body">
+          <p>Aggressively BUYS ETH in Uniswap</p>
+          <div class="math">ETH price: $2000 → $3000 (just 1 block)</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">3</div>
+        <div class="step-body">
+          <p>
+            Lending app says:<br />
+            "ETH = $3000 😍"
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">4</div>
+        <div class="step-body">
+          <p>Attacker takes a bigger loan than deserved</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">5</div>
+        <div class="step-body"><p>Price normalizes back</p></div>
+      </div>
+
+      <div class="step">
+        <div class="step-badge">6</div>
+        <div class="step-body"><p>App is wrecked 💀</p></div>
+      </div>
+
+      <div class="callout callout-red">
+        <p>📌 Trusting instant price = suicide</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 60 ════════════════════════════════════ -->
+    <div class="page" id="page60">
+      <div class="page-number">PAGE 60</div>
+
+      <h3>🧠 Solution: TWAP (Time Weighted Average Price)</h3>
+
+      <p>TWAP says:</p>
+      <div class="callout callout-blue">
+        <p>
+          "I don't want a 1-second price<br />
+          I want an average price over TIME"
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Instant price</div>
+          <p>= $3000 ❌</p>
+        </div>
+        <div class="card">
+          <div class="card-label">TWAP (5 min avg)</div>
+          <p>≈ $2200 ✅</p>
+        </div>
+      </div>
+
+      <div class="callout callout-green">
+        <p>👉 Attack's impact is diluted</p>
+      </div>
+
+      <h3>🔥 TWAP's Magic in Uniswap V3</h3>
+
+      <p>V3 every second:</p>
+      <ul>
+        <li>Does NOT store price</li>
+        <li>Keeps a <strong>cumulative record</strong> of price</li>
+      </ul>
+
+      <h3>🧠 Key Insight (Important)</h3>
+
+      <div class="callout callout-dark">
+        <p>
+          V3 stores price in ticks<br />
+          and increments the tick accumulator over time
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 61 ════════════════════════════════════ -->
+    <div class="page" id="page61">
+      <div class="page-number">PAGE 61</div>
+
+      <div class="analogy">
+        <div class="analogy-label">Simple Feel Example (No Math)</div>
+        <p>ETH price movement:</p>
+        <table>
+          <tr>
+            <th>Time</th>
+            <th>Price</th>
+          </tr>
+          <tr>
+            <td>10:00</td>
+            <td>$2000</td>
+          </tr>
+          <tr>
+            <td>10:01</td>
+            <td>$2000</td>
+          </tr>
+          <tr>
+            <td>10:02</td>
+            <td>$3000 (attack)</td>
+          </tr>
+          <tr>
+            <td>10:03</td>
+            <td>$2000</td>
+          </tr>
+          <tr>
+            <td>10:04</td>
+            <td>$2000</td>
+          </tr>
+        </table>
+        <p style="margin-top: 12px">
+          Instant price = $3000 ❌<br />
+          TWAP (5 min avg) ≈ $2200 ✅
+        </p>
+        <p>👉 Attack's impact is <strong>diluted</strong></p>
+      </div>
+
+      <p>Think:</p>
+      <div class="callout callout-orange">
+        <p>"Price × Time = Memory"</p>
+      </div>
+
+      <h3>🧱 What's Stored Internally? (Feel Level)</h3>
+
+      <p>V3 pool stores:</p>
+      <ul>
+        <li><span class="inline-code">tickCumulative</span></li>
+        <li><span class="inline-code">secondsPerLiquidityCumulative</span></li>
+      </ul>
+
+      <p>Every second:</p>
+      <div class="code">tickCumulative += currentTick × timePassed</div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 62 ════════════════════════════════════ -->
+    <div class="page" id="page62">
+      <div class="page-number">PAGE 62</div>
+
+      <div class="lock-box">
+        <div class="label">🧠 Lock This One Line First — Very Important</div>
+        <p>
+          tickCumulative is a counter that records:<br /><br />
+          "How much time did the price spend at each level (tick)"<br /><br />
+          That's it.
+        </p>
+      </div>
+
+      <p>Now we will live through it.</p>
+
+      <h3>🎬 Real Scene Setup (Actual Flow)</h3>
+
+      <ul>
+        <li>Pool: ETH / USDC (Uniswap V3)</li>
+        <li>Fee tier: 0.30%</li>
+        <li>TickSpacing: 60</li>
+      </ul>
+
+      <p>Assume current time = t = 0</p>
+
+      <h3>⏱️ Step 1: Starting Point</h3>
+
+      <p>At time t = 0:</p>
+      <div class="code">currentTick = 199320 (~$2000) tickCumulative = 0</div>
+
+      <p>Think of a wall clock that just started ⏰</p>
+
+      <h3>⏱️ Step 2: Price Stays Stable (No Trades)</h3>
+
+      <p>ETH price remains the same for 10 seconds</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 63 ════════════════════════════════════ -->
+    <div class="page" id="page63">
+      <div class="page-number">PAGE 63</div>
+
+      <div class="code">• currentTick = 199320 • timePassed = 10 sec</div>
+
+      <p>What does the protocol do?</p>
+
+      <div class="code">
+        tickCumulative += currentTick × timePassed tickCumulative += 199320 × 10
+        tickCumulative = 1,993,200
+      </div>
+
+      <div class="callout callout-blue">
+        <p>🧠 Feel this:</p>
+        <p>
+          Price stayed at $2000 for 10 seconds<br />
+          So tick 199320 got 10 seconds of weight
+        </p>
+      </div>
+
+      <h3>⏱️ Step 3: Trade Arrives (Price Moves)</h3>
+
+      <p>Now a trader comes and BUYS ETH.</p>
+
+      <p>Price jumps:</p>
+      <div class="math">currentTick = 199380 (~$2012)</div>
+
+      <p>
+        Clock is still ticking ⏰<br />
+        Price stays at this tick for 5 seconds.
+      </p>
+
+      <p>Protocol update:</p>
+      <div class="code">
+        tickCumulative += 199380 × 5 tickCumulative += 996,900 tickCumulative =
+        2,990,100
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 64 ════════════════════════════════════ -->
+    <div class="page" id="page64">
+      <div class="page-number">PAGE 64</div>
+
+      <div class="callout callout-blue">
+        <p>🧠 Feel:</p>
+        <p>
+          • More time near $2000<br />
+          • Less time at $2012
+        </p>
+      </div>
+
+      <h3>⏱️ Step 4: Big Move, Short Time</h3>
+
+      <p>Market becomes volatile.</p>
+      <p>Price jumps:</p>
+      <div class="math">currentTick = 199500 (~$2024)</div>
+
+      <p>Only for 2 seconds.</p>
+
+      <p>Update:</p>
+      <div class="code">
+        tickCumulative += 199500 × 2 tickCumulative += 399,000 tickCumulative =
+        3,389,100
+      </div>
+
+      <div class="callout callout-orange">
+        <div class="callout-label">
+          🧠 Now Stop and Think (This Is the Click)
+        </div>
+        <p>What is tickCumulative saying now?</p>
+        <p>It's saying:</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 65 ════════════════════════════════════ -->
+    <div class="page" id="page65">
+      <div class="page-number">PAGE 65</div>
+
+      <div class="lock-box">
+        <p>
+          "Price spent more time at tick 199320<br />
+          and much less time at higher ticks"
+        </p>
+      </div>
+
+      <h3>🔄 Step 5: TWAP's Magic (Why This Exists)</h3>
+
+      <p>Now suppose you ask the oracle:</p>
+      <div class="callout callout-blue">
+        <p>"Tell me the average price of the last 17 seconds"</p>
+      </div>
+
+      <p>Protocol does:</p>
+      <div class="code">
+        averageTick = (tickCumulative_now − tickCumulative_17sec_ago) / 17
+      </div>
+
+      <p>Here:</p>
+      <div class="code">averageTick = 3,389,100 / 17 ≈ 199359</div>
+
+      <div class="callout callout-orange">
+        <p>
+          👉 This is NOT a simple average<br />
+          👉 This is a <strong>time-weighted average</strong>
+        </p>
+      </div>
+
+      <h3>🔢 Step 6: Average Tick → Price</h3>
+
+      <p>Convert:</p>
+      <div class="math">price ≈ 1.0001^199359</div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 66 ════════════════════════════════════ -->
+    <div class="page" id="page66">
+      <div class="page-number">PAGE 66</div>
+
+      <div class="math">≈ ~$2006</div>
+
+      <div class="callout callout-blue">
+        <p>🧠 Feel this moment:</p>
+        <p>
+          • Price briefly went to $2024<br />
+          • But it was only there for 2 seconds<br />
+          • So TWAP didn't go up much
+        </p>
+      </div>
+
+      <h3>🎯 This Is Why TWAP Is Safe</h3>
+
+      <p>If attacker:</p>
+      <ul>
+        <li>Pumps price for just 1 second ❌</li>
+      </ul>
+
+      <p>TWAP says:</p>
+      <div class="callout callout-green">
+        <p>"Bro, you weren't here long enough"</p>
+      </div>
+
+      <h3>🧠 Second Variable (Short Feel)</h3>
+
+      <p><span class="inline-code">secondsPerLiquidityCumulative</span></p>
+
+      <p>Its meaning:</p>
+      <div class="callout callout-blue">
+        <p>
+          "Each second —<br />
+          how much liquidity was there during trading?"
+        </p>
+      </div>
+
+      <ul>
+        <li>Less liquidity → more impact</li>
+        <li>More liquidity → less impact</li>
+      </ul>
+
+      <p>Used against IL + oracle manipulation.</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 67 ════════════════════════════════════ -->
+    <div class="page" id="page67">
+      <div class="page-number">PAGE 67</div>
+
+      <p>(Deep dive coming now —</p>
+      <p>
+        Now I will clearly explain:<br />
+        What is the "deep dive" in secondsPerLiquidityCumulative,<br />
+        why it's not a simple thing,<br />
+        and exactly how it works in the real world.)
+      </p>
+
+      <p>Step-by-step, with feel.</p>
+
+      <div class="lock-box">
+        <div class="label">🧠 Lock These Two Lines First — Very Important</div>
+        <p>tickCumulative = how much time price spent at each level</p>
+        <p style="margin-top: 8px">
+          secondsPerLiquidityCumulative = how much liquidity was there at that
+          time
+        </p>
+        <p style="margin-top: 8px">👉 Both together make the oracle safe.</p>
+      </div>
+
+      <h3>❓ Why Say "Deep Dive"?</h3>
+
+      <p>Because this variable is:</p>
+      <ul>
+        <li>Not just for calculating averages</li>
+        <li>But to detect price manipulation</li>
+        <li>And also used in LP risk + IL analysis</li>
+      </ul>
+
+      <p>Now let's see how.</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 68 ════════════════════════════════════ -->
+    <div class="page" id="page68">
+      <div class="page-number">PAGE 68</div>
+
+      <h3>🧱 Actual Formula (Core Truth)</h3>
+
+      <p>Every second the protocol does this internally:</p>
+
+      <div class="code">
+        secondsPerLiquidityCumulative += timePassed / liquidity
+      </div>
+
+      <div class="callout callout-red">
+        <p>⚠️ Notice:</p>
+        <p>
+          • liquidity is in the denominator<br />
+          • Less liquidity → value grows more<br />
+          • More liquidity → value grows slower
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 69 ════════════════════════════════════ -->
+    <div class="page" id="page69">
+      <div class="page-number">PAGE 69</div>
+
+      <h3>🎬 Real Scene 1: High Liquidity Pool (Safe)</h3>
+
+      <div class="card">
+        <div class="card-label">Pool State</div>
+        <ul>
+          <li>ETH/USDC</li>
+          <li>Active liquidity = 10,000,000</li>
+          <li>Price stable for 10 seconds</li>
+        </ul>
+      </div>
+
+      <p>Calculation:</p>
+      <div class="code">secondsPerLiquidity += 10 / 10,000,000 = 0.000001</div>
+
+      <div class="callout callout-green">
+        <p>🧠 Feel:</p>
+        <p>
+          • Very large liquidity<br />
+          • One trade's impact is negligible<br />
+          • Oracle is safe
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 70 ════════════════════════════════════ -->
+    <div class="page" id="page70">
+      <div class="page-number">PAGE 70</div>
+
+      <h3>🎬 Real Scene 2: Low Liquidity Pool (Danger)</h3>
+
+      <div class="card">
+        <div class="card-label">Pool State</div>
+        <ul>
+          <li>Same ETH/USDC</li>
+          <li>Active liquidity = 10,000</li>
+          <li>Price stable for 10 seconds</li>
+        </ul>
+      </div>
+
+      <p>Calculation:</p>
+      <div class="code">secondsPerLiquidity += 10 / 10,000 = 0.001</div>
+
+      <div class="callout callout-red">
+        <p>
+          🔥 Same time, same price<br />
+          but 1000× more weight
+        </p>
+      </div>
+
+      <div class="callout callout-orange">
+        <p>
+          🧠 Feel:<br />
+          "Less liquidity was here at this price,<br />
+          so the oracle should be suspicious"
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 71 ════════════════════════════════════ -->
+    <div class="page" id="page71">
+      <div class="page-number">PAGE 71</div>
+
+      <h3>🚨 Deep Dive #1: Oracle Manipulation Protection</h3>
+
+      <div class="callout callout-red">
+        <p>❌ Attack Attempt (Classic)</p>
+        <p>Attacker:</p>
+        <ul>
+          <li>Waits for a low-liquidity window</li>
+          <li>Makes a heavy swap</li>
+          <li>Pumps price for 1–2 blocks</li>
+        </ul>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Without secondsPerLiquidity</div>
+          <ul>
+            <li>tickCumulative says: "price went up"</li>
+            <li>Oracle is fooled ❌</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">With secondsPerLiquidityCumulative</div>
+          <p>Oracle sees:</p>
+          <ul>
+            <li>Price went up ✔</li>
+            <li>BUT liquidity was very thin ❌</li>
+            <li>secondsPerLiquidity spike 🚨</li>
+          </ul>
+          <p>Protocol says:<br />"Don't give this price too much weight"</p>
+          <p>👉 Attack fails ✅</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 72 ════════════════════════════════════ -->
+    <div class="page" id="page72">
+      <div class="page-number">PAGE 72</div>
+
+      <h3>🧠 Deep Dive #2: Why IL Analysis Needs This</h3>
+
+      <p>IL doesn't just come from price.</p>
+
+      <div class="math">IL = price movement × liquidity exposure × time</div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Case A</div>
+          <ul>
+            <li>Price $2000 → $2200</li>
+            <li>Liquidity: high</li>
+            <li>LP gradually trades</li>
+            <li>👉 Smooth IL</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">Case B</div>
+          <ul>
+            <li>Same price move</li>
+            <li>Liquidity: thin</li>
+            <li>LP's ETH drains fast</li>
+            <li>👉 IL more painful</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-orange">
+        <p>
+          secondsPerLiquidityCumulative tells:<br />
+          "What kind of environment was the LP exposed to?"
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 73 ════════════════════════════════════ -->
+    <div class="page" id="page73">
+      <div class="page-number">PAGE 73</div>
+
+      <h3>🧠 Deep Dive #3: Why V3 Oracle Uses Both Variables</h3>
+
+      <p>Simplified oracle formula:</p>
+
+      <div class="code">
+        averageTick = (tickCumulative_delta) / (time_delta)
+      </div>
+
+      <p>But a safe oracle uses logic like:</p>
+
+      <div class="callout callout-dark">
+        <p>
+          "Trust this average only when<br />
+          secondsPerLiquidityCumulative is normal"
+        </p>
+      </div>
+
+      <p>Meaning:</p>
+      <table>
+        <tr>
+          <th>Condition</th>
+          <th>Trust?</th>
+        </tr>
+        <tr>
+          <td>Price stable + liquidity stable</td>
+          <td class="yes">✅ Safe</td>
+        </tr>
+        <tr>
+          <td>Price moved + liquidity thin</td>
+          <td>⚠️ Suspicious</td>
+        </tr>
+      </table>
+
+      <div class="lock-box">
+        <div class="label">🛑 Final Lock Sentence — Please Remember</div>
+        <p>
+          tickCumulative is the memory of time.<br />
+          It remembers how long the price stood at each level.
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 74 ════════════════════════════════════ -->
+    <div class="page" id="page74">
+      <div class="page-number">PAGE 74</div>
+
+      <h3>🔍 How Is TWAP Calculated? (Logic Only)</h3>
+
+      <p>You say:</p>
+      <div class="callout callout-blue">
+        <p>"I want the average price of the last 10 minutes"</p>
+      </div>
+
+      <p>Protocol:</p>
+
+      <div class="step">
+        <div class="step-badge">1</div>
+        <div class="step-body"><p>tickCumulative from 10 min ago</p></div>
+      </div>
+      <div class="step">
+        <div class="step-badge">2</div>
+        <div class="step-body"><p>tickCumulative right now</p></div>
+      </div>
+      <div class="step">
+        <div class="step-badge">3</div>
+        <div class="step-body">
+          <p>Difference / time → avg tick → tick to price</p>
+        </div>
+      </div>
+
+      <h3>🎯 Real Dev Feel (Pseudo Code)</h3>
+
+      <div class="code">
+        (int56[] memory tickCumulatives, ) = pool.observe([600, 0]); avgTick =
+        (tickCumulatives[1] - tickCumulatives[0]) / 600;
+      </div>
+
+      <div class="callout callout-green">
+        <p>
+          👉 That's it<br />
+          👉 No swap needed<br />
+          👉 No manipulation possible easily
+        </p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 75 ════════════════════════════════════ -->
+    <div class="page" id="page75">
+      <div class="page-number">PAGE 75</div>
+
+      <h3>💣 Why Is It Expensive for the Attacker?</h3>
+
+      <p>To attack, attacker must:</p>
+      <ul>
+        <li>Keep price distorted for a long time</li>
+        <li>Buy/sell ETH every second</li>
+        <li>Pay fees + slippage</li>
+      </ul>
+
+      <div class="callout callout-red">
+        <p>
+          👉 Flash loan is insufficient<br />
+          👉 Attack is uneconomical
+        </p>
+      </div>
+
+      <div class="lock-box">
+        <div class="label">🧠 One Big Click Moment</div>
+        <p>
+          TWAP price = "price with memory"<br />
+          Spot price = "price without memory"
+        </p>
+      </div>
+
+      <h3>Why V3 Oracle Is Better Than V2</h3>
+
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th>V2</th>
+          <th>V3</th>
+        </tr>
+        <tr>
+          <td>Observation</td>
+          <td>Manual</td>
+          <td>Auto</td>
+        </tr>
+        <tr>
+          <td>Granularity</td>
+          <td>Block-based</td>
+          <td>Second-based</td>
+        </tr>
+        <tr>
+          <td>Manipulation cost</td>
+          <td>Low</td>
+          <td>Very high</td>
+        </tr>
+        <tr>
+          <td>LP aware</td>
+          <td class="no">❌</td>
+          <td class="yes">✅</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 76 ════════════════════════════════════ -->
+    <div class="page" id="page76">
+      <div class="page-number">PAGE 76</div>
+
+      <h3>🛑 Final Analogy (Best)</h3>
+
+      <div class="analogy">
+        <div class="analogy-label">Analogy</div>
+        <p>
+          <strong>Spot price:</strong><br />
+          Today's weather 🌧
+        </p>
+        <p style="margin-top: 10px">
+          <strong>TWAP:</strong><br />
+          7-day average climate 🌤
+        </p>
+        <p style="margin-top: 10px">
+          Planning happens on climate, not weather.
+        </p>
+      </div>
+
+      <div class="callout callout-green">
+        <div class="callout-label">✅ Checkpoint (Honest)</div>
+        <p>Now tell me:</p>
+        <p>• Can you feel how TWAP breaks manipulation over time?</p>
+      </div>
+
+      <div class="divider">Next Chapter</div>
+
+      <h2>
+        Uniswap V3 — Math Intuition (No Heavy Math) IGNORE BELOW 1 TO 8 CASES IF
+        NOT UNDERSTANDABLE AND MAYBE 9th IS ENOUGH FOR YOU.
+      </h2>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 77 ════════════════════════════════════ -->
+    <div class="page" id="page77">
+      <div class="page-number">PAGE 77</div>
+
+      <div class="lock-box">
+        <div class="label">🧠 First, a Master Idea — Lock This</div>
+        <p>
+          Uniswap's math doesn't control "balance" —<br />
+          it controls "flow"
+        </p>
+        <p style="margin-top: 10px">
+          Flow =<br />
+          • price's flow<br />
+          • liquidity's flow<br />
+          • value's flow
+        </p>
+      </div>
+
+      <h3>1️⃣ V2 vs V3 Math — Core Difference</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">V2</div>
+          <p>
+            "Liquidity is sitting in one place.<br />
+            Price moves against it."
+          </p>
+          <div class="math" style="font-size: 13px; padding: 8px">
+            x * y = k
+          </div>
+          <ul>
+            <li>ETH less → price jumps</li>
+            <li>ETH more → price falls</li>
+          </ul>
+          <p>👉 One blob of liquidity</p>
+        </div>
+        <div class="card">
+          <div class="card-label">V3</div>
+          <p>"Liquidity moves along with price"</p>
+          <ul>
+            <li>Liquidity is in layers</li>
+            <li>Each layer has its own math</li>
+          </ul>
+          <p>👉 Math became local</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 78 ════════════════════════════════════ -->
+    <div class="page" id="page78">
+      <div class="page-number">PAGE 78</div>
+
+      <h3>2️⃣ Most Important Intuition: "Local Liquidity"</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">V2</div>
+          <ul>
+            <li>You trade at $2000</li>
+            <li>Pool has to account for $10 price too</li>
+            <li>And $100k price too</li>
+          </ul>
+          <p>❌ Waste</p>
+        </div>
+        <div class="card">
+          <div class="card-label">V3</div>
+          <ul>
+            <li>You trade at $2000</li>
+            <li>Math only looks at $1950–$2050 LPs</li>
+          </ul>
+          <p>✅ Efficient</p>
+        </div>
+      </div>
+
+      <div class="callout callout-green">
+        <p>Math only looks where the price currently is</p>
+      </div>
+
+      <h3>3️⃣ Why Is Price in √(sqrt) Form? (Intuition)</h3>
+
+      <p>Forget the formula.</p>
+      <p>Think:</p>
+      <ul>
+        <li>You are walking on a slope</li>
+        <li>Steep slope → hard</li>
+        <li>Gentle slope → smooth</li>
+      </ul>
+
+      <p>Uniswap said:</p>
+      <div class="callout callout-blue">
+        <p>"Measure price in a way that the slope stays gentle always"</p>
+      </div>
+
+      <p>👉 √price = slope smoother</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 79 ════════════════════════════════════ -->
+    <div class="page" id="page79">
+      <div class="page-number">PAGE 79</div>
+
+      <p>Therefore:</p>
+      <ul>
+        <li>LP add/remove is smooth</li>
+        <li>Price move is predictable</li>
+      </ul>
+
+      <h3>4️⃣ Meaning of Liquidity Changed in V3</h3>
+
+      <table>
+        <tr>
+          <th>Version</th>
+          <th>Liquidity means</th>
+        </tr>
+        <tr>
+          <td>V2</td>
+          <td>How much money you deposited</td>
+        </tr>
+        <tr>
+          <td>V3</td>
+          <td>How hard it is to move price (locally)</td>
+        </tr>
+      </table>
+
+      <p>Think:</p>
+      <ul>
+        <li>Narrow range LP = strong wall</li>
+        <li>Wide range LP = soft wall</li>
+      </ul>
+
+      <h3>5️⃣ Swap Math Feel (No Equations)</h3>
+
+      <p>When a trader swaps:</p>
+      <div class="flow">
+        1. Price moves slightly 2. LP gives / takes a little ETH 3. Fees are cut
+        4. sqrtPrice advances a little 5. Tick boundary arrives 6. Liquidity
+        changes 7. Swap continues
+      </div>
+
+      <div class="callout callout-blue">
+        <p>👉 Math is a continuous journey, not a single jump.</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 80 ════════════════════════════════════ -->
+    <div class="page" id="page80">
+      <div class="page-number">PAGE 80</div>
+
+      <h3>6️⃣ Impermanent Loss Math Intuition</h3>
+
+      <p>IL's math says:</p>
+      <div class="callout callout-blue">
+        <p>"You are trading against the price direction"</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">V2</div>
+          <ul>
+            <li>You always keep trading</li>
+            <li>Price goes far → IL goes far</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-label">V3</div>
+          <ul>
+            <li>You leave the market at range boundary</li>
+          </ul>
+          <p>👉 Math gave you a STOP button</p>
+        </div>
+      </div>
+
+      <h3>7️⃣ Fees Math Intuition</h3>
+
+      <p>Fees math says:</p>
+      <div class="callout callout-orange">
+        <p>"Whoever takes more risk should get more reward"</p>
+      </div>
+
+      <p>Therefore:</p>
+      <ul>
+        <li>Narrow LP = more fees (when active)</li>
+        <li>Wide LP = fewer fees, but active longer</li>
+      </ul>
+
+      <p>👉 Risk-weighted reward</p>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 81 ════════════════════════════════════ -->
+    <div class="page" id="page81">
+      <div class="page-number">PAGE 81</div>
+
+      <h3>8️⃣ TWAP Math Intuition</h3>
+
+      <p>TWAP's math says:</p>
+      <div class="callout callout-blue">
+        <p>"One second of lies gets buried under 10 minutes of truth"</p>
+      </div>
+
+      <ul>
+        <li>Tick × time accumulates</li>
+        <li>Short spike has low weight</li>
+      </ul>
+
+      <p>👉 Time = truth filter</p>
+
+      <h3>9️⃣ Connect Everything Together (Final Feel)</h3>
+
+      <p>Think of Uniswap V3 as a machine:</p>
+
+      <table>
+        <tr>
+          <th>Component</th>
+          <th>Role</th>
+        </tr>
+        <tr>
+          <td>sqrtPrice</td>
+          <td>Speed</td>
+        </tr>
+        <tr>
+          <td>Tick</td>
+          <td>Gate</td>
+        </tr>
+        <tr>
+          <td>Liquidity</td>
+          <td>Road strength</td>
+        </tr>
+        <tr>
+          <td>LP</td>
+          <td>Road builders</td>
+        </tr>
+        <tr>
+          <td>Trader</td>
+          <td>Cars on the road</td>
+        </tr>
+        <tr>
+          <td>Fees</td>
+          <td>Toll</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 82 ════════════════════════════════════ -->
+    <div class="page" id="page82">
+      <div class="page-number">PAGE 82</div>
+
+      <div class="divider">Swap ke waqt kya hota hai</div>
+
+      <h3>🔄 What Happens During a Swap? (Real Feel)</h3>
+
+      <p>Trader buys ETH (price ↑)</p>
+
+      <p>In pool:</p>
+      <ul>
+        <li>ETH decreases</li>
+        <li>USDC increases</li>
+      </ul>
+
+      <p>
+        👉 sqrtPriceX96 increases<br />
+        👉 Tick boundaries cross<br />
+        👉 LPs turn on / off
+      </p>
+
+      <div class="callout callout-orange">
+        <p>
+          Important:<br />
+          Protocol never directly deals with price.<br />
+          Everything happens through sqrtPriceX96.
+        </p>
+      </div>
+
+      <div class="callout callout-dark">
+        <div class="callout-label">🪙 LP Position Connection</div>
+        <p>Inside LP NFT:</p>
+        <p>
+          • tickLower<br />
+          • tickUpper
+        </p>
+        <p style="margin-top: 8px">
+          Internally:<br />
+          • Ticks ↔ mapped to sqrtPriceX96
+        </p>
+        <p style="margin-top: 8px">LP is active:</p>
+        <div
+          style="
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #fde68a;
+          "
+        >
+          sqrtPriceLower ≤ currentSqrtPrice &lt; sqrtPriceUpper
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ PAGE 83 ════════════════════════════════════ -->
+    <div class="page" id="page83">
+      <div class="page-number">PAGE 83</div>
+
+      <div class="lock-box">
+        <div class="label">🛑 One Line That Means You "Got It"</div>
+        <p>
+          Uniswap V3's math<br />
+          does not predict price —<br />
+          it safely <strong style="color: var(--accent4)">HANDLES</strong> price
+        </p>
+      </div>
+
+      <div class="callout callout-green">
+        <div class="callout-label">✅ Final Checkpoint (Honest)</div>
+        <p>Now tell me:</p>
+        <p>
+          • Does it feel like math here is not rule-following, but
+          <strong>system design</strong>?
+        </p>
+      </div>
+
+      <div class="divider">Quick Recap — Check Yourself</div>
+
+      <ul>
+        <li>✔ Solidity doesn't understand decimals</li>
+        <li>✔ So price had to be made into an integer</li>
+        <li>✔ Liquidity math is based on sqrt</li>
+        <li>✔ So √price × 2^96 is stored on-chain</li>
+      </ul>
+
+      <div class="callout callout-orange">
+        <p>If this is clear → you are in the core math layer of V3 🔥</p>
+      </div>
+
+      <div
+        class="callout callout-blue"
+        style="
+          margin-top: 40px;
+          text-align: center;
+          border-top: 2px dashed var(--accent4);
+          padding-top: 30px;
+        "
+      >
+        <h3 style="margin: 0">Conceptual Revision &amp; Story</h3>
+        <p style="margin-top: 10px">
+          If you've completed this guide, you can now see the entire lifecycle
+          in a realistic story format.
+        </p>
+        <a
+          href="thetrade-pagewise.html"
+          style="
+            display: inline-block;
+            margin-top: 16px;
+            padding: 14px 28px;
+            background: var(--accent4);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-family: &quot;Fraunces&quot;, serif;
+            box-shadow: 0 4px 12px rgba(244, 162, 97, 0.3);
+          "
+        >
+          View Realistic Uniswap V3 Story →
+        </a>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          margin-top: 40px;
+          padding-top: 24px;
+          border-top: 1px solid var(--border);
+        "
+      >
+        <p
+          style="
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            font-size: 12px;
+            color: var(--muted);
+          "
+        >
+          END — All 83 Pages Complete
+        </p>
+      </div>
+    </div>
+
+    <button
+      class="back-btn"
+      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    >
+      ↑
+    </button>
+  </body>
+</html>

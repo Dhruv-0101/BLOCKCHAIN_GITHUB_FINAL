@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uniswap V1 – Complete Deep Explanation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f5f5;
+    color: #1a1a1a;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .nav-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: #1a1a2e; color: white;
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 15px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .nav-bar span { font-size: 13px; opacity: 0.8; }
+  .nav-bar input[type=number] {
+    width: 60px; padding: 4px 6px;
+    border: 1px solid #555; border-radius: 4px;
+    background: #2d2d4e; color: white;
+    font-size: 14px; text-align: center;
+  }
+  .nav-bar button {
+    padding: 5px 14px; border: none; border-radius: 4px;
+    background: #e94560; color: white; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+  }
+  .nav-bar button:hover { background: #c73652; }
+  .page-count { font-size: 12px; opacity: 0.6; }
+  .pages-wrapper { margin-top: 55px; }
+  .page {
+    display: none;
+    max-width: 860px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 8px;
+    padding: 40px 50px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    min-height: 600px;
+    position: relative;
+  }
+  .page.active { display: block; }
+  .page-number-badge {
+    position: absolute; top: 16px; right: 20px;
+    background: #e94560; color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  h1 { font-size: 22px; font-weight: 800; margin-bottom: 18px; color: #1a1a2e; }
+  h2 { font-size: 18px; font-weight: 700; margin: 22px 0 10px; color: #1a1a2e; }
+  h3 { font-size: 15px; font-weight: 700; margin: 16px 0 8px; color: #2d2d4e; }
+  h4 { font-size: 14px; font-weight: 700; margin: 12px 0 6px; }
+  p { margin-bottom: 10px; }
+  ul { margin: 8px 0 12px 22px; }
+  ul li { margin-bottom: 4px; }
+  ol { margin: 8px 0 12px 22px; }
+  ol li { margin-bottom: 4px; }
+  .formula-box {
+    background: #1e1e2e;
+    color: #a9dc76;
+    font-family: 'Courier New', monospace;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 14px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .note-box {
+    border-left: 4px solid #f39c12;
+    background: #fef9f0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .warning-box {
+    border-left: 4px solid #e74c3c;
+    background: #fdf0f0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .info-box {
+    border-left: 4px solid #3498db;
+    background: #f0f7ff;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .success-box {
+    border-left: 4px solid #27ae60;
+    background: #f0fdf4;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .section-divider { border: none; border-top: 1px solid #e0e0e0; margin: 20px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  th { background: #1a1a2e; color: white; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border-bottom: 1px solid #e8e8e8; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .check { color: #27ae60; font-weight: bold; }
+  .cross { color: #e74c3c; font-weight: bold; }
+  .emoji { font-style: normal; }
+  .highlight { background: #fff3cd; padding: 2px 5px; border-radius: 3px; }
+  .bold { font-weight: 700; }
+  .step-number {
+    display: inline-block;
+    background: #1a1a2e; color: white;
+    width: 24px; height: 24px; border-radius: 50%;
+    text-align: center; line-height: 24px;
+    font-size: 12px; font-weight: 700;
+    margin-right: 6px;
+  }
+  .bottom-nav {
+    max-width: 860px;
+    margin: 0 auto 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+  }
+  .bottom-nav button {
+    padding: 8px 22px;
+    border: none; border-radius: 5px;
+    background: #1a1a2e; color: white;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  .bottom-nav button:hover { background: #e94560; }
+  .bottom-nav .page-info { font-size: 13px; color: #666; }
+</style>
+</head>
+<body>
+
+<div class="nav-bar">
+  <span>🔥 Uniswap V1 – Complete Guide</span>
+  <span>Go to page:</span>
+  <input type="number" id="pageInput" min="0" max="72" value="0">
+  <button onclick="goToPage()">Go</button>
+  <span class="page-count" id="pageCountDisplay">Intro / 72</span>
+</div>
+
+<div class="pages-wrapper">
+
+<!-- PAGE 0 (INTRO) -->
+<div class="page active" id="page0">
+  <div class="page-number-badge">Intro</div>
+  <h1>📘 Uniswap V1 Complete Guide – Overview</h1>
+  <p>Welcome to this comprehensive 72-page deep dive into the mechanics of <strong>Uniswap V1</strong>. This guide is designed to take you from the very basics of Automated Market Makers (AMMs) all the way to understanding complex mathematical formulas, exact input/output orders, and liquidity provider economics.</p>
+  <hr class="section-divider">
+  <h2>🌟 What You Will Learn</h2>
+  <ul>
+    <li><strong>Basics of AMMs:</strong> How the <code>x * y = k</code> formula replaces traditional order books.</li>
+    <li><strong>Smart Contract Architecture:</strong> Exchanges, Factories, and blockchain addresses.</li>
+    <li><strong>Impermanent Loss:</strong> Real-life examples (like vegetable markets) to understand LP risks.</li>
+    <li><strong>Price Impact & Slippage:</strong> How big trades move the market and why deep liquidity matters.</li>
+    <li><strong>Deep Math & Logic:</strong> Exact Input vs. Exact Output formulas, transaction fees, and LP protection mechanisms.</li>
+  </ul>
+  <hr class="section-divider">
+  <div class="info-box">
+    💡 <strong>Pro Tip:</strong> Use the navigation bar at the top or bottom, or the Left/Right arrow keys to move through the guide.
+  </div>
+  <hr class="section-divider">
+  <div style="margin-top: 30px; text-align: center; background: #1a1a2e; color: white; padding: 20px; border-radius: 8px;">
+    <h3 style="color: #a9dc76; margin: 0 0 10px 0;">✍️ Author</h3>
+    <p style="font-size: 22px; font-weight: 800; margin: 0; color: #fff;">Dhruv Patel</p>
+  </div>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page" id="page1">
+  <div class="page-number-badge">Page 1</div>
+  <h1>🔥 Uniswap V1 – Complete Deep Explanation</h1>
+  <h2>1️⃣ What was Uniswap V1? (Big Picture)</h2>
+  <p>Uniswap V1 (2018) was a decentralized exchange (DEX) that:</p>
+  <ul>
+    <li>Does not use an order book</li>
+    <li>No buyer–seller matching</li>
+    <li>Runs purely on smart contracts</li>
+    <li>Introduced the <strong>Automated Market Maker (AMM)</strong> concept</li>
+  </ul>
+  <div class="note-box">
+    💡 <strong>Meaning:</strong><br>
+    "Price is not decided by people — the formula decides it."
+  </div>
+  <hr class="section-divider">
+  <h2>2️⃣ The Most Important Rule – AMM Formula</h2>
+  <p>The heart ❤️ of Uniswap V1 is:</p>
+  <div class="formula-box">x * y = k</div>
+  <ul>
+    <li><code>x</code> = ETH reserve</li>
+    <li><code>y</code> = Token reserve</li>
+    <li><code>k</code> = constant (does not change after liquidity)</li>
+  </ul>
+  <div class="warning-box">⚠️ This rule must always be maintained</div>
+  <hr class="section-divider">
+  <h3>💡 Intuition (to get a feel)</h3>
+  <p>Think of a shop with:</p>
+  <ul>
+    <li>10 ETH</li>
+    <li>1,000 TOKEN</li>
+  </ul>
+  <p>So:</p>
+  <div class="formula-box">k = 10 * 1000 = 10,000</div>
+  <p>Now someone comes:</p>
+  <ul>
+    <li>Wants to give 1 ETH</li>
+    <li>Wants to take TOKEN</li>
+  </ul>
+  <p>ETH reserve increases → TOKEN reserve must decrease<br>So that <code>x*y = 10,000</code> stays</p>
+  <div class="info-box">➡️ That is why as more buying happens, price keeps getting higher</div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <div class="page-number-badge">Page 2</div>
+  <h2>3️⃣ Structure of Uniswap V1</h2>
+  <h3>❗ Important Limitation</h3>
+  <p><strong>Each token had a separate exchange contract</strong></p>
+  <p>Example:</p>
+  <ul>
+    <li>ETH ↔ DAI → one contract</li>
+    <li>ETH ↔ USDC → different contract</li>
+    <li>ETH ↔ BAT → different contract</li>
+  </ul>
+  <div class="warning-box">⚠️ Direct Token ↔ Token trading was not possible<br>Everything happened through ETH.</div>
+  <hr class="section-divider">
+  <h2>4️⃣ How Did Trading Work? (ETH ⇌ ERC20)</h2>
+  <h3>Case 1️⃣: ETH → TOKEN (Buy Token)</h3>
+  <p>You give ETH, you take token.</p>
+  <p><strong>Formula (simplified):</strong></p>
+  <div class="formula-box">tokens_out = (tokens_reserve * eth_in) / (eth_reserve + eth_in)</div>
+  <p><em>(After fees, actual amount received is slightly less)</em></p>
+  <div class="info-box">⭐ As <code>eth_in</code> increases:<br>• price gets worse<br>• slippage increases</div>
+  <hr class="section-divider">
+  <h3>Case 2️⃣: TOKEN → ETH (Sell Token)</h3>
+  <p>You give token, you take ETH.</p>
+  <p><strong>Formula:</strong></p>
+  <div class="formula-box">eth_out = (eth_reserve * tokens_in) / (token_reserve + tokens_in)</div>
+  <hr class="section-divider">
+  <h3>❗ Fees (IMPORTANT)</h3>
+  <ul>
+    <li>0.3% fee on every trade</li>
+    <li>This fee:
+      <ul>
+        <li>Uniswap does not keep it</li>
+        <li>It goes to Liquidity Providers (LPs)</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+  <div class="page-number-badge">Page 3</div>
+  <h2>5️⃣ How Did Token → Token Trade Happen?</h2>
+  <p>Direct — <span class="cross">✗ NOT POSSIBLE</span></p>
+  <h3>Example: DAI → USDC</h3>
+  <p>What actually happened:</p>
+  <div class="formula-box">DAI → ETH → USDC</div>
+  <p>This means:</p>
+  <ul>
+    <li>2 trades</li>
+    <li>2x fees</li>
+    <li>2x slippage 😵</li>
+  </ul>
+  <div class="info-box">➡️ This was a major drawback of Uniswap V1</div>
+  <hr class="section-divider">
+  <h2>6️⃣ Liquidity Providers (LPs) – Who Puts in the Money?</h2>
+  <h3>LP's job:</h3>
+  <ul>
+    <li>Deposit ETH + Token</li>
+    <li>Give liquidity to the pool</li>
+    <li>Earn fees</li>
+  </ul>
+  <hr class="section-divider">
+  <h3>Rule:</h3>
+  <div class="note-box">💡 ETH and Token must be deposited in equal value</div>
+  <p><strong>Example:</strong></p>
+  <ul>
+    <li>ETH price = ₹2,00,000</li>
+    <li>You are adding 1 ETH</li>
+  </ul>
+  <p>So:</p>
+  <ul>
+    <li>₹2,00,000 worth of token must also be added</li>
+  </ul>
+  <hr class="section-divider">
+  <h3>What does the LP receive?</h3>
+  <ul>
+    <li><strong>Liquidity Tokens (LP tokens)</strong></li>
+    <li>These represent your share in the pool</li>
+  </ul>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="page4">
+  <div class="page-number-badge">Page 4</div>
+  <h2>7️⃣ Fees Distribution – How Does LP's Profit Form?</h2>
+  <ul>
+    <li>0.3% fee on every trade</li>
+    <li>This fee gets added to the pool</li>
+    <li>When LP withdraws:
+      <ul>
+        <li>Gets principal + fees</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="success-box">⭐ More trading volume = more LP profit</div>
+  <hr class="section-divider">
+  <h2>8️⃣ Impermanent Loss (Most Confusing but IMPORTANT)</h2>
+  <h3>In simple language:</h3>
+  <div class="note-box">
+    If the token's price changes a lot in the outside market<br>
+    and the pool balance adjusts automatically<br>
+    then LP gets less money compared to just HODLing
+  </div>
+  <hr class="section-divider">
+  <h3>Example:</h3>
+  <ul>
+    <li>You deposited ETH + TOKEN</li>
+    <li>Token's price went 5x</li>
+  </ul>
+  <p><strong>AMM will:</strong></p>
+  <ul>
+    <li>Keep selling token</li>
+    <li>Keep buying ETH</li>
+  </ul>
+  <p><strong>Result:</strong></p>
+  <ul>
+    <li>You are left with fewer tokens</li>
+    <li>If you had HODLed, profit would have been more</li>
+  </ul>
+  <div class="info-box">😮 This is called <strong>Impermanent Loss</strong></div>
+  <div class="warning-box">⚠️ "Impermanent" only until you withdraw<br>Once you withdraw it becomes permanent loss</div>
+  <hr class="section-divider">
+  <h2>9️⃣ Slippage – Why Does Price Go Wrong?</h2>
+  <h3>Slippage = Expected price vs Actual price difference</h3>
+  <h3>Why does it happen?</h3>
+  <ul>
+    <li>Pool has low liquidity</li>
+    <li>You are making a large trade</li>
+    <li>x*y=k is forcefully maintained</li>
+  </ul>
+  <div class="success-box">⭐ In V1, slippage was very high for big trades</div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="page5">
+  <div class="page-number-badge">Page 5</div>
+  <h2>🧠 Impermanent Loss – REAL LIFE EXAMPLE (DESI STYLE)</h2>
+  <h3>🛒 Example 1: Vegetable Market Example 🥔🍅</h3>
+  <p>Imagine you have an <strong>automatic vegetable market</strong>.</p>
+  <p>You put in at the start:</p>
+  <ul>
+    <li>10 potatoes 🥔</li>
+    <li>10 tomatoes 🍅</li>
+  </ul>
+  <p><strong>Market rate:</strong></p>
+  <ul>
+    <li>1 potato = ₹10</li>
+    <li>1 tomato = ₹10</li>
+  </ul>
+  <p>Total value = ₹200</p>
+  <div class="note-box">💡 Rule of the market:</div>
+  <div class="formula-box">potato × tomato = constant</div>
+  <hr class="section-divider">
+  <h3>📝 What happened now?</h3>
+  <p>In the outside market:</p>
+  <ul>
+    <li>Tomato price went from ₹10 → ₹100 😱</li>
+    <li>Potato price remains same ₹10</li>
+  </ul>
+  <p>What will people do?</p>
+  <div class="info-box">💡 They will buy tomatoes from the cheaper place</div>
+  <hr class="section-divider">
+  <h3>🤖 What will your automatic market do?</h3>
+  <p>Machine says:</p>
+  <div class="note-box">
+    "Tomato is becoming expensive, so I will sell tomato<br>
+    and buy potato<br>
+    so that balance remains"
+  </div>
+  <p><strong>Result:</strong></p>
+  <ul>
+    <li>You are left with <strong>fewer tomatoes</strong></li>
+    <li>More potatoes</li>
+  </ul>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page" id="page6">
+  <div class="page-number-badge">Page 6</div>
+  <h2>⭐ When you close the market (withdraw LP)</h2>
+  <p>You will have:</p>
+  <ul>
+    <li>5 tomatoes</li>
+    <li>20 potatoes</li>
+  </ul>
+  <p><strong>Value:</strong></p>
+  <ul>
+    <li>5 × ₹100 = ₹500</li>
+    <li>20 × ₹10 = ₹200</li>
+  </ul>
+  <p><strong>Total = ₹700</strong></p>
+  <hr class="section-divider">
+  <h3>😊 But what if you had HODLed?</h3>
+  <ul>
+    <li>10 tomatoes × ₹100 = ₹1000</li>
+    <li>10 potatoes × ₹10 = ₹100</li>
+  </ul>
+  <p><strong>Total = ₹1100</strong></p>
+  <hr class="section-divider">
+  <h3>❗ Loss = ₹400</h3>
+  <p>This is <strong>Impermanent Loss</strong></p>
+  <div class="note-box">
+    You didn't lose anything,<br>
+    but you earned less compared to just HODLing
+  </div>
+  <hr class="section-divider">
+  <h2>🔄 Why is it called "Impermanent"?</h2>
+  <p>If tomato's price comes back to ₹10:</p>
+  <ul>
+    <li>Pool will come back to 10 potatoes + 10 tomatoes</li>
+    <li>Loss disappears <span class="cross">✗</span></li>
+    <li>That's why "impermanent"</li>
+    <li>Once you withdraw → it becomes <strong>permanent</strong></li>
+  </ul>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page" id="page7">
+  <div class="page-number-badge">Page 7</div>
+  <h2>🪙 Crypto Version (ETH + Token)</h2>
+  <p><strong>Start:</strong></p>
+  <ul>
+    <li>1 ETH = ₹100</li>
+    <li>Token = ₹100</li>
+  </ul>
+  <p>You put into the pool:</p>
+  <ul>
+    <li>1 ETH</li>
+    <li>1 TOKEN</li>
+  </ul>
+  <hr class="section-divider">
+  <h3>Token went 5x</h3>
+  <ul>
+    <li>Token = ₹500</li>
+    <li>ETH = ₹100</li>
+  </ul>
+  <p><strong>What will AMM do?</strong></p>
+  <ul>
+    <li>Keep selling token</li>
+    <li>Keep accumulating ETH</li>
+  </ul>
+  <p><strong>On withdraw:</strong></p>
+  <ul>
+    <li>Less token</li>
+    <li>More ETH</li>
+  </ul>
+  <p>Total value &lt; HOLD value</p>
+  <hr class="section-divider">
+  <h2>⭐ When does fees cover it?</h2>
+  <p>Impermanent Loss can be offset by fees if:</p>
+  <ul>
+    <li>High volume in the pool</li>
+    <li>More trading happens</li>
+    <li>Price does not move too wildly</li>
+  </ul>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page" id="page8">
+  <div class="page-number-badge">Page 8</div>
+  <h2>8️⃣ When is Impermanent Loss dangerous?</h2>
+  <ul>
+    <li><span class="cross">✗</span> Low liquidity pool</li>
+    <li><span class="cross">✗</span> Highly volatile token</li>
+    <li><span class="cross">✗</span> Meme coins</li>
+    <li><span class="cross">✗</span> One-sided price rocket 🚀</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>✅ When is it safe?</h2>
+  <ul>
+    <li><span class="check">✔</span> Stablecoin pools</li>
+    <li><span class="check">✔</span> ETH–BTC type pairs</li>
+    <li><span class="check">✔</span> High fee / high volume pools</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>🧠 One-line Feel</h2>
+  <div class="note-box">
+    AMM automatically "rebalances" your assets,<br>
+    but if the market trend is in your favor<br>
+    HODLing is more profitable
+  </div>
+</div>
+
+<!-- PAGE 9 -->
+<div class="page" id="page9">
+  <div class="page-number-badge">Page 9</div>
+  <h2>🔧 Line-by-line breakdown</h2>
+  <h3>◆ "TRADERS maintain the price"</h3>
+  <p>This means:</p>
+  <ul>
+    <li>No price setter in Uniswap</li>
+    <li>Neither Uniswap, nor LP</li>
+    <li>Traders (people who buy/sell) bring the price close to the market</li>
+  </ul>
+  <hr class="section-divider">
+  <h3>Case 1️⃣</h3>
+  <p><strong>"If BAN is cheap → traders buy → token reserve decreases → price up"</strong></p>
+  <h4>Real-life scenario 🖥️</h4>
+  <ul>
+    <li>Market price of BAN = ₹100</li>
+    <li>Getting BAN on Uniswap pool = ₹70 😊 (cheap!)</li>
+  </ul>
+  <div class="info-box">💡 Smart trader says:<br>"Oh! Getting cheap here, let me buy from here"</div>
+  <hr class="section-divider">
+  <h3>🔄 When traders BUY</h3>
+  <ul>
+    <li>They take out BAN and take it away</li>
+    <li>In the pool:
+      <ul>
+        <li>BAN decreases</li>
+        <li>ETH increases</li>
+      </ul>
+    </li>
+  </ul>
+  <p>Remember AMM's rule?</p>
+  <div class="formula-box">ETH × BAN = constant</div>
+  <p>BAN decreased ⇒ price automatically increases</p>
+  <div class="success-box">📝 Until:<br>• Uniswap price ≈ market price, buying will keep happening</div>
+  <div class="info-box">➡️ That's why it's written:<br>token reserve decreases → price up</div>
+</div>
+
+<!-- PAGE 10 -->
+<div class="page" id="page10">
+  <div class="page-number-badge">Page 10</div>
+  <h3>Case 2️⃣</h3>
+  <p><strong>"If BAN is expensive → traders sell → token reserve increases → price down"</strong></p>
+  <p>Now the opposite scenario 🔄</p>
+  <ul>
+    <li>Market price = ₹100</li>
+    <li>BAN on Uniswap = ₹130 🤑 (expensive!)</li>
+  </ul>
+  <div class="info-box">💡 Trader says:<br>"Sell at a higher price outside? No! Let me sell here on Uniswap itself"</div>
+  <hr class="section-divider">
+  <h3>🔄 When traders SELL</h3>
+  <ul>
+    <li>They put BAN into the pool</li>
+    <li>In the pool:
+      <ul>
+        <li>BAN increases</li>
+        <li>ETH goes out</li>
+      </ul>
+    </li>
+  </ul>
+  <p>BAN increased ⇒ price falls</p>
+  <div class="success-box">📝 Until:<br>• Uniswap price ≈ market price</div>
+  <div class="info-box">➡️ That's why it's written:<br>token reserve increases → price down</div>
+  <hr class="section-divider">
+  <h3>🧠 One-line intuition (to remember)</h3>
+  <div class="note-box">
+    Looks cheap → people buy → price rises<br>
+    Looks expensive → people sell → price falls
+  </div>
+  <p>Exactly like:</p>
+  <ul>
+    <li>Phone available cheap on Flipkart → people will buy it</li>
+    <li>Available expensive → no one will buy it</li>
+  </ul>
+  <hr class="section-divider">
+  <h3>⚠️ IMPORTANT (For Exam + Concept)</h3>
+  <ul>
+    <li>Uniswap itself does not set price</li>
+    <li>AMM only follows math</li>
+    <li>Arbitrage traders keep price in sync with "real world"</li>
+  </ul>
+  <div class="warning-box">💡 If there were no traders:<br>• Price would go completely wrong<br>• Pool would become inefficient</div>
+</div>
+
+<!-- PAGE 11 -->
+<div class="page" id="page11">
+  <div class="page-number-badge">Page 11</div>
+  <h3>◆ Case 1: You add 1 ETH</h3>
+  <div class="formula-box">tokens_out = (10,000 × 1) / (100 + 1)
+           ≈ 99 tokens</div>
+  <p>💡 1 ETH ≈ 99 tokens ✅<br><strong>Good price</strong></p>
+  <hr class="section-divider">
+  <h3>◆ Case 2: You add 10 ETH</h3>
+  <div class="formula-box">tokens_out = (10,000 × 10) / (100 + 10)
+           ≈ 909 tokens</div>
+  <p>💡 10 ETH ≈ 909 tokens<br>💡 1 ETH ≈ 90.9 tokens <span class="cross">✗</span></p>
+  <p><strong>Per-ETH price got worse</strong></p>
+  <hr class="section-divider">
+  <h3>◆ Case 3: You add 50 ETH 😊</h3>
+  <div class="formula-box">tokens_out = (10,000 × 50) / (100 + 50)
+           ≈ 3333 tokens</div>
+  <p>💡 1 ETH ≈ 66.6 tokens ⭐</p>
+  <hr class="section-divider">
+  <h3>📊 Table will make it clear</h3>
+  <table>
+    <tr><th>ETH In</th><th>Tokens Out</th><th>Tokens per ETH</th></tr>
+    <tr><td>1</td><td>99</td><td>99</td></tr>
+    <tr><td>10</td><td>909</td><td>90.9</td></tr>
+    <tr><td>50</td><td>3333</td><td>66.6</td></tr>
+  </table>
+  <div class="info-box">💡 ETH increased → per ETH value decreased</div>
+</div>
+
+<!-- PAGE 12 -->
+<div class="page" id="page12">
+  <div class="page-number-badge">Page 12</div>
+  <h2>🔒 10. Security Model</h2>
+  <h3>👍 Good things:</h3>
+  <ul>
+    <li>Non-custodial</li>
+    <li>Smart contract based</li>
+    <li>Open-source</li>
+  </ul>
+  <h3><span class="cross">✗</span> Risks:</h3>
+  <ul>
+    <li>Smart contract bug</li>
+    <li>Front-running (miners see and trade first)</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>1️⃣1️⃣ Uniswap V1 PROS ✅</h2>
+  <ul>
+    <li><span class="check">✔</span> First successful AMM</li>
+    <li><span class="check">✔</span> Order book tension eliminated</li>
+    <li><span class="check">✔</span> Permissionless (anyone can list any token)</li>
+    <li><span class="check">✔</span> Passive income for LPs</li>
+    <li><span class="check">✔</span> Simple & elegant design</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>1️⃣2️⃣ Uniswap V1 CONS <span class="cross">✗</span> (Very Important)</h2>
+  <ul>
+    <li><span class="cross">✗</span> Only ETH pairs</li>
+    <li><span class="cross">✗</span> Token ↔ Token trade inefficient</li>
+    <li><span class="cross">✗</span> High slippage</li>
+    <li><span class="cross">✗</span> Impermanent loss risk</li>
+    <li><span class="cross">✗</span> Capital inefficient</li>
+    <li><span class="cross">✗</span> Front-running issue</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>1️⃣3️⃣ Uniswap V1 vs Traditional Exchange (Quick Feel)</h2>
+  <table>
+    <tr><th>Feature</th><th>CEX</th><th>Uniswap V1</th></tr>
+    <tr><td>Order Book</td><td>Yes</td><td><span class="cross">✗</span></td></tr>
+    <tr><td>KYC</td><td>Yes</td><td><span class="cross">✗</span></td></tr>
+    <tr><td>Custody</td><td>Exchange</td><td>You</td></tr>
+    <tr><td>Price</td><td>Buyers/Sellers</td><td>Formula</td></tr>
+    <tr><td>Liquidity</td><td>Market makers</td><td>Anyone</td></tr>
+  </table>
+</div>
+
+<!-- PAGE 13 -->
+<div class="page" id="page13">
+  <div class="page-number-badge">Page 13</div>
+  <h2>1️⃣4️⃣ What did Uniswap V1 give to DeFi?</h2>
+  <h3>💡 Revolutionary Ideas:</h3>
+  <ul>
+    <li>AMM concept</li>
+    <li>Liquidity mining base</li>
+    <li>Permissionless listing</li>
+    <li>Composability (DeFi Lego)</li>
+  </ul>
+  <div class="info-box">💡 If Uniswap V1 had not existed:<br>
+    V2, V3, Curve, Balancer, SushiSwap — <strong>none of it would have existed</strong></div>
+  <hr class="section-divider">
+  <h2>1️⃣5️⃣ Why Uniswap V1 is NOT used today?</h2>
+  <ul>
+    <li>ETH-only limitation</li>
+    <li>Gas inefficient</li>
+    <li>Better AMMs arrived</li>
+    <li>V2 &amp; V3 fixed everything</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>🎯 FINAL FEEL STATEMENT</h2>
+  <div class="note-box">
+    <strong>Uniswap V1 = DeFi's Newton's Laws</strong><br>
+    Simple, imperfect, but the foundation of everything.
+  </div>
+</div>
+
+<!-- PAGE 14 -->
+<div class="page" id="page14">
+  <div class="page-number-badge">Page 14</div>
+  <h2>⭐ Step 1 — What does Factory do? (Real example)</h2>
+  <p>You want to create an exchange for BANANA token on Uniswap.</p>
+  <h3>You call:</h3>
+  <div class="formula-box">createExchange(BAN_token_address)</div>
+  <h3>What happens?</h3>
+  <ul>
+    <li>Factory deploys a new <strong>exchange contract</strong>.</li>
+    <li>Mapping gets set:</li>
+  </ul>
+  <div class="formula-box">BAN_token_address → BANANA Exchange Address</div>
+  <h3>In simple terms:</h3>
+  <div class="note-box">"Factory creates one shop (exchange) for each token."</div>
+</div>
+
+<!-- PAGE 15 -->
+<div class="page" id="page15">
+  <div class="page-number-badge">Page 15</div>
+  <h2>⭐ FIRST: SIMPLEST EXPLANATION (1 LINE)</h2>
+  <ul>
+    <li><strong>Exchange Contract</strong> = Uniswap's <em>AMM program</em> that runs swap/liquidity logic.</li>
+    <li><strong>Exchange Address</strong> = The <em>address on the blockchain</em> where this program is deployed.</li>
+  </ul>
+  <p><strong>In simple terms:</strong></p>
+  <p>Exchange contract = the complete system of the shop<br>
+  Exchange address = the exact location of the shop</p>
+  <hr class="section-divider">
+  <h2>PART 1 — REAL-LIFE VISUAL (SHOP EXAMPLE) 🏪</h2>
+  <h3>🌟 Imagine:</h3>
+  <p>You are in a shopping mall.</p>
+  <p>Inside it:</p>
+  <ul>
+    <li><em>Shop's system</em> (billing machine, inventory logic, rules)</li>
+    <li><em>Shop's address</em> (mall's shop number 27)</li>
+  </ul>
+  <p>Same with Uniswap:</p>
+  <h3><span class="check">✔</span> Exchange Contract = Complete system of the shop</h3>
+  <p>Inside it:</p>
+  <ul>
+    <li>How liquidity will be stored</li>
+    <li>How token will be received</li>
+    <li>How ETH will go out</li>
+    <li>How LP tokens will be minted</li>
+  </ul>
+  <p>Meaning: complete logic + rules.</p>
+  <h3><span class="check">✔</span> Exchange Address = Shop No. 27</h3>
+  <p>The place on the blockchain where this shop is deployed.</p>
+</div>
+
+<!-- PAGE 16 -->
+<div class="page" id="page16">
+  <div class="page-number-badge">Page 16</div>
+  <h2>PART 2 — BLOCKCHAIN REAL EXAMPLE 🧠</h2>
+  <p>Suppose:</p>
+  <p><strong>Token = BANANA Token</strong><br>
+  Its exchange was created using factory.</p>
+  <p>Now blockchain shows:</p>
+  <div class="formula-box">BANANA Exchange Contract Code → deployed
+BANANA Exchange Address → 0xABC...123</div>
+  <h3><span class="check">✔</span> Contract = file/system</h3>
+  <p>This is the program:</p>
+  <div class="formula-box">function addLiquidity(...)
+function swap(...)
+function removeLiquidity(...)</div>
+  <h3><span class="check">✔</span> Address = place where this program lives</h3>
+  <p>This is like:</p>
+  <div class="formula-box">0xABCc34981236f98AbcEf12dF6760001234567899</div>
+  <p>Whenever a user calls swap → they send a transaction to the <strong>exchange address</strong>, and the blockchain executes the <strong>exchange contract code</strong> stored at that address.</p>
+</div>
+
+<!-- PAGE 17 -->
+<div class="page" id="page17">
+  <div class="page-number-badge">Page 17</div>
+  <h2>PART 3 — VISUAL DIAGRAM 📦</h2>
+  <div class="formula-box">+--------------------------------------------------+
+|            EXCHANGE CONTRACT (LOGIC)             |
+|--------------------------------------------------|
+| - Rules of swapping                              |
+| - x*y=k formula                                  |
+| - Liquidity logic                                |
+| - LP token logic                                 |
+| - Event logs                                     |
++--------------------------------------------------+
+                    |
+                    | deployed at
+                    ↓
+         +----------------------------+
+         | EXCHANGE ADDRESS           |
+         | 0xABCc34981236f98Abc...    |
+         | (Blockchain location)      |
+         +----------------------------+</div>
+  <p><strong>User interacts with the address,<br>
+  but code = contract inside.</strong></p>
+</div>
+
+<!-- PAGE 18 -->
+<div class="page" id="page18">
+  <div class="page-number-badge">Page 18</div>
+  <h2>PART 4 — REAL LIFE ACTION FLOW 🔥</h2>
+  <p>User wants to buy BANANA tokens.</p>
+  <h3>Step 1</h3>
+  <p>Your website calls:</p>
+  <div class="formula-box">factory.getExchange(BAN_TOKEN_ADDRESS)</div>
+  <p>Factory returns:</p>
+  <div class="formula-box">BANANA_EXCHANGE_ADDRESS = 0xABC...</div>
+  <h3>Step 2</h3>
+  <p>Your frontend now creates connection:</p>
+  <div class="formula-box">new web3.eth.Contract(exchangeABI, 0xABC...)</div>
+  <p>Here:</p>
+  <ul>
+    <li><code>exchangeABI</code> = describes the contract's logic (functions)</li>
+    <li><code>0xABC...</code> = where that logic is deployed</li>
+  </ul>
+  <h3>Step 3</h3>
+  <p>User presses "Swap ETH → BAN"</p>
+  <p>Frontend calls:</p>
+  <div class="formula-box">exchangeContract.methods.ethToTokenSwapInput(...).send({
+  from: user,
+  value: amountETH
+})</div>
+  <p>This means:</p>
+  <ul>
+    <li>🟢 You are calling the <strong>contract code</strong></li>
+    <li>🔴 But sending transaction to the <strong>exchange address</strong></li>
+  </ul>
+</div>
+
+<!-- PAGE 19 -->
+<div class="page" id="page19">
+  <div class="page-number-badge">Page 19</div>
+  <h2>PART 5 — SUPER SIMPLE ANALOGY 🪄</h2>
+  <ul>
+    <li><strong>Contract</strong> = McDonald's internal system (menu, recipes, rules)</li>
+    <li><strong>Contract address</strong> = McDonald's exact shop number in the mall</li>
+  </ul>
+  <p>When a user places an order:</p>
+  <ul>
+    <li>They go to the shop's address</li>
+    <li>And the burger is made according to the system (contract) rules</li>
+  </ul>
+  <p>Similarly:</p>
+  <ul>
+    <li>Swap transaction goes to the <strong>exchange address</strong></li>
+    <li>Blockchain runs the <strong>exchange contract logic</strong></li>
+  </ul>
+  <hr class="section-divider">
+  <h2>PART 6 — WRONG vs RIGHT UNDERSTANDING ✏️</h2>
+  <h3><span class="cross">✗</span> WRONG:</h3>
+  <p>"Exchange contract" and "exchange address" are the same thing.</p>
+  <h3><span class="check">✔</span> RIGHT:</h3>
+  <p>"Exchange CONTRACT" = logic / code<br>
+  "Exchange ADDRESS" = blockchain location where the logic is deployed</p>
+  <p>Without address → you cannot talk to the contract<br>
+  Without contract → address is empty<br>
+  Together → Uniswap works</p>
+  <hr class="section-divider">
+  <h2>PART 7 — FINAL SUPER SHORT SUMMARY (REMEMBER THIS 💡)</h2>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td><strong>Exchange Contract</strong></td><td>Program/logic that performs swap/liquidity</td></tr>
+    <tr><td><strong>Exchange Address</strong></td><td>Blockchain location of that program</td></tr>
+    <tr><td><strong>User interacts with</strong> → Address</td><td>Because transactions go to addresses</td></tr>
+    <tr><td><strong>Blockchain executes</strong> → Contract</td><td>Because logic lives inside that address</td></tr>
+  </table>
+</div>
+
+<!-- PAGE 20 -->
+<div class="page" id="page20">
+  <div class="page-number-badge">Page 20</div>
+  <h2>⭐ Step 2 — Add Liquidity to Exchange (Real example)</h2>
+  <p>Exchange is created, but it is empty.<br>
+  You become the first liquidity provider.</p>
+  <h3>You deposit:</h3>
+  <ul>
+    <li>1 ETH</li>
+    <li>1000 BAN tokens<br><em>(This creates price = 1 ETH = 1000 BAN)</em></li>
+  </ul>
+  <h3>What does the Exchange do?</h3>
+  <ul>
+    <li>Sets reserves:</li>
+  </ul>
+  <div class="formula-box">eth_reserve = 1
+token_reserve = 1000</div>
+  <ul>
+    <li>Gives you LP tokens (say 32 LP tokens).</li>
+  </ul>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"You put goods in the shop, and in return you got shares (LP tokens) of the shop."</div>
+</div>
+
+<!-- PAGE 21 -->
+<div class="page" id="page21">
+  <div class="page-number-badge">Page 21</div>
+  <h2>⭐ Step 3 — A user swaps (ETH → BANANA)</h2>
+  <p>A person comes and wants to buy BAN tokens.<br>
+  They send 0.1 ETH to the exchange.</p>
+  <h3>What does the Exchange do?</h3>
+  <ul>
+    <li>Applies formula: x*y=k</li>
+    <li>Applies 0.3% fee (997/1000).</li>
+    <li>Calculates output tokens.</li>
+  </ul>
+  <p>Let's say they get <strong>90 BAN tokens</strong>.</p>
+  <h3>Reserves update:</h3>
+  <ul>
+    <li>eth_reserve = 1 + 0.1 = <strong>1.1</strong></li>
+    <li>token_reserve = 1000 – 90 = <strong>910</strong></li>
+  </ul>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"User gave a little ETH, the shop gave them tokens. Your reserves grew."</div>
+</div>
+
+<!-- PAGE 22 -->
+<div class="page" id="page22">
+  <div class="page-number-badge">Page 22</div>
+  <h2>⭐ Step 4 — Token → ETH Swap (Real example)</h2>
+  <p>The next user wants to sell 100 BAN tokens.</p>
+  <h3>What does the Exchange do?</h3>
+  <ul>
+    <li>Deducts 100 BAN tokens</li>
+    <li>Calculates ETH output using formula (say 0.095 ETH)</li>
+    <li>Sends them the ETH.</li>
+  </ul>
+  <h3>New reserve:</h3>
+  <ul>
+    <li>eth_reserve = 1.1 – 0.095 = <strong>1.005</strong></li>
+    <li>token_reserve = 910 + 100 = <strong>1010</strong></li>
+  </ul>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Now someone gave tokens to the shop, so the shop gave them ETH."</div>
+</div>
+
+<!-- PAGE 23 -->
+<div class="page" id="page23">
+  <div class="page-number-badge">Page 23</div>
+  <h2>⭐ Step 5 — Token → Token Swap (Real example)</h2>
+  <p>User wants to swap BAN → APPLE token.</p>
+  <p>Direct — not possible in V1.</p>
+  <h3>Flow:</h3>
+  <ol>
+    <li>BAN → ETH (on BANANA exchange)</li>
+    <li>ETH → APPLE (on APPLE exchange)</li>
+  </ol>
+  <p>APPLE exchange address is found from Factory.</p>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"In V1, token-to-token does not happen directly. First it converts to ETH, then to the other token."</div>
+</div>
+
+<!-- PAGE 24 -->
+<div class="page" id="page24">
+  <div class="page-number-badge">Page 24</div>
+  <h2>⭐ Step 6 — You Withdraw Liquidity (LP tokens burn)</h2>
+  <p>You had 32 LP tokens.</p>
+  <p>Pool's size has grown because of trades.</p>
+  <p>Now in the pool:</p>
+  <ul>
+    <li>1.005 ETH</li>
+    <li>1010 BAN</li>
+  </ul>
+  <p>You burn 32 LP tokens.</p>
+  <p>Exchange gives you your share, say:</p>
+  <ul>
+    <li>1.005 ETH</li>
+    <li>1010 BAN</li>
+  </ul>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Now you are closing the shop and taking your share — and this share is more because in between users traded and fee came to you."</div>
+  <hr class="section-divider">
+  <h2>⭐ How do fees arrive? (Real explanation in 1 line)</h2>
+  <p>Every swap adds a tiny extra amount to the pool (0.3%).<br>
+  This indirectly goes to LPs because reserves increase.</p>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Every trade brings a little extra goods to the shop — this increases the value of your share."</div>
+</div>
+
+<!-- PAGE 25 -->
+<div class="page" id="page25">
+  <div class="page-number-badge">Page 25</div>
+  <h2>⭐ Factory + Exchange's complete connection (1-line story)</h2>
+  <p>Factory creates the exchange,<br>
+  Exchange stores liquidity,<br>
+  Exchange does swaps,<br>
+  LP tokens show your ownership.</p>
+  <hr class="section-divider">
+  <h2>🎯 UNISWAP V1 — 5 Line Summary (Ultra Simple)</h2>
+  <ol>
+    <li>Factory only creates &amp; stores exchanges.</li>
+    <li>Each token has its own exchange contract.</li>
+    <li>Exchange keeps ETH–token pool + mints/burns LP tokens.</li>
+    <li>Swap happens with x*y=k formula + 0.3% fee.</li>
+    <li>Token→Token swap = Token→ETH→Token.</li>
+  </ol>
+</div>
+
+<!-- PAGE 26 -->
+<div class="page" id="page26">
+  <div class="page-number-badge">Page 26</div>
+  <h2>🔥 UNISWAP V1 — COMPLETE FLOW DIAGRAM (Super Simple)</h2>
+  <p><em>(Factory → Exchange → Liquidity Provider → Swaps → Fees)</em></p>
+  <hr class="section-divider">
+  <h2>1) FACTORY CONTRACT (Exchange creator)</h2>
+  <div class="formula-box">+-----------------------------+
+|      FACTORY CONTRACT       |
+|-----------------------------|
+| - createExchange(token)     |
+| - getExchange(token)        |
+| - mapping token->exchange   |
++-----------------------------+
+            |
+            | call createExchange(BAN)
+            ↓
++-----------------------------+
+|    BANANA EXCHANGE CREATED  |
++-----------------------------+</div>
+  <p><strong>In simple terms:</strong><br>
+  Factory = "Shop-making machine".</p>
+  <hr class="section-divider">
+  <h2>2) EXCHANGE CONTRACT (The real AMM)</h2>
+  <p>Each exchange has 2 reserves:</p>
+  <div class="formula-box">ETH reserve
+TOKEN reserve</div>
+  <p>And it does 3 things:</p>
+  <div class="formula-box">1) Liquidity Add/Remove
+2) Swaps (ETH→Token, Token→ETH)
+3) LP Token mint/burn</div>
+</div>
+
+<!-- PAGE 27 -->
+<div class="page" id="page27">
+  <div class="page-number-badge">Page 27</div>
+  <h2>🔥 3) ADD LIQUIDITY (Real Example)</h2>
+  <p>You become LP first. You deposit:</p>
+  <div class="formula-box">1 ETH + 1000 BAN</div>
+  <p><strong>Exchange state:</strong></p>
+  <div class="formula-box">eth_reserve = 1
+token_reserve = 1000
+price = 1 ETH = 1000 BAN
+k = 1 * 1000 = 1000</div>
+  <p>You receive:</p>
+  <div class="formula-box">LP Tokens = 32 (example)</div>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"You put goods in the shop, you got shares of the shop."</div>
+</div>
+
+<!-- PAGE 28 -->
+<div class="page" id="page28">
+  <div class="page-number-badge">Page 28</div>
+  <h2>🔄 4) SWAP FLOW (ETH → BAN)</h2>
+  <p>User sends 0.1 ETH.</p>
+  <p><strong>STEP 1: Fee apply (0.3%)</strong></p>
+  <div class="formula-box">input_with_fee = 0.1 * 997/1000 = 0.0997 ETH</div>
+  <p><strong>STEP 2: Formula (x*y=k):</strong></p>
+  <div class="formula-box">output_tokens = (0.0997 * 1000) / (1 + 0.0997)
+             ≈ 90.65 BAN</div>
+  <p><strong>User gets:</strong></p>
+  <div class="formula-box">~90 BAN</div>
+  <p><strong>New reserves:</strong></p>
+  <div class="formula-box">ETH = 1 + 0.1 = 1.1
+BAN = 1000 - 90 = 910</div>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"User gave ETH, exchange gave BAN. Price shifted a little."</div>
+</div>
+
+<!-- PAGE 29 -->
+<div class="page" id="page29">
+  <div class="page-number-badge">Page 29</div>
+  <h2>🔄 5) SWAP FLOW (BAN → ETH)</h2>
+  <p>User wants to sell 100 BAN.</p>
+  <p><strong>Step 1: Fee apply</strong></p>
+  <div class="formula-box">input_with_fee = 100 * 0.997 = 99.7 BAN</div>
+  <p><strong>Step 2: Output ETH:</strong></p>
+  <div class="formula-box">eth_out = (99.7 * 1.1) / (910 + 99.7)
+        ≈ 0.095 ETH</div>
+  <p><strong>New reserves:</strong></p>
+  <div class="formula-box">ETH = 1.1 - 0.095 = 1.005
+BAN = 910 + 100 = 1010</div>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Gave token, took ETH. Pool ratios changed."</div>
+</div>
+
+<!-- PAGE 30 -->
+<div class="page" id="page30">
+  <div class="page-number-badge">Page 30</div>
+  <h2>🔄 6) TOKEN → TOKEN (BAN → APPLE)</h2>
+  <p><em>(Not direct in V1)</em></p>
+  <p><strong>Flow:</strong></p>
+  <div class="formula-box">BAN → ETH  (on BAN exchange)
+ETH → APPLE (on APPLE exchange)</div>
+  <p>APPLE exchange address is found from Factory.</p>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Tokens don't swap directly in V1. They first go to ETH."</div>
+  <hr class="section-divider">
+  <h2>🏆 7) FEES — LPs' benefit</h2>
+  <p>0.3% fee is added to pool on every swap.<br>
+  This means:</p>
+  <div class="formula-box">reserves increase → your LP tokens' value increases</div>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Every day a little money keeps coming into the shop — the value of your share keeps increasing."</div>
+</div>
+
+<!-- PAGE 31 -->
+<div class="page" id="page31">
+  <div class="page-number-badge">Page 31</div>
+  <h2>🔥 8) REMOVE LIQUIDITY (LP tokens burn)</h2>
+  <p>In pool now:</p>
+  <div class="formula-box">ETH = 1.005
+BAN = 1010</div>
+  <p>You burn your 32 LP tokens:</p>
+  <p>You receive:</p>
+  <div class="formula-box">1.005 ETH
+1010 BAN</div>
+  <p>You had originally given:</p>
+  <div class="formula-box">1 ETH + 1000 BAN</div>
+  <p>You earned profit:</p>
+  <div class="formula-box">0.005 ETH + 10 BAN  (from fees)</div>
+  <p><strong>In simple terms:</strong></p>
+  <div class="note-box">"Your share grew because of fees."</div>
+</div>
+
+<!-- PAGE 32 -->
+<div class="page" id="page32">
+  <div class="page-number-badge">Page 32</div>
+  <h2>⭐ ONE PAGE SUPER SUMMARY</h2>
+  <div class="formula-box">FACTORY:
+    Creates exchange.
+
+EXCHANGE:
+    Stores ETH + TOKEN.
+    Does swaps using x*y=k.
+    Mints/burns LP tokens.
+
+LP:
+    Gives ETH+Token → gets LP tokens.
+    Burns LP tokens → gets money + fee back.
+
+SWAPS:
+    ETH→Token
+    Token→ETH
+    Token→Token (via ETH)
+
+FEES:
+    0.3% goes to pool → LP earns.</div>
+</div>
+
+<!-- PAGE 33 -->
+<div class="page" id="page33">
+  <div class="page-number-badge">Page 33</div>
+  <h2>🧠 SETUP (Real Values)</h2>
+  <p>Token: <strong>BANANA (BAN)</strong><br>
+  We choose price: <strong>1 ETH = 1000 BAN</strong></p>
+  <p>You become LP first:</p>
+  <h3>💡 You add liquidity:</h3>
+  <div class="formula-box">1 ETH
+1000 BAN</div>
+  <p><strong>Pool becomes:</strong></p>
+  <div class="formula-box">ETH_reserve   = 1
+BAN_reserve   = 1000
+k = 1 * 1000 = 1000</div>
+  <h3>💡 Factory mapping:</h3>
+  <div class="formula-box">BAN_TOKEN_ADDRESS → BANANA_EXCHANGE_ADDRESS</div>
+  <p><strong>All trades will happen on this exchange.</strong></p>
+</div>
+
+<!-- PAGE 34 -->
+<div class="page" id="page34">
+  <div class="page-number-badge">Page 34</div>
+  <h2>⭐ Price is decided by LP (Liquidity Provider) — NOT Uniswap.</h2>
+  <p>Uniswap itself sets no price.<br>
+  <strong>The first person who adds liquidity sets the price.</strong></p>
+  <hr class="section-divider">
+  <h2>🔥 REAL EXPLANATION (Super Simple)</h2>
+  <h3>💡 When the first LP creates the pool, they must give ETH + TOKEN in some ratio.</h3>
+  <p><strong>Example:</strong></p>
+  <div class="formula-box">1 ETH + 1000 BAN</div>
+  <p>Then price automatically becomes:</p>
+  <div class="formula-box">price = tokenReserve / ethReserve
+price = 1000 / 1 = 1000 BAN per ETH</div>
+  <p>Uniswap decided nothing.<br>
+  <strong>The one who created the pool decided it.</strong></p>
+  <hr class="section-divider">
+  <h2>⭐ "WHY? Why does LP decide the price?"</h2>
+  <p>Because:</p>
+  <ul>
+    <li>Uniswap V1 = AMM (Automated Market Maker)</li>
+    <li>Smart contract only follows the formula: <code>x * y = k</code></li>
+    <li>Initial reserves given by LP → formula derives price from that</li>
+  </ul>
+  <div class="note-box">In simple terms:<br>"Whatever rate the first goods are kept in the shop at, that becomes the starting price."</div>
+</div>
+
+<!-- PAGE 35 -->
+<div class="page" id="page35">
+  <div class="page-number-badge">Page 35</div>
+  <h2>⭐ IMPORTANT — Price = Ratio, Not a fixed number</h2>
+  <p><strong>Price = Token Reserve ÷ ETH Reserve</strong></p>
+  <p>If the first LP gives:</p>
+  <div class="formula-box">2 ETH
+2000 BAN</div>
+  <p>Then price is still:</p>
+  <div class="formula-box">2000 / 2 = 1000 BAN per ETH</div>
+  <p>If someone accidentally gives:</p>
+  <div class="formula-box">1 ETH
+500 BAN</div>
+  <p>Then price will become:</p>
+  <div class="formula-box">500 BAN per ETH</div>
+  <p><strong>Meaning price is LP's responsibility.</strong></p>
+</div>
+
+<!-- PAGE 36 -->
+<div class="page" id="page36">
+  <div class="page-number-badge">Page 36</div>
+  <h2>❗ What if LP sets the wrong price?</h2>
+  <p>Very important:</p>
+  <p>If an LP makes a HUGE mistake, like:</p>
+  <div class="formula-box">1 ETH + 200 BAN (price = 200 BAN per ETH instead of 1000)</div>
+  <p>What will happen?</p>
+  <ul>
+    <li>💡 Arbitrage traders will immediately buy cheap BAN from the pool and sell in expensive market.</li>
+    <li>💡 Until the price is not equal to global market, arbitrage will keep happening.</li>
+    <li>💡 LP will get impermanent loss.</li>
+  </ul>
+  <div class="note-box">In simple terms:<br>"If you set the wrong price, market people will immediately loot your shop and bring it to the correct price."</div>
+  <hr class="section-divider">
+  <h2>⭐ Then who maintains the price after that?</h2>
+  <p><strong>TRADERS maintain the price.</strong></p>
+  <ul>
+    <li>If BAN is cheap → traders buy → token reserve decreases → price up</li>
+    <li>If BAN is expensive → traders sell → token reserve increases → price down</li>
+  </ul>
+  <p><strong>Price automatically becomes equal to market.</strong></p>
+  <hr class="section-divider">
+  <h2>🧠 SHORT SUMMARY</h2>
+  <table>
+    <tr><th>Step</th><th>Who decides price?</th></tr>
+    <tr><td>Initial price</td><td>First LP (liquidity provider)</td></tr>
+    <tr><td>Later price</td><td>Traders (via AMM formula)</td></tr>
+    <tr><td>Uniswap contract</td><td>Only CALCULATES price, does not decide it</td></tr>
+  </table>
+</div>
+
+<!-- PAGE 37 -->
+<div class="page" id="page37">
+  <div class="page-number-badge">Page 37</div>
+  <h2>🎯 REAL TRADE #1 — User buys BAN using ETH</h2>
+  <p>User wants to swap:</p>
+  <div class="formula-box">0.2 ETH → BAN</div>
+  <p>Exchange function called:</p>
+  <div class="formula-box">ethToTokenSwapInput(0.2 ETH)</div>
+  <h3>🔢 Step 1 — Fee apply</h3>
+  <p>Uniswap V1 fee = 0.3% → input × 997/1000</p>
+  <div class="formula-box">input_with_fee = 0.2 * 0.997 = 0.1994 ETH</div>
+  <h3>🔢 Step 2 — Output BAN tokens (real math)</h3>
+  <p>Formula:</p>
+  <div class="formula-box">output = (input_with_fee * BAN_reserve)
+       / (ETH_reserve*1000 + input_with_fee)</div>
+  <p>Put numbers:</p>
+  <div class="formula-box">output = (0.1994 * 1000) / (1*1000 + 0.1994)
+output ≈ 166.28 BAN</div>
+  <h3><span class="check">✔</span> FINAL OUTPUT</h3>
+  <p><strong>User gets ≈ 166 BAN</strong></p>
+</div>
+
+<!-- PAGE 38 -->
+<div class="page" id="page38">
+  <div class="page-number-badge">Page 38</div>
+  <h2>📊 New reserves after Trade #1</h2>
+  <h3>Before:</h3>
+  <div class="formula-box">1 ETH
+1000 BAN</div>
+  <h3>After:</h3>
+  <div class="formula-box">ETH_reserve = 1 + 0.2 = 1.2
+BAN_reserve = 1000 - 166.28 = 833.72</div>
+  <h3>📝 New price:</h3>
+  <div class="formula-box">Price of BAN in ETH = 1.2 / 833.72 ≈ 0.00144 ETH</div>
+  <p>Old price = 0.00100<br>
+  New price = 0.00144</p>
+  <p><strong>BAN became more expensive (normal AMM behavior).</strong></p>
+</div>
+
+<!-- PAGE 39 -->
+<div class="page" id="page39">
+  <div class="page-number-badge">Page 39</div>
+  <h2>🎯 REAL TRADE #2 — User sells BAN for ETH</h2>
+  <p>Now another user sells:</p>
+  <div class="formula-box">200 BAN → ETH</div>
+  <p>Call:</p>
+  <div class="formula-box">tokenToEthSwapInput(200 BAN)</div>
+  <h3>🔢 Step 1 — Fee apply</h3>
+  <div class="formula-box">input_with_fee = 200 * 0.997 = 199.4 BAN</div>
+  <h3>🔢 Step 2 — Calculate ETH output</h3>
+  <p>Formula:</p>
+  <div class="formula-box">eth_out = (input_with_fee * ETH_reserve)
+        / (BAN_reserve*1000 + input_with_fee)</div>
+  <p>Put real values after Trade #1:</p>
+  <div class="formula-box">ETH_reserve = 1.2
+BAN_reserve = 833.72</div>
+  <p>So:</p>
+  <div class="formula-box">eth_out = (199.4 * 1.2) / (833.72 + 199.4)
+eth_out = (239.28) / 1033.12
+eth_out ≈ 0.2315 ETH</div>
+  <h3><span class="check">✔</span> FINAL OUTPUT</h3>
+  <p><strong>User receives ≈ 0.2315 ETH</strong></p>
+</div>
+
+<!-- PAGE 40 -->
+<div class="page" id="page40">
+  <div class="page-number-badge">Page 40</div>
+  <h2>📊 New reserves after Trade #2</h2>
+  <h3>Previous reserves:</h3>
+  <div class="formula-box">1.2 ETH
+833.72 BAN</div>
+  <h3>After trade:</h3>
+  <div class="formula-box">ETH_reserve = 1.2 - 0.2315 = 0.9685 ETH
+BAN_reserve = 833.72 + 200 = 1033.72 BAN</div>
+</div>
+
+<!-- PAGE 41 -->
+<div class="page" id="page41">
+  <div class="page-number-badge">Page 41</div>
+  <h2>🔥 LP PROFIT (Real example)</h2>
+  <p>You originally gave liquidity:</p>
+  <div class="formula-box">1 ETH + 1000 BAN</div>
+  <p>Pool reserves now (after some trades):</p>
+  <div class="formula-box">0.9685 ETH
+1033.72 BAN</div>
+  <p>Total value (in BAN terms if ETH = 1000 BAN initially):</p>
+  <ul>
+    <li>Your share's value has increased</li>
+    <li>Why? Fees keep getting added to the pool</li>
+    <li>Price shifts give LP value gain (unless IL hits strongly)</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>🎯 SO ACTUAL TRADE FLOW IS:</h2>
+  <p><span class="step-number">1</span> <strong>Factory mapping:</strong></p>
+  <div class="formula-box">BAN_TOKEN → BANANA_EXCHANGE</div>
+  <p><span class="step-number">2</span> <strong>User swaps:</strong></p>
+  <div class="formula-box">ETH → BAN
+token → exchange_address → swap()</div>
+  <p><span class="step-number">3</span> Exchange applies math (997/1000 fee + x*y=k)</p>
+  <p><span class="step-number">4</span> Output tokens given → reserves update</p>
+  <p><span class="step-number">5</span> Price automatically shifts</p>
+</div>
+
+<!-- PAGE 42 -->
+<div class="page" id="page42">
+  <div class="page-number-badge">Page 42</div>
+  <h2>⭐ 1) THREE REAL TRADES (Back-to-back) — Price Curve</h2>
+  <h3>🎯 INITIAL POOL:</h3>
+  <div class="formula-box">ETH = 10
+BAN = 10,000
+Price = 1 ETH : 1000 BAN
+k = 10 * 10000 = 100,000</div>
+  <hr class="section-divider">
+  <h2>🟦 TRADE 1 — Buy BAN with 1 ETH</h2>
+  <p>Fee applied = 1 * 0.997 = 0.997 ETH</p>
+  <p><strong>Output BAN:</strong></p>
+  <div class="formula-box">ban_out = (0.997 * 10000) / (10 + 0.997)
+       ≈ 907.52 BAN</div>
+  <h3>New reserves:</h3>
+  <div class="formula-box">ETH = 10 + 1 = 11
+BAN = 10,000 - 907.52 = 9092.48</div>
+  <h3>New price:</h3>
+  <div class="formula-box">Price = 11 / 9092.48 ≈ 0.00121 ETH/BAN
+→ 1 ETH = 828 BAN</div>
+  <p><strong>Price UP (BAN more expensive).</strong></p>
+</div>
+
+<!-- PAGE 43 -->
+<div class="page" id="page43">
+  <div class="page-number-badge">Page 43</div>
+  <h2>🟦 TRADE 2 — Buy BAN with another 1 ETH</h2>
+  <p>Fee applied = 0.997 ETH</p>
+  <p><strong>New output:</strong></p>
+  <div class="formula-box">ban_out = (0.997 * 9092.48) / (11 + 0.997)
+       ≈ 754.75 BAN</div>
+  <h3>New reserves:</h3>
+  <div class="formula-box">ETH = 11 + 1 = 12
+BAN = 9092.48 - 754.75 = 8337.73</div>
+  <h3>New price:</h3>
+  <div class="formula-box">Price = 12 / 8337.73 = 0.00144 ETH/BAN
+→ 1 ETH = 694 BAN</div>
+  <p><strong>BAN becomes even more expensive.</strong></p>
+</div>
+
+<!-- PAGE 44 -->
+<div class="page" id="page44">
+  <div class="page-number-badge">Page 44</div>
+  <h2>🟥 TRADE 3 — Sell 500 BAN for ETH</h2>
+  <p>Fee = 500 * 0.997 = 498.5 BAN</p>
+  <p><strong>ETH output:</strong></p>
+  <div class="formula-box">eth_out = (498.5 * 12) / (8337.73 + 498.5)
+       ≈ 0.678 ETH</div>
+  <h3>New reserves:</h3>
+  <div class="formula-box">ETH = 12 - 0.678 = 11.322
+BAN = 8337.73 + 500 = 8837.73</div>
+  <h3>New price:</h3>
+  <div class="formula-box">Price = 11.322 / 8837.73 = 0.00128
+→ 1 ETH = 780 BAN</div>
+  <p><strong>Price corrected DOWN slightly.</strong></p>
+  <hr class="section-divider">
+  <h2>⭐ What did we see?</h2>
+  <table>
+    <tr><th>Trade Type</th><th>Effect on Price</th></tr>
+    <tr><td>Buy BAN (ETH→BAN)</td><td>Price rises</td></tr>
+    <tr><td>Buy BAN again</td><td>Price rises more</td></tr>
+    <tr><td>Sell BAN</td><td>Price falls</td></tr>
+  </table>
+  <p><strong>This is curved pricing (AMM curve).</strong></p>
+</div>
+
+<!-- PAGE 45 -->
+<div class="page" id="page45">
+  <div class="page-number-badge">Page 45</div>
+  <h2>⭐ 2) IMPERMANENT LOSS — Real Numbers</h2>
+  <p>LP starts with:</p>
+  <div class="formula-box">10 ETH + 10,000 BAN (initial price 1 ETH = 1000 BAN)
+Total pool value = 10 ETH + 10,000 BAN</div>
+  <p>After trades, reserves became:</p>
+  <div class="formula-box">ETH = 11.322
+BAN = 8837.73</div>
+  <h3>⭐ What is this worth if price = 1 ETH = 780 BAN?</h3>
+  <p>Convert BAN → ETH:</p>
+  <div class="formula-box">8837.73 BAN / 780 = 11.32 ETH</div>
+  <p>LP owns 100% pool (for simplicity):</p>
+  <p><strong>Total LP value now:</strong></p>
+  <div class="formula-box">ETH_value_now = 11.322 ETH + 11.32 ETH ≈ 22.64 ETH</div>
+</div>
+
+<!-- PAGE 46 -->
+<div class="page" id="page46">
+  <div class="page-number-badge">Page 46</div>
+  <h2>🔥 IMPERMANENT LOSS:</h2>
+  <div class="formula-box">22.82 ETH (HODL)
+22.64 ETH (LP position)
+Loss = 0.18 ETH</div>
+  <p>This is impermanent loss —<br>
+  Pool price movement causes LP value to lag behind pure HODLing.</p>
+  <hr class="section-divider">
+  <h2>⭐ WHY is it called impermanent?</h2>
+  <p>If price comes back to 1000 BAN per ETH, the loss will disappear.</p>
+</div>
+
+<!-- PAGE 47 -->
+<div class="page" id="page47">
+  <div class="page-number-badge">Page 47</div>
+  <h2>⭐ 3) TOKEN → TOKEN Swap in Uniswap V1 (Real Numbers)</h2>
+  <p>Direct ERC20 → ERC20 swap does not happen in V1.<br>
+  Flow is:</p>
+  <div class="formula-box">TokenA → ETH → TokenB</div>
+  <p>Let's do a real example:</p>
+  <h3>🎯 Setup:</h3>
+  <p><strong>BAN Exchange reserves:</strong></p>
+  <div class="formula-box">ETH = 10
+BAN = 10,000</div>
+  <p><strong>APPLE (APL) Exchange reserves:</strong></p>
+  <div class="formula-box">ETH = 20
+APL = 40,000</div>
+  <p><strong>User wants:</strong></p>
+  <div class="formula-box">Swap 500 BAN → APL</div>
+</div>
+
+<!-- PAGE 48 -->
+<div class="page" id="page48">
+  <div class="page-number-badge">Page 48</div>
+  <h2>🟦 STEP 1 — BAN → ETH (on BAN Exchange)</h2>
+  <p>Fee applied:</p>
+  <div class="formula-box">500 * 0.997 = 498.5 BAN</div>
+  <p><strong>ETH output:</strong></p>
+  <div class="formula-box">eth_out = (498.5 * 10) / (10000 + 498.5)
+        = 0.474 ETH</div>
+  <p>So now user has: <strong>0.474 ETH</strong></p>
+  <hr class="section-divider">
+  <h2>🟦 STEP 2 — ETH → APL (on APPLE Exchange)</h2>
+  <p>Fee applied:</p>
+  <div class="formula-box">0.474 * 0.997 = 0.4726 ETH</div>
+  <p><strong>APL output:</strong></p>
+  <div class="formula-box">apl_out = (0.4726 * 40000) / (20 + 0.4726)
+        = 922.6 APL</div>
+  <h3><span class="check">✔</span> Final Result:</h3>
+  <p><strong>500 BAN → ~923 APL</strong></p>
+  <hr class="section-divider">
+  <h2>⭐ Reserves after swap:</h2>
+  <p><strong>BAN Exchange:</strong></p>
+  <div class="formula-box">ETH = 10 + 0.474 = 10.474
+BAN = 10000 + 500 = 10500</div>
+  <p><strong>APPLE Exchange:</strong></p>
+  <div class="formula-box">ETH = 20 - 0.474 = 19.526
+APL = 40000 - 923 = 39077</div>
+</div>
+
+<!-- PAGE 49 -->
+<div class="page" id="page49">
+  <div class="page-number-badge">Page 49</div>
+  <h2>⭐ PART 1 — "Connect to Uniswap" (What does it mean?)</h2>
+  <p>Uniswap is not some website…<br>
+  <strong>Uniswap = Smart Contracts deployed on the Ethereum blockchain.</strong></p>
+  <p>Your website must:</p>
+  <ul>
+    <li><span class="check">✔</span> Connect to Ethereum</li>
+    <li><span class="check">✔</span> Get user's wallet (MetaMask) to sign</li>
+    <li><span class="check">✔</span> Call functions on smart contracts</li>
+  </ul>
+  <p>For this, the following are used:</p>
+  <ul>
+    <li><strong>web3.js</strong></li>
+    <li><strong>ethers.js</strong></li>
+  </ul>
+  <p>User's browser must have <strong>MetaMask</strong> or any crypto wallet installed.</p>
+  <div class="note-box">In simple terms:<br>"Your website talks to the Ethereum chain through MetaMask. Then it calls Uniswap's smart contract."</div>
+</div>
+
+<!-- PAGE 50 -->
+<div class="page" id="page50">
+  <div class="page-number-badge">Page 50</div>
+  <h2>⭐ PART 2 — What is "Factory Contract"?</h2>
+  <p>In Uniswap V1, each token has its own exchange.<br>
+  Factory's job:</p>
+  <ul>
+    <li><span class="check">✔</span> Create exchange</li>
+    <li><span class="check">✔</span> Store Token → Exchange address</li>
+    <li><span class="check">✔</span> Store Exchange → Token address</li>
+  </ul>
+  <p>Factory = "directory + exchange creator".</p>
+  <hr class="section-divider">
+  <h2>⭐ PART 3 — Factory address on which network?</h2>
+  <p>Ethereum has different networks:</p>
+  <ul>
+    <li>Mainnet</li>
+    <li>Ropsten</li>
+    <li>Rinkeby</li>
+    <li>Kovan</li>
+    <li>Goerli</li>
+  </ul>
+  <p>Each network has its own <strong>address</strong> for the Uniswap Factory contract.</p>
+  <p>Example:</p>
+  <div class="formula-box">Mainnet Factory = 0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95</div>
+  <div class="note-box">In simple terms:<br>"Factory address tells which contract is Uniswap's main entry-point."</div>
+</div>
+
+<!-- PAGE 51 -->
+<div class="page" id="page51">
+  <div class="page-number-badge">Page 51</div>
+  <h2>⭐ PART 4 — Factory Interface (ABI)</h2>
+  <p>ABI = smart contract's "function list".</p>
+  <p>From this, web3.js gets to know:</p>
+  <ul>
+    <li>Which functions are allowed to call</li>
+    <li>What inputs are needed</li>
+    <li>What outputs will be received</li>
+  </ul>
+  <p>Factory's important functions:</p>
+  <p><span class="step-number">1</span> <strong>createExchange(tokenAddress)</strong><br>
+  → Creates a new exchange contract.</p>
+  <p><span class="step-number">2</span> <strong>getExchange(tokenAddress)</strong><br>
+  → Returns the existing exchange address for that token.</p>
+  <p><span class="step-number">3</span> <strong>getToken(exchangeAddress)</strong><br>
+  → Returns the token address of that exchange.</p>
+  <p><span class="step-number">4</span> <strong>tokenCount</strong><br>
+  → How many tokens have been added to Uniswap so far.</p>
+  <hr class="section-divider">
+  <h2>⭐ PART 5 — Create Factory Contract (in code)</h2>
+  <div class="formula-box">const factoryContract = new web3.eth.Contract(factoryABI, factoryAddress)</div>
+  <p>This means:</p>
+  <div class="note-box">"Hey JavaScript, this is Uniswap Factory's contract, talk with this ABI."</div>
+</div>
+
+<!-- PAGE 52 -->
+<div class="page" id="page52">
+  <div class="page-number-badge">Page 52</div>
+  <h2>⭐ PART 6 — Exchange Contract (Each token's own AMM)</h2>
+  <p>There is one exchange per token.</p>
+  <p>Example:</p>
+  <div class="formula-box">BAN Token → BAN Exchange
+USDT Token → USDT Exchange</div>
+  <p>To find it, use:</p>
+  <div class="formula-box">factory.getExchange(tokenAddress)</div>
+  <p>If output = <code>0x00000...0000</code><br>
+  Means exchange has not been created yet.</p>
+  <hr class="section-divider">
+  <h2>⭐ PART 7 — Exchange Interface (ABI)</h2>
+  <p>Exchange = real AMM (swap, liquidity, LP tokens).</p>
+  <p>Important parts:</p>
+  <h3>◆ EVENTS</h3>
+  <p>These help the frontend know what happened:</p>
+  <ul>
+    <li><code>TokenPurchase</code> → ETH → Token swap</li>
+    <li><code>EthPurchase</code> → Token → ETH swap</li>
+    <li><code>AddLiquidity</code> → LP added</li>
+    <li><code>RemoveLiquidity</code> → LP removed</li>
+  </ul>
+  <p>Graph/UI in browser updates via these events.</p>
+</div>
+
+<!-- PAGE 53 -->
+<div class="page" id="page53">
+  <div class="page-number-badge">Page 53</div>
+  <h2>◆ FUNCTIONS (Most Important)</h2>
+  <p><span class="step-number">1</span> <strong>addLiquidity(min_liquidity, max_tokens, deadline)</strong><br>
+  → ETH + Token deposit → LP tokens mint.</p>
+  <p><span class="step-number">2</span> <strong>removeLiquidity(amountLP, min_eth, min_tokens, deadline)</strong><br>
+  → LP burn → ETH + Token return.</p>
+  <p><span class="step-number">3</span> <strong>ethToTokenSwapInput(min_tokens, deadline)</strong><br>
+  → User sends ETH → receives Token.</p>
+  <p><span class="step-number">4</span> <strong>tokenToEthSwapInput(tokens_sold, min_eth, deadline)</strong><br>
+  → User gives token → receives ETH.</p>
+  <p><span class="step-number">5</span> <strong>tokenToTokenSwapInput(tokens_sold, min_tokens_bought, min_eth_bought, deadline, token_addr)</strong><br>
+  → Token A → ETH → Token B (V1's 2-hop swap).</p>
+  <p><span class="step-number">6</span> <strong>getEthToTokenInputPrice(amountETH)</strong><br>
+  → Estimate: "How many Tokens for 1 ETH?"</p>
+  <p><span class="step-number">7</span> <strong>getTokenToEthInputPrice(amountToken)</strong><br>
+  → "How much ETH on selling X Token?"</p>
+  <div class="note-box">In simple terms:<br>"Exchange contract = Uniswap's main brain. This does the swap, keeps liquidity, gives LP tokens."</div>
+  <hr class="section-divider">
+  <h2>⭐ PART 8 — Token Contracts (ERC-20)</h2>
+  <p>When doing a Uniswap swap:</p>
+  <ul>
+    <li>Must <code>approve</code> from token contract</li>
+    <li>Exchange calls <code>transferFrom()</code></li>
+  </ul>
+  <p>Common ERC20 functions: <code>balanceOf</code>, <code>transfer</code>, <code>transferFrom</code>, <code>approve</code>, <code>allowance</code></p>
+  <p>Uniswap V1 cannot work without calling the token directly.</p>
+</div>
+
+<!-- PAGE 54 -->
+<div class="page" id="page54">
+  <div class="page-number-badge">Page 54</div>
+  <h2>⭐ PART 9 — Why are Factory + Exchange + Token separate?</h2>
+  <table>
+    <tr><th>Component</th><th>Role</th></tr>
+    <tr><td><strong>Factory</strong></td><td>Creates exchange + registry</td></tr>
+    <tr><td><strong>Exchange</strong></td><td>Swaps + Liquidity + LP tokens</td></tr>
+    <tr><td><strong>ERC20 Token</strong></td><td>Approvals + actual token transfers</td></tr>
+  </table>
+  <div class="note-box">In simple terms:<br>"Factory finds address, Exchange does the trade, Token gives permission."</div>
+  <hr class="section-divider">
+  <h2>⭐ SUPER SIMPLE BIG PICTURE (Final Summary)</h2>
+  <ul>
+    <li>◆ 1) App connects to MetaMask → Ethereum</li>
+    <li>◆ 2) App loads Factory contract</li>
+    <li>◆ 3) Factory gives token's Exchange address</li>
+    <li>◆ 4) App loads Exchange contract</li>
+    <li>◆ 5) User does swap/add/remove liquidity</li>
+    <li>◆ 6) Exchange runs transferFrom/transfer from Token contract</li>
+    <li>◆ 7) App UI updates by listening to events 🏃</li>
+  </ul>
+</div>
+
+<!-- PAGE 55 -->
+<div class="page" id="page55">
+  <div class="page-number-badge">Page 55</div>
+  <h2>⭐ BIG PICTURE — Uniswap Exchange Cannot Swap Without Token Contract</h2>
+  <p>Uniswap Exchange contract itself does not manage the token.<br>
+  Token control is with the <strong>Token Contract</strong>.</p>
+  <p>Example:</p>
+  <ul>
+    <li>BAN token has a smart contract</li>
+    <li>Inside it are functions like <code>transfer</code>, <code>transferFrom</code>, <code>approve</code></li>
+  </ul>
+  <p>Uniswap Exchange needs permission from BAN Token Contract to take/give BAN tokens.</p>
+  <hr class="section-divider">
+  <h2>⭐ WHY does Uniswap need to talk to Token Contract?</h2>
+  <p>Simple reason:</p>
+  <p><strong>Uniswap Exchange cannot directly take any token from a user's wallet.</strong></p>
+  <p>Because:</p>
+  <ul>
+    <li>Exchange contract does not have control of your wallet</li>
+    <li>Token contract's rules don't allow this</li>
+  </ul>
+  <p>So, the proper method to withdraw tokens:</p>
+  <h3><span class="check">✔</span> Step 1 → User Approves</h3>
+  <p>User says:</p>
+  <div class="formula-box">"BAN token, please allow the Exchange contract to spend my X BAN tokens."</div>
+  <p>Code:</p>
+  <div class="formula-box">tokenContract.methods.approve(exchangeAddress, amount)</div>
+  <h3><span class="check">✔</span> Step 2 → Exchange pulls tokens from tokenContract</h3>
+  <p>Exchange says:</p>
+  <div class="formula-box">"Token Contract, please transfer X BAN from user → to me"</div>
+  <p>Code:</p>
+  <div class="formula-box">token.transferFrom(user, exchangeAddress, amount)</div>
+</div>
+
+<!-- PAGE 56 -->
+<div class="page" id="page56">
+  <div class="page-number-badge">Page 56</div>
+  <h2>⭐ WITHOUT these steps → SWAP FAILS</h2>
+  <p>If you didn't approve:</p>
+  <ul>
+    <li>When Exchange calls <code>transferFrom()</code></li>
+    <li>Token contract says <strong>"NOT ALLOWED"</strong></li>
+    <li>Swap gets reverted</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>⭐ REAL LIFE ANALOGY 🍔</h2>
+  <p>Imagine:</p>
+  <ul>
+    <li><strong>Token Contract</strong> = Bank</li>
+    <li><strong>Exchange Contract</strong> = Shop</li>
+    <li><strong>User Wallet</strong> = Your bank account</li>
+  </ul>
+  <p>Shop (Exchange) cannot take money from your account unless:</p>
+  <ol>
+    <li>You sign an authorization slip ("approve")</li>
+    <li>Bank (Token Contract) transfers money ("transferFrom")</li>
+  </ol>
+  <p>This is exactly what happens in the crypto version.</p>
+  <hr class="section-divider">
+  <h2>⭐ COMMON ERC-20 FUNCTIONS (simple explain)</h2>
+  <p><strong>1. balanceOf(address)</strong> — "How many tokens does this address have?"</p>
+  <p><strong>2. approve(spender, amount)</strong> — "Allow spender (exchange) to use X tokens from my wallet."</p>
+  <p><strong>3. allowance(owner, spender)</strong> — "How many tokens' approval has been given?"</p>
+  <p><strong>4. transfer(to, amount)</strong> — User directly sends token to someone (Uniswap rarely uses this)</p>
+  <p><strong>5. transferFrom(from, to, amount)</strong> — Token contract itself "pulls" approved tokens. This is how Uniswap Exchange pulls tokens during a swap.</p>
+</div>
+
+<!-- PAGE 57 -->
+<div class="page" id="page57">
+  <div class="page-number-badge">Page 57</div>
+  <h2>🟦 PART 1 — CONNECTING TO ETHEREUM</h2>
+  <div class="formula-box">import { ethers } from 'ethers';
+
+const rpcUrl = 'https://mainnet.infura.io/v3/2de477c3b1b74816ae5475da6d289208';
+const provider = new ethers.JsonRpcProvider(rpcUrl);
+
+async function connectToEthereum() {
+    const blockNumber = await provider.getBlockNumber();
+    console.log("Current block number:", blockNumber);
+}
+
+connectToEthereum().catch(console.error);</div>
+  <h3>🔥 SIMPLE EXPLANATION:</h3>
+  <ul>
+    <li><code>rpcUrl</code> → Infura's gateway (Ethereum node)</li>
+    <li><code>provider</code> → Object to talk to Ethereum blockchain</li>
+    <li><code>getBlockNumber()</code> → Shows latest block</li>
+  </ul>
+  <div class="note-box">In simple terms:<br>"This code checks that you are connected to the Ethereum blockchain."</div>
+  <hr class="section-divider">
+  <h2>🟦 PART 2 — FACTORY ADDRESS (Uniswap V1)</h2>
+  <div class="formula-box">const factory = '0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95';</div>
+  <p>This is the official Uniswap V1 Factory address on mainnet.</p>
+  <hr class="section-divider">
+  <h2>🟦 PART 3 — FACTORY ABI + EXCHANGE ABI (functions list)</h2>
+  <div class="formula-box">const factoryABI = [ ... ]
+const exchangeABI = [ ... ]</div>
+  <p>These are all function definitions so ethers.js can work with the contract.</p>
+</div>
+
+<!-- PAGE 58 -->
+<div class="page" id="page58">
+  <div class="page-number-badge">Page 58</div>
+  <div class="formula-box">import { ethers } from "ethers";
+
+// 1) Connect to Ethereum
+const rpcUrl = "https://mainnet.infura.io/v3/2de477c3b1b74816ae5475da6d289208";
+const provider = new ethers.JsonRpcProvider(rpcUrl);
+
+// 2) Uniswap V1 Factory Address
+const factoryAddress = "0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95";
+
+// 3) Factory ABI (shortened for clarity)
+const factoryABI = [
+  { name: "getExchange", inputs: [{ type: "address" }], outputs: [{ type: "address" }], constant: true },
+  { name: "getToken", inputs: [{ type: "address" }], outputs: [{ type: "address" }], constant: true },
+  { name: "tokenCount", inputs: [], outputs: [{ type: "uint256" }], constant: true }
+];
+
+// 4) Exchange ABI (shortened)
+const exchangeABI = [
+  { name: "getEthToTokenInputPrice", inputs: [{ type: "uint256" }], outputs: [{ type: "uint256" }] }
+];
+
+async function getFactoryContract() {
+  const DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+  const factory = new ethers.Contract(factoryAddress, factoryABI, provider);
+
+  const exchangeAddress = await factory.getExchange(DAI);
+  const tokenAddress = await factory.getToken(exchangeAddress);
+  const tokenCount = await factory.tokenCount();
+
+  console.log("Exchange Address:", exchangeAddress);
+  console.log("Token Address:", tokenAddress);
+  console.log("Total tokens listed:", tokenCount.toString());
+
+  const exchange = new ethers.Contract(exchangeAddress, exchangeABI, provider);
+
+  const price = await exchange.getEthToTokenInputPrice(ethers.parseEther("1"));
+  console.log("1 ETH → Tokens:", ethers.formatUnits(price, 18));
+}
+
+getFactoryContract().catch(console.error);</div>
+</div>
+
+<!-- PAGE 59 -->
+<div class="page" id="page59">
+  <div class="page-number-badge">Page 59</div>
+  <h2>🎯 THE MOST COMPLETE UNISWAP V1 CALCULATION GUIDE</h2>
+  <p>Every scenario, every formula, every case, all real-life numbers, step-by-step — <strong>NO CASE LEFT OUT.</strong></p>
+  <p>Covering everything in 4 main categories:</p>
+  <ul>
+    <li>✅ 1) ETH ⇌ TOKEN (Both: exact input &amp; exact output)</li>
+    <li>✅ 2) TOKEN ⇌ ETH (Both: exact input &amp; exact output)</li>
+    <li>✅ 3) TOKEN ⇌ TOKEN (Both: exact input &amp; exact output)</li>
+    <li>✅ 4) FEES, RATES &amp; RESERVE UPDATE (All cases)</li>
+  </ul>
+  <hr class="section-divider">
+  <h2>🎯 FIRST: WE DEFINE A REAL-LIFE POOL</h2>
+  <p>Let's fix one pool for ETH ⇌ BAN:</p>
+  <div class="formula-box">ETH reserve = 10 ETH
+BAN reserve = 10,000 BAN
+k = 10 * 10000 = 100,000</div>
+  <p>For TOKEN⇌TOKEN, we also define APL pool:</p>
+  <div class="formula-box">ETH reserve (APL pool) = 20 ETH
+APL reserve = 40,000 APL</div>
+  <p>These values will be used in <strong>EVERY scenario</strong> below.</p>
+  <hr class="section-divider">
+  <h2>⭐ FORMULA REMINDERS (always same)</h2>
+  <h3>Sell order (exact input → output):</h3>
+  <div class="formula-box">output = (input * 997 * outputReserve) / (inputReserve * 1000 + input * 997)</div>
+  <h3>Buy order (exact output → cost):</h3>
+  <div class="formula-box">input = (output * inputReserve * 1000) / ((outputReserve - output) * 997) + 1</div>
+  <p>Fee = 0.3% (997/1000 left in pool)</p>
+</div>
+
+<!-- PAGE 60 -->
+<div class="page" id="page60">
+  <div class="page-number-badge">Page 60</div>
+  <h2>⭐ SCENARIO 1-A: ETH → BAN (Exact input → output BAN)</h2>
+  <p>User sells:</p>
+  <div class="formula-box">inputETH = 1 ETH</div>
+  <h3>Step 1 — Fee</h3>
+  <div class="formula-box">1 * 997 = 997</div>
+  <h3>Step 2 — Apply formula:</h3>
+  <div class="formula-box">numerator   = 1 * 997 * 10000 = 9,970,000
+denominator = 10*1000 + 997 = 10,997
+
+BAN_out = 9,970,000 / 10,997 ≈ 907.5 BAN</div>
+  <h3><span class="check">✔</span> RESULT:</h3>
+  <p><strong>1 ETH → 907.5 BAN</strong></p>
+</div>
+
+<!-- PAGE 61 -->
+<div class="page" id="page61">
+  <div class="page-number-badge">Page 61</div>
+  <h2>⭐ SCENARIO 2-A: BAN → ETH (Exact input BAN → output ETH)</h2>
+  <p>User sells:</p>
+  <div class="formula-box">inputBAN = 500 BAN</div>
+  <p>Fee:</p>
+  <div class="formula-box">498500</div>
+  <div class="formula-box">numerator   = 498500 * 10 = 4,985,000
+denominator = 10,000*1000 + 498500 = 10,498,500
+
+ETH_out = 4,985,000 / 10,498,500 ≈ 0.474 ETH</div>
+  <h3><span class="check">✔</span> RESULT:</h3>
+  <p><strong>500 BAN → 0.474 ETH</strong></p>
+</div>
+
+<!-- PAGE 62 -->
+<div class="page" id="page62">
+  <div class="page-number-badge">Page 62</div>
+  <h2>⭐ SCENARIO 1-B: ETH → BAN (Exact BAN output → required ETH)</h2>
+  <p>User wants exactly:</p>
+  <div class="formula-box">outputBAN = 500 BAN</div>
+  <p>Formula:</p>
+  <div class="formula-box">inputETH = (500 * 10 * 1000) / ((10000 - 500)*997) + 1</div>
+  <p>Calculate denominator:</p>
+  <div class="formula-box">outputReserve - output = 10000 - 500 = 9500
+9500 * 997 = 9,471,500</div>
+  <p>Now numerator:</p>
+  <div class="formula-box">500 * 10 * 1000 = 5,000,000</div>
+  <p>Final:</p>
+  <div class="formula-box">inputETH = 5,000,000 / 9,471,500 + 1
+         ≈ 0.528 ETH</div>
+  <h3><span class="check">✔</span> RESULT:</h3>
+  <p><strong>To buy 500 BAN → pay ~0.528 ETH</strong></p>
+</div>
+
+<!-- PAGE 63 -->
+<div class="page" id="page63">
+  <div class="page-number-badge">Page 63</div>
+  <h2>⭐ SCENARIO 2-B: BAN → ETH (Exact ETH output → required BAN)</h2>
+  <p>User wants EXACTLY:</p>
+  <div class="formula-box">outputETH = 1 ETH</div>
+  <p>Formula:</p>
+  <div class="formula-box">inputBAN = (1 * 10000 * 1000) / ((10 - 1)*997) + 1</div>
+  <p>Denominator:</p>
+  <div class="formula-box">(10 - 1) = 9
+9 * 997 = 8,973</div>
+  <p>Numerator:</p>
+  <div class="formula-box">10000 * 1000 = 10,000,000</div>
+  <p>Final:</p>
+  <div class="formula-box">inputBAN = 10,000,000 / 8,973 + 1
+inputBAN ≈ 1,115 BAN</div>
+  <h3><span class="check">✔</span> RESULT:</h3>
+  <p><strong>To get 1 ETH → sell ~1,115 BAN</strong></p>
+</div>
+
+<!-- PAGE 64 -->
+<div class="page" id="page64">
+  <div class="page-number-badge">Page 64</div>
+  <h2>⭐ SCENARIO 3-A: BAN → APL (Exact BAN input → output APL)</h2>
+  <p>User sells:</p>
+  <div class="formula-box">500 BAN</div>
+  <h3>STEP 1 — BAN → ETH (using pool A)</h3>
+  <p>(We already calculated earlier)</p>
+  <p>ETH_out = 0.474 ETH</p>
+  <hr class="section-divider">
+  <h3>STEP 2 — ETH → APL (pool B)</h3>
+  <p>Fee:</p>
+  <div class="formula-box">0.474 * 997 = 0.472378 ETH</div>
+  <div class="formula-box">numerator   = 0.472378 * 40,000 = 18,895.12
+denominator = 20*1000 + 0.472378 = 20,000.472
+APL_out = 18,895.12 / 20,000.472 ≈ 944 APL</div>
+  <h3><span class="check">✔</span> RESULT:</h3>
+  <p><strong>500 BAN → ~944 APL</strong></p>
+</div>
+
+<!-- PAGE 65 -->
+<div class="page" id="page65">
+  <div class="page-number-badge">Page 65</div>
+  <h2>⭐ SCENARIO 3-B: BAN → APL (Exact APL output → required BAN)</h2>
+  <p>User wants EXACTLY:</p>
+  <div class="formula-box">outputAPL = 1000 APL</div>
+  <p>Reverse operations needed:</p>
+  <p>1) APL → ETH (buy 1000 APL → how much ETH needed?)</p>
+  <p>2) ETH → BAN (how much BAN required to generate that ETH?)</p>
+  <hr class="section-divider">
+  <h3>STEP 1 — Compute ETH needed to buy 1000 APL (exact output)</h3>
+  <p>Formula:</p>
+  <div class="formula-box">inputETH = (1000 * 20*1000) / ((40000 - 1000) * 997) + 1</div>
+  <p>Denominator:</p>
+  <div class="formula-box">(40000 - 1000) = 39000
+39000 * 997 = 38,883,000</div>
+  <p>Numerator:</p>
+  <div class="formula-box">1000 * 20 * 1000 = 20,000,000</div>
+  <p>Final:</p>
+  <div class="formula-box">inputETH = 20,000,000 / 38,883,000 + 1
+         ≈ 1.514 ETH</div>
+  <h3><span class="check">✔</span> ETH required = 1.514 ETH</h3>
+</div>
+
+<!-- PAGE 66 -->
+<div class="page" id="page66">
+  <div class="page-number-badge">Page 66</div>
+  <h3>STEP 2 — BAN needed to generate 1.514 ETH</h3>
+  <p>Use BAN → ETH buy-order formula:</p>
+  <div class="formula-box">inputBAN = (1.514 * 10,000 * 1000) / ((10 - 1.514)*997) + 1</div>
+  <p>Compute denominator:</p>
+  <div class="formula-box">(10 - 1.514) = 8.486
+8.486 * 997 = 8,460.542</div>
+  <p>Numerator:</p>
+  <div class="formula-box">1.514 * 10,000 * 1000 = 15,140,000</div>
+  <p>Final:</p>
+  <div class="formula-box">inputBAN = 15,140,000 / 8,460,542 + 1
+         ≈ 1,789 BAN</div>
+  <h3><span class="check">✔</span> RESULT:</h3>
+  <p><strong>To get 1000 APL → sell ~1,789 BAN</strong></p>
+</div>
+
+<!-- PAGE 67 -->
+<div class="page" id="page67">
+  <div class="page-number-badge">Page 67</div>
+  <h2>⭐ A) LIQUIDITY PROVIDER FEE</h2>
+  <p>For single swap (ETH⇌Token OR Token⇌ETH):</p>
+  <div class="formula-box">fee = input * 0.003</div>
+  <p>For TokenA → TokenB (2 swaps):</p>
+  <div class="formula-box">Total fee ≈ inputA * 0.00591</div>
+  <hr class="section-divider">
+  <h2>⭐ B) EXCHANGE RATE</h2>
+  <div class="formula-box">rate = output / input</div>
+  <p><strong>Examples:</strong></p>
+  <p>ETH→BAN:</p>
+  <div class="formula-box">907 BAN / 1 ETH = 907 BAN per ETH</div>
+  <p>BAN→ETH:</p>
+  <div class="formula-box">0.474 ETH / 500 BAN = 0.000948 ETH per BAN</div>
+  <p>BAN→APL:</p>
+  <div class="formula-box">944 APL / 500 BAN = 1.888 APL/BAN</div>
+</div>
+
+<!-- PAGE 68 -->
+<div class="page" id="page68">
+  <div class="page-number-badge">Page 68</div>
+  <h2>⭐ FIRST — Simple Answer (1 line)</h2>
+  <p><strong>Buy order formula is different because giving "exact output" is risky, and Uniswap must ensure the pool never goes empty, reserves don't go negative, and LP doesn't lose.<br>
+  So the input value is artificially slightly higher → LPs get protection/profit.</strong></p>
+  <p>Now the real explanation 👇</p>
+  <hr class="section-divider">
+  <h2>🧠 WHY IS BUY ORDER (exact output) DANGEROUS?</h2>
+  <p>Imagine:</p>
+  <p>You want <strong>exactly 5 bananas</strong> from a shop,<br>
+  but you don't tell the shop how much you're willing to pay.</p>
+  <p>The shopkeeper has risk:</p>
+  <ul>
+    <li>What if 5 bananas aren't left?</li>
+    <li>What if giving 5 bananas empties the shop?</li>
+    <li>What if price suddenly changes (customers rush)?</li>
+  </ul>
+  <p>Exact output = shopkeeper must guarantee he gives you exactly 5 bananas<br>
+  <strong>NO MATTER HOW BAD THE PRICE SLIPPAGE IS.</strong></p>
+  <p>That is dangerous for shop.</p>
+  <p>So he does this:</p>
+  <div class="info-box">💡 He charges EXTRA — to protect himself from losing too much stock.</div>
+</div>
+
+<!-- PAGE 69 -->
+<div class="page" id="page69">
+  <div class="page-number-badge">Page 69</div>
+  <h2>🧠 SAME IN UNISWAP</h2>
+  <h3>Sell order (exact input)</h3>
+  <p>User says:</p>
+  <div class="note-box">"I am giving 1 ETH. You give me as many BAN as you will, I will take them."</div>
+  <p>Exchange is comfortable:</p>
+  <ul>
+    <li>Input fixed</li>
+    <li>Output calculated automatically</li>
+    <li>Zero risk</li>
+  </ul>
+  <p>So formula is simple.</p>
+  <hr class="section-divider">
+  <h3>Buy order (exact output)</h3>
+  <p>User says:</p>
+  <div class="note-box">"I need EXACTLY 500 BAN… no matter how much your pool gets impacted!"</div>
+  <p>Exchange is now under pressure:</p>
+  <ul>
+    <li>It must give EXACTLY 500 BAN</li>
+    <li>Even if it must drain reserves a bit</li>
+    <li>Even if price slippage is high</li>
+  </ul>
+  <p>To protect LPs, Uniswap does:</p>
+  <ul>
+    <li>— Input amount must be increased artificially</li>
+    <li>— So that user pays more</li>
+    <li>— LPs get extra benefit</li>
+    <li>— Pool protected</li>
+  </ul>
+  <p>That's why formula flips:</p>
+  <div class="formula-box">input = (output * inputReserve * 1000) / ((outputReserve - output) * 997) + 1</div>
+  <p>Notice +1? That is extra cushion for LP.</p>
+</div>
+
+<!-- PAGE 70 -->
+<div class="page" id="page70">
+  <div class="page-number-badge">Page 70</div>
+  <h2>⭐ FEEL THE DIFFERENCE WITH REAL NUMBERS</h2>
+  <p>Let's take ETH⇌BAN pool:</p>
+  <div class="formula-box">ETH = 10
+BAN = 10,000</div>
+  <h3>Case 1 — SELL ORDER (easy)</h3>
+  <p>User sells 1 ETH → gets ~907 BAN<br>
+  LP protected, pool stable.</p>
+  <hr class="section-divider">
+  <h3>Case 2 — BUY ORDER (dangerous)</h3>
+  <p>User wants EXACT 500 BAN.</p>
+  <p>If Uniswap uses sell formula in reverse:</p>
+  <div class="formula-box">inputETH would be ~0.47 ETH</div>
+  <p>But what if:</p>
+  <ul>
+    <li>Suddenly someone else does a swap</li>
+    <li>BAN reserve becomes 9,000</li>
+    <li>Giving 500 BAN, pool reserve becomes too low</li>
+    <li>Price jumps</li>
+    <li>LP loses big</li>
+  </ul>
+  <p>Uniswap cannot take that risk.</p>
+  <p>So Uniswap says:</p>
+  <div class="note-box">"Since you want EXACT 500 BAN,<br>you must pay MORE ETH so that even worst-case slippage is absorbed."</div>
+  <p>So actual cost is:</p>
+  <div class="formula-box">~0.528 ETH</div>
+  <p>Meaning: User pays more. LP is protected. LP earns more fees. Pool never goes negative.</p>
+</div>
+
+<!-- PAGE 71 -->
+<div class="page" id="page71">
+  <div class="page-number-badge">Page 71</div>
+  <h2>⭐ FOR WHOM IS THIS EXTRA PROFIT?</h2>
+  <h3><span class="check">✔</span> Liquidity Providers (LPs)</h3>
+  <p>They contribute assets →<br>
+  They deserve protection →<br>
+  They get extra fee when someone demands exact output.</p>
+  <p><strong>Why?</strong><br>
+  Because exact-output trades are riskier for LP.</p>
+  <hr class="section-divider">
+  <h2>⭐ REAL-LIFE FEEL: Why does LP deserve more?</h2>
+  <p>Imagine you are the LP (shop owner):</p>
+  <p>You keep inventory of bananas &amp; apples.<br>
+  Someone comes and says:</p>
+  <div class="note-box">"I don't care what market rate is.<br>
+  I don't care how much stock you lose.<br>
+  I want exactly 20 apples."</div>
+  <p>This is <strong>harder</strong>, because:</p>
+  <ul>
+    <li>You lose control over inventory</li>
+    <li>You take risk</li>
+    <li>Customer can drain your stock</li>
+    <li>You must always fulfill exact output</li>
+  </ul>
+  <p>So you respond:</p>
+  <div class="note-box">"Okay, but I'll charge you extra."</div>
+  <p>Exactly that happens in Uniswap V1.</p>
+</div>
+
+<!-- PAGE 72 -->
+<div class="page" id="page72">
+  <div class="page-number-badge">Page 72</div>
+  <h2>⭐ Why does EXACT OUTPUT need "+1" in formula?</h2>
+  <p>This part:</p>
+  <div class="formula-box">+ 1</div>
+  <p>Is a safety buffer for:</p>
+  <ul>
+    <li>Rounding errors</li>
+    <li>Preventing negative reserves</li>
+    <li>Ensuring contract never returns less than requested amount</li>
+    <li>Protection against front-running</li>
+  </ul>
+  <div class="note-box">This +1 is like:<br>"Better to take slightly extra input rather than accidentally give extra output and damage the pool."</div>
+  <hr class="section-divider">
+  <h2>⭐ WHAT IF FORMULA WAS SAME FOR BUY ORDER?</h2>
+  <p>(HUGE problem)</p>
+  <p>Let's test:<br>
+  User wants exactly 8,000 BAN. Pool has 10,000 BAN.</p>
+  <p>Using sell formula reversed → input is too small:</p>
+  <ul>
+    <li>User pays few ETH</li>
+    <li>Gets almost entire pool</li>
+    <li>POOL BAN = 2,000</li>
+    <li>PRICE explodes</li>
+    <li>LP loses huge value</li>
+  </ul>
+  <p>Attackers would exploit this repeatedly until LP is bankrupt.</p>
+  <p><strong>Exact output formula prevents attacker drain.</strong></p>
+  <hr class="section-divider">
+  <h2>⭐ FINAL SUMMARY (MEMORIZE THIS FEELING)</h2>
+  <ul>
+    <li><span class="check">✔</span> <strong>Exact input = user risk</strong> — "You give fixed amount, you get whatever market gives."</li>
+    <li><span class="check">✔</span> <strong>Exact output = LP risk</strong> — "You force LP to give EXACT tokens, so LP deserves extra protection."</li>
+    <li><span class="check">✔</span> <strong>So Uniswap charges MORE for exact output to protect LP.</strong></li>
+    <li><span class="check">✔</span> <strong>That is why buy-order formula is different.</strong></li>
+  </ul>
+  <p>Not for "profit",<br>
+  but for <strong>pool safety + LP protection + preventing draining attacks</strong>.</p>
+  <hr class="section-divider">
+  <div class="success-box" style="text-align:center; font-size:16px; font-weight:700;">
+    🎉 END OF UNISWAP V1 COMPLETE GUIDE 🎉<br>
+    <span style="font-size:13px; font-weight:400;">All 72 pages covered — from basics to advanced calculations</span>
+  </div>
+</div>
+
+</div><!-- end pages-wrapper -->
+
+<div class="bottom-nav">
+  <button onclick="prevPage()">← Previous</button>
+  <span class="page-info" id="bottomPageInfo">Intro Page</span>
+  <button onclick="nextPage()">Next →</button>
+</div>
+
+<script>
+  let currentPage = 0;
+  const totalPages = 72;
+
+  function showPage(n) {
+    if (n < 0 || n > totalPages) return;
+    document.getElementById('page' + currentPage).classList.remove('active');
+    currentPage = n;
+    document.getElementById('page' + currentPage).classList.add('active');
+    document.getElementById('pageInput').value = currentPage;
+    document.getElementById('pageCountDisplay').textContent = currentPage === 0 ? 'Intro / ' + totalPages : 'Page ' + currentPage + ' / ' + totalPages;
+    document.getElementById('bottomPageInfo').textContent = currentPage === 0 ? 'Intro Page' : 'Page ' + currentPage + ' of ' + totalPages;
+    window.scrollTo(0, 0);
+  }
+
+  function goToPage() {
+    const val = parseInt(document.getElementById('pageInput').value);
+    if (val >= 0 && val <= totalPages) showPage(val);
+  }
+
+  function nextPage() { showPage(currentPage + 1); }
+  function prevPage() { showPage(currentPage - 1); }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextPage();
+    if (e.key === 'ArrowLeft') prevPage();
+  });
+</script>
+
+</body>
+</html>

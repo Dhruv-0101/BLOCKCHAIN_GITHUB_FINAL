@@ -1,0 +1,3 @@
+TokenA deployed at: 0xCdbb547Df1061D222a5AF3DC0A8BD90c53b78dC7
+TokenB deployed at: 0x41462B4c0Ab4cA6E596C40F6297894efE0Fc245e
+https://sepolia.infura.io/v3/2de477c3b1b74816ae5475da6d289208

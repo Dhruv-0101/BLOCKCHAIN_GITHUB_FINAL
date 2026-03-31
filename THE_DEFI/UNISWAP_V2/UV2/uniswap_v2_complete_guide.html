@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uniswap V2 — Complete DeFi Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #16161f;
+    --card: #1a1a26;
+    --border: #2a2a3d;
+    --accent1: #ff6b35;
+    --accent2: #7c3aed;
+    --accent3: #06d6a0;
+    --accent4: #ffd166;
+    --accent5: #ef233c;
+    --text: #e8e8f0;
+    --text2: #9999bb;
+    --text3: #5555aa;
+    --code-bg: #0d0d1a;
+    --code-border: #2a2a50;
+    --green: #06d6a0;
+    --red: #ef233c;
+    --yellow: #ffd166;
+    --purple: #7c3aed;
+    --orange: #ff6b35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 60px 20px;
+    background: radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,107,53,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(6,214,160,0.08) 0%, transparent 50%),
+                var(--bg);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent3);
+    border: 1px solid rgba(6,214,160,0.3);
+    padding: 6px 18px;
+    border-radius: 2px;
+    margin-bottom: 30px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -3px;
+    color: var(--text);
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .hero h1 span {
+    color: var(--accent1);
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--text2);
+    max-width: 600px;
+    margin-bottom: 50px;
+    font-weight: 400;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero-formula {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 600;
+    color: var(--accent2);
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.3);
+    padding: 16px 40px;
+    border-radius: 4px;
+    animation: fadeUp 0.8s ease 0.3s both;
+    letter-spacing: 2px;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 3px;
+    animation: bounce 2s infinite;
+  }
+
+  /* NAV */
+  .toc {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toc::-webkit-scrollbar { display: none; }
+  .toc-inner {
+    display: flex;
+    gap: 0;
+    min-width: max-content;
+    padding: 0 20px;
+  }
+  .toc a {
+    display: block;
+    padding: 14px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: var(--text3);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .toc a:hover {
+    color: var(--accent1);
+    border-bottom-color: var(--accent1);
+    background: rgba(255,107,53,0.05);
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* PARTS */
+  .part {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border);
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .part-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  .part-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--accent1);
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.25);
+    padding: 5px 12px;
+    border-radius: 2px;
+    white-space: nowrap;
+    margin-top: 6px;
+  }
+
+  .part-title {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+
+  .part-title .highlight { color: var(--accent1); }
+  .part-title .highlight2 { color: var(--accent2); }
+  .part-title .highlight3 { color: var(--accent3); }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 1.3em;
+    background: var(--accent2);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .subsection-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent3);
+    margin-bottom: 14px;
+    margin-top: 28px;
+  }
+
+  p {
+    color: var(--text2);
+    font-size: 1rem;
+    margin-bottom: 14px;
+    line-height: 1.75;
+  }
+
+  strong { color: var(--text); }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #a8b4d8;
+    margin: 16px 0;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block .kw { color: #c792ea; }
+  .code-block .fn { color: #82aaff; }
+  .code-block .str { color: #c3e88d; }
+  .code-block .num { color: #f78c6c; }
+  .code-block .comment { color: #546e7a; font-style: italic; }
+  .code-block .var { color: #ffcb6b; }
+
+  .code-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card.green { border-left: 3px solid var(--green); }
+  .card.orange { border-left: 3px solid var(--orange); }
+  .card.purple { border-left: 3px solid var(--purple); }
+  .card.yellow { border-left: 3px solid var(--yellow); }
+  .card.red { border-left: 3px solid var(--red); }
+
+  /* LISTS */
+  .check-list, .cross-list, .arrow-list, .dot-list {
+    list-style: none;
+    margin: 12px 0;
+  }
+
+  .check-list li { padding: 6px 0 6px 28px; position: relative; color: var(--text2); font-size: 0.95rem; }
+  .check-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+
+  .cross-list li { padding: 6px 0 6px 28px; position: relative; color: var(--text2); font-size: 0.95rem; }
+  .cross-list li::before { content: '✗'; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+
+  .arrow-list li { padding: 6px 0 6px 28px; position: relative; color: var(--text2); font-size: 0.95rem; }
+  .arrow-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent1); }
+
+  .dot-list li { padding: 4px 0 4px 20px; position: relative; color: var(--text2); font-size: 0.95rem; }
+  .dot-list li::before { content: '•'; position: absolute; left: 0; color: var(--accent2); }
+
+  /* GRID */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+  }
+
+  .flow-item {
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.4);
+    color: #c4b5fd;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .flow-arrow {
+    color: var(--text3);
+    font-size: 1.2rem;
+  }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid var(--accent1);
+    background: rgba(255,107,53,0.06);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .callout.green { border-left-color: var(--green); background: rgba(6,214,160,0.06); }
+  .callout.purple { border-left-color: var(--purple); background: rgba(124,58,237,0.06); }
+  .callout.yellow { border-left-color: var(--yellow); background: rgba(255,209,102,0.06); }
+  .callout.red { border-left-color: var(--red); background: rgba(239,35,60,0.06); }
+
+  .callout p { margin: 0; color: var(--text); font-size: 0.95rem; }
+
+  /* BADGE */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .badge.green { background: rgba(6,214,160,0.15); color: var(--green); border: 1px solid rgba(6,214,160,0.3); }
+  .badge.orange { background: rgba(255,107,53,0.15); color: var(--orange); border: 1px solid rgba(255,107,53,0.3); }
+  .badge.purple { background: rgba(124,58,237,0.15); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.3); }
+  .badge.red { background: rgba(239,35,60,0.15); color: #ff6b81; border: 1px solid rgba(239,35,60,0.3); }
+  .badge.yellow { background: rgba(255,209,102,0.15); color: var(--yellow); border: 1px solid rgba(255,209,102,0.3); }
+
+  /* COMPARISON TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  thead th {
+    background: var(--bg3);
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody td {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(42,42,61,0.5);
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  thead th:first-child, tbody td:first-child {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* NUMBER STEPS */
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 32px;
+    height: 32px;
+    background: var(--accent2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content { flex: 1; }
+  .step-content strong { color: var(--accent3); display: block; margin-bottom: 4px; }
+  .step-content p { margin: 0; }
+
+  /* MATH BOX */
+  .math-box {
+    background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,214,160,0.06));
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .math-formula {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+  }
+
+  .math-desc {
+    font-size: 0.85rem;
+    color: var(--text3);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* GOLDEN RULE */
+  .golden-rule {
+    background: linear-gradient(135deg, rgba(255,107,53,0.12), rgba(255,209,102,0.06));
+    border: 2px solid rgba(255,107,53,0.4);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+
+  .golden-rule .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .golden-rule .content {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* WARN BOX */
+  .warn-box {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(239,35,60,0.08);
+    border: 1px solid rgba(239,35,60,0.25);
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .warn-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .warn-box p { margin: 0; color: var(--text2); }
+
+  /* SUCCESS BOX */
+  .success-box {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(6,214,160,0.08);
+    border: 1px solid rgba(6,214,160,0.25);
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .success-box p { margin: 0; color: var(--text2); }
+
+  /* MENTAL MODEL */
+  .mental-model {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .mental-model-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 16px;
+  }
+
+  .mental-model .code-block {
+    background: rgba(0,0,0,0.3);
+    margin: 0;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* ACTOR CARDS */
+  .actor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 700px) {
+    .actor-grid { grid-template-columns: 1fr; }
+  }
+
+  .actor-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .actor-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0 auto 12px;
+  }
+
+  .actor-num.factory { background: rgba(255,107,53,0.2); color: var(--orange); border: 1px solid rgba(255,107,53,0.4); }
+  .actor-num.pair { background: rgba(124,58,237,0.2); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.4); }
+  .actor-num.router { background: rgba(6,214,160,0.2); color: var(--green); border: 1px solid rgba(6,214,160,0.4); }
+
+  .actor-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .actor-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+
+  /* SWAP CASE CARDS */
+  .swap-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .swap-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .swap-case-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--accent2);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+
+  .swap-fn-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #82aaff;
+  }
+
+  /* FLASH SWAP TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    margin: 24px 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent2), var(--accent3));
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent2);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.3);
+  }
+
+  .timeline-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .timeline-content { color: var(--text2); font-size: 0.95rem; }
+
+  /* TWAP VISUALIZATION */
+  .twap-viz {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 20px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 60px 0 40px;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .footer-logo span { color: var(--accent1); }
+
+  .footer p {
+    color: var(--text3);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* INLINE TAGS */
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    background: rgba(124,58,237,0.15);
+    color: #c4b5fd;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(124,58,237,0.3);
+  }
+
+  .tag.orange { background: rgba(255,107,53,0.15); color: var(--orange); border-color: rgba(255,107,53,0.3); }
+  .tag.green { background: rgba(6,214,160,0.15); color: var(--green); border-color: rgba(6,214,160,0.3); }
+
+  /* YES/NO */
+  .yes { color: var(--green); font-weight: 700; }
+  .no { color: var(--red); font-weight: 700; }
+
+  /* Numbered ol */
+  ol.styled-list {
+    counter-reset: item;
+    list-style: none;
+    margin: 12px 0;
+  }
+  ol.styled-list li {
+    counter-increment: item;
+    padding: 7px 0 7px 36px;
+    position: relative;
+    color: var(--text2);
+    font-size: 0.95rem;
+  }
+  ol.styled-list li::before {
+    content: counter(item) ".";
+    position: absolute;
+    left: 0;
+    color: var(--accent1);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  /* Part color variations */
+  .part:nth-child(even) .part-number { color: var(--accent3); background: rgba(6,214,160,0.1); border-color: rgba(6,214,160,0.25); }
+  .part:nth-child(3n) .part-number { color: #c4b5fd; background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.25); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-label">DeFi Deep Dive — Complete Reference</div>
+  <h1>Uniswap <span>V2</span></h1>
+  <div style="margin-bottom: 24px; animation: fadeUp 0.8s ease 0.15s both;">
+    <span class="badge purple" style="font-size: 0.95rem; padding: 6px 16px;">Author: Dhruv Patel</span>
+  </div>
+  <p class="hero-sub">The most complete, human-friendly guide to understanding how Uniswap V2 works — from AMM fundamentals to flash swaps and TWAP oracles.</p>
+  <div class="hero-formula">x × y = k</div>
+  <div class="scroll-hint">↓ SCROLL TO EXPLORE</div>
+</header>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#part0">Foundation</a>
+    <a href="#part1">Core Actors</a>
+    <a href="#part2">ETH/WETH</a>
+    <a href="#part3">Pair Create</a>
+    <a href="#part4">Add Liquidity</a>
+    <a href="#part5">Remove Liquidity</a>
+    <a href="#part6">Swaps</a>
+    <a href="#part7">Path</a>
+    <a href="#part8">Fees & Slippage</a>
+    <a href="#part9">Impermanent Loss</a>
+    <a href="#part-big">Big Picture</a>
+    <a href="#part-arch">Architecture</a>
+    <a href="#part-liq">Liquidity Detail</a>
+    <a href="#part-flash">Flash Swap</a>
+    <a href="#part-twap">TWAP Oracle</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+<!-- PART 0 -->
+<section class="part" id="part0">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 00</div>
+      <h2 class="part-title">What is Uniswap V2? <span class="highlight">Foundation</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="math-box">
+        <div class="math-formula">x · y = k</div>
+        <div class="math-desc">x = Token A reserve &nbsp;|&nbsp; y = Token B reserve &nbsp;|&nbsp; k = constant</div>
+      </div>
+
+      <div class="callout purple">
+        <p><strong>Uniswap V2 = Automated Market Maker (AMM)</strong> — a decentralized exchange protocol that replaces the traditional order book model with pure mathematics. No order book. No buyer-seller matching. Just math.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card red">
+          <div class="card-title">❌ What it is NOT</div>
+          <ul class="cross-list">
+            <li>No order book</li>
+            <li>No buyer-seller matching</li>
+            <li>No centralized intermediary</li>
+            <li>No price discovery by bids/asks</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <div class="card-title">✅ What it IS</div>
+          <ul class="check-list">
+            <li>Pure math-based pricing</li>
+            <li>Constant product formula (x·y=k)</li>
+            <li>Permissionless liquidity pools</li>
+            <li>Anyone can trade 24/7 on-chain</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Real-Life Analogy — The Fruit Market</div>
+      <p>Think of Uniswap as a <strong>fruit market (mandi)</strong>. The pool is the shop, tokens are the fruits, and the formula is the pricing rule of the shop owner.</p>
+      <div class="card purple">
+        <div class="code-block">Pool   = Fruit Market 🏪
+Apple  = Token A
+Orange = Token B
+ETH    = Cash
+WETH   = Tokenized Cash (ERC-20 version of ETH)</div>
+      </div>
+      <p>When you want oranges, you bring apples. The more apples you bring, the less oranges per apple you receive (price impact). That's the <strong>constant product curve</strong> in action.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Why x·y=k Works</div>
+      <p>Imagine the pool has <strong>100 apples and 200 oranges → k = 20,000</strong>. If you want to buy 10 apples, the pool now has 90 apples. So new orange count = 20,000 / 90 = 222.2. You pay 22.2 oranges for 10 apples. The price moved because the ratio changed — that's slippage, and it's by design.</p>
+      <div class="code-block">
+Before: Apple=100, Orange=200, k=20,000
+You buy 10 Apple
+
+New Apple  = 100 - 10 = 90
+New Orange = 20,000 / 90 = 222.2
+
+You paid = 222.2 - 200 = <span class="num">22.2 Orange</span>  (for 10 Apple)
+Effective price = 2.22 Orange/Apple (vs 2.00 spot)
+<span class="comment">// That extra 0.22 is your price impact / slippage</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 1 -->
+<section class="part" id="part1">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 01</div>
+      <h2 class="part-title">Uniswap's <span class="highlight2">3 Core Actors</span></h2>
+    </div>
+
+    <div class="actor-grid">
+      <div class="actor-card">
+        <div class="actor-num factory">F</div>
+        <div class="actor-name">Factory</div>
+        <div class="actor-subtitle">IUniswapV2Factory</div>
+        <ul class="dot-list">
+          <li>Creates new trading pairs</li>
+          <li>Gives you existing pair addresses</li>
+          <li>Plot registrar of DeFi</li>
+        </ul>
+      </div>
+      <div class="actor-card">
+        <div class="actor-num pair">P</div>
+        <div class="actor-name">Pair</div>
+        <div class="actor-subtitle">UniswapV2Pair</div>
+        <ul class="dot-list">
+          <li>Stores reserves (x and y)</li>
+          <li>Enforces x·y=k invariant</li>
+          <li>Mints &amp; burns LP tokens</li>
+          <li>The actual market shop</li>
+        </ul>
+      </div>
+      <div class="actor-card">
+        <div class="actor-num router">R</div>
+        <div class="actor-name">Router</div>
+        <div class="actor-subtitle">IUniswapV2Router02</div>
+        <ul class="dot-list">
+          <li>Add / remove liquidity</li>
+          <li>Execute swaps</li>
+          <li>ETH ⇄ WETH conversion</li>
+          <li>The Amazon app / cashier</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Factory — The Pair Creator</div>
+      <p>The Factory's sole job is to create trading pair contracts and maintain a registry. Think of it as the <strong>"Plot Registrar"</strong> — it doesn't trade itself, it just opens new shops.</p>
+      <ul class="dot-list">
+        <li>Token order doesn't matter: Factory(A,B) = Factory(B,A) → same pair</li>
+        <li>Only one pair allowed per token-pair combination</li>
+        <li>Factory itself never performs any trading</li>
+      </ul>
+      <div class="code-block">
+<span class="comment">// Create a new pair — only happens ONCE per token combination</span>
+<span class="kw">factory</span>.<span class="fn">createPair</span>(tokenA, tokenB);
+
+<span class="comment">// Get existing pair address</span>
+<span class="kw">address</span> pair = <span class="fn">factory.getPair</span>(tokenA, tokenB);</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Pair — The Actual Market</div>
+      <p>Every token pair has its own Pair contract — <strong>one Pair per token combination</strong>. This is where the real action happens. The Pair stores reserves, applies the x·y=k formula, and issues LP tokens to liquidity providers.</p>
+      <div class="warn-box">
+        <div class="warn-icon">⚠️</div>
+        <p><strong>IMPORTANT:</strong> You never call the Pair contract directly as a user. Always go through the Router. Direct Pair calls require precise token math and have no safety checks.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Router — The Middleman / Cashier</div>
+      <p>The Router is the <strong>user-facing layer</strong>. It wraps all the complexity of interacting with the Pair — handling ETH↔WETH conversion, calculating amounts, checking slippage, and routing through multiple pools.</p>
+      <div class="callout green">
+        <p>🔥 <strong>99% of the time, you only interact with the Router.</strong> It handles everything on your behalf.</p>
+      </div>
+    </div>
+
+    <div class="golden-rule">
+      <span class="label">🔥 Golden Rule — Memorize This</span>
+      <div class="flow">
+        <div class="flow-item">User</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">Your Contract</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">Router</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">Pair</div>
+      </div>
+      <div class="content" style="margin-top:14px; color: var(--red); font-size:0.9rem;">
+        ❌ NEVER: User → Pair (directly)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 2 -->
+<section class="part" id="part2">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 02</div>
+      <h2 class="part-title">ETH / WETH — <span class="highlight">Complete Clarity</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Why is ETH a Problem?</div>
+      <p>Uniswap pools work with <strong>ERC-20 token pairs only</strong> — every pool is ERC-20 + ERC-20. But ETH is NOT an ERC-20 token. It's the native coin of Ethereum. That means ETH can't be <code class="tag">approve()</code>d or <code class="tag">transferFrom()</code>d like a regular token.</p>
+
+      <div class="grid-2">
+        <div class="card red">
+          <div class="card-title">❌ ETH Problems</div>
+          <ul class="cross-list">
+            <li>Not an ERC-20 token</li>
+            <li>Cannot be approved</li>
+            <li>Cannot transferFrom</li>
+            <li>Pools require ERC-20 + ERC-20</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <div class="card-title">✅ WETH Solution</div>
+          <ul class="check-list">
+            <li>WETH = Wrapped ETH</li>
+            <li>Full ERC-20 compatibility</li>
+            <li>Always 1:1 with ETH</li>
+            <li>No price difference ever</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Router's Magic — Automatic Wrapping</div>
+      <p>The Router makes this seamless. When you send ETH, the Router automatically wraps it to WETH before interacting with the pool. When you receive ETH back, it unwraps WETH for you.</p>
+      <div class="code-block">
+ETH coming in?
+  → Router wraps: ETH → WETH
+  → WETH enters the pool
+
+WETH going out?
+  → Router unwraps: WETH → ETH
+  → You receive native ETH</div>
+      <div class="callout green">
+        <p>✅ As a developer or user, <strong>you can completely ignore WETH's existence</strong> as long as you use the Router. It handles everything behind the scenes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 3 -->
+<section class="part" id="part3">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 03</div>
+      <h2 class="part-title">Creating a <span class="highlight3">Pair</span></h2>
+    </div>
+
+    <div class="section">
+      <p>Creating a pair is like <strong>opening a new shop in the market</strong>. You need two tokens (Apple + Orange), and you call the Factory to register this new trading venue. This only happens <strong>once per token combination</strong> — ever.</p>
+
+      <div class="code-block">
+<span class="comment">// Solidity — Create a new trading pair</span>
+<span class="fn">factory</span>.<span class="fn">createPair</span>(address tokenA, address tokenB);
+
+<span class="comment">// Real example: Create Apple/Orange pair</span>
+<span class="fn">factory</span>.<span class="fn">createPair</span>(APPLE_TOKEN, ORANGE_TOKEN);
+
+<span class="comment">// Returns the new pair's contract address</span></div>
+
+      <div class="success-box">
+        <div style="font-size:1.2rem">⭐</div>
+        <p><strong>createPair() is called only once.</strong> After that, the pair exists forever on-chain and anyone can provide liquidity or trade on it. The Factory ensures no duplicate pairs can be created.</p>
+      </div>
+
+      <div class="section-title">What Happens Under the Hood</div>
+      <ol class="styled-list">
+        <li>You call <code class="tag">factory.createPair(tokenA, tokenB)</code></li>
+        <li>Factory deploys a new <code class="tag">UniswapV2Pair</code> contract</li>
+        <li>Factory stores the mapping: (tokenA, tokenB) → pair address</li>
+        <li>The new pair is initialized with zero reserves</li>
+        <li>First liquidity provider sets the initial price ratio</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- PART 4 -->
+<section class="part" id="part4">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 04</div>
+      <h2 class="part-title">Add Liquidity — <span class="highlight">Most Important</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Case 1: ERC-20 + ERC-20</div>
+      <p>This is the standard case — adding two regular ERC-20 tokens as liquidity. You become a <strong>Liquidity Provider (LP)</strong> and receive LP tokens as proof of your ownership share.</p>
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+router.<span class="fn">addLiquidity</span>(
+  address tokenA,        <span class="comment">// First token</span>
+  address tokenB,        <span class="comment">// Second token</span>
+  uint amountADesired,   <span class="comment">// How much A you want to add</span>
+  uint amountBDesired,   <span class="comment">// How much B you want to add</span>
+  uint amountAMin,       <span class="comment">// Minimum A (slippage protection)</span>
+  uint amountBMin,       <span class="comment">// Minimum B (slippage protection)</span>
+  address to,            <span class="comment">// Who gets LP tokens</span>
+  uint deadline          <span class="comment">// Transaction expiry time</span>
+);</div>
+
+      <div class="subsection-title">Step-by-Step Flow</div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>User approves tokens</strong>
+          <p>Call <code class="tag">tokenA.approve(router, amount)</code> and <code class="tag">tokenB.approve(router, amount)</code>. This gives the Router permission to pull your tokens.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>You call addLiquidity()</strong>
+          <p>Router pulls both tokens from your wallet using <code class="tag">transferFrom()</code>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Router deposits into Pair</strong>
+          <p>The tokens go into the Pair contract, increasing the reserves.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>You receive LP tokens</strong>
+          <p>LP tokens represent your ownership share of the pool. They're your receipt — save them!</p>
+        </div>
+      </div>
+
+      <div class="subsection-title">Example With Real Numbers</div>
+      <div class="code-block">
+You add:
+  100 Apple
+  200 Orange
+
+Pool Reserves:
+  Apple  = 100
+  Orange = 200
+
+Implied Price:
+  1 Apple = 2 Orange
+
+Constant k = 100 × 200 = <span class="num">20,000</span>
+
+LP Token = Ownership Receipt (proof you added this liquidity)</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Case 2: ETH + ERC-20</div>
+      <p>When you want to add ETH (not WETH) as one of the tokens. You use <code class="tag">addLiquidityETH()</code> and send ETH as the transaction value. The Router wraps it automatically.</p>
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+router.<span class="fn">addLiquidityETH</span>{<span class="kw">value</span>: msg.value}(
+  address token,         <span class="comment">// The ERC-20 token</span>
+  uint amountTokenDesired,
+  uint amountTokenMin,
+  uint amountETHMin,
+  address to,
+  uint deadline
+);</div>
+
+      <div class="subsection-title">Flow for ETH + ERC-20</div>
+      <ol class="styled-list">
+        <li>User sends ETH with the transaction (<code class="tag">msg.value</code>)</li>
+        <li>Router automatically wraps ETH → WETH</li>
+        <li>Pool receives WETH + Token</li>
+        <li>You receive LP tokens</li>
+      </ol>
+
+      <div class="callout yellow">
+        <p>🎯 <strong>You NEVER manually handle WETH.</strong> The Router wraps/unwraps ETH on your behalf automatically. Just send ETH and forget about it.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">What is an LP Token?</div>
+      <p>LP (Liquidity Provider) tokens are ERC-20 tokens issued by the Pair contract. They represent your proportional share of the pool reserves. Think of them as a <strong>claim check at a coat room</strong> — you show them later to get your tokens back.</p>
+
+      <div class="grid-2">
+        <div class="card green">
+          <div class="card-title">LP Token = Ownership</div>
+          <ul class="dot-list">
+            <li>Proportional pool share</li>
+            <li>Accrues trading fees (0.3%)</li>
+            <li>Transferable / tradeable</li>
+            <li>Burned when you remove liquidity</li>
+          </ul>
+        </div>
+        <div class="card orange">
+          <div class="card-title">LP ≠ HODL</div>
+          <ul class="dot-list">
+            <li>Subject to impermanent loss</li>
+            <li>Value tied to pool ratio</li>
+            <li>Not the same as just holding</li>
+            <li>Fees may or may not offset IL</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 5 -->
+<section class="part" id="part5">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 05</div>
+      <h2 class="part-title">Remove <span class="highlight2">Liquidity</span></h2>
+    </div>
+
+    <div class="section">
+      <p>Removing liquidity is the reverse of adding it. You hand back your LP tokens (the "receipt") and get your underlying tokens back — proportional to your share of the pool at that moment.</p>
+
+      <div class="callout purple">
+        <p>🏪 <strong>Real-life analogy:</strong> Show your LP receipt → Get your fruit back. "LP receipt dikhao, fruit wapas le jao."</p>
+      </div>
+
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+<span class="comment">// Remove ERC-20 + ERC-20 liquidity</span>
+router.<span class="fn">removeLiquidity</span>(
+  address tokenA,
+  address tokenB,
+  uint liquidity,      <span class="comment">// LP token amount to burn</span>
+  uint amountAMin,     <span class="comment">// Min tokens you accept (slippage guard)</span>
+  uint amountBMin,
+  address to,
+  uint deadline
+);
+
+<span class="comment">// Remove ETH + ERC-20 liquidity</span>
+router.<span class="fn">removeLiquidityETH</span>(...);
+<span class="comment">// Automatically unwraps WETH → ETH for you</span></div>
+
+      <div class="subsection-title">Step-by-Step Flow</div>
+      <ol class="styled-list">
+        <li><strong>Approve LP tokens</strong> — call <code class="tag">lpToken.approve(router, amount)</code></li>
+        <li><strong>Router burns LP tokens</strong> — sends them to the Pair, which burns them</li>
+        <li><strong>Tokens returned</strong> — Pair sends back your proportional share of reserves</li>
+        <li><strong>For ETH variant</strong> — Router automatically unwraps WETH back to ETH</li>
+      </ol>
+
+      <div class="warn-box">
+        <div class="warn-icon">⚠️</div>
+        <p>The tokens you receive may NOT be the same amounts you deposited. Pool ratios change over time as trades happen. You receive your <strong>share of the current pool</strong>, not your original deposit amounts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 6 -->
+<section class="part" id="part6">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 06</div>
+      <h2 class="part-title">Swaps — <span class="highlight">Heart of Uniswap</span></h2>
+    </div>
+
+    <p style="margin-bottom:32px; color:var(--text2); font-size:1.05rem;">Uniswap V2 exposes 4 swap functions depending on what you're trading (ETH vs ERC-20) and which side of the trade you want exact control over (input vs output).</p>
+
+    <!-- Case 1 -->
+    <div class="swap-card">
+      <div class="swap-card-header">
+        <span class="swap-case-num">CASE 1</span>
+        <span class="swap-fn-name">swapExactTokensForTokens</span>
+        <span class="badge green">Most Common</span>
+      </div>
+      <p><strong>Meaning:</strong> "I'm giving you an exact amount of Token A. Give me however many Token B that works out to — just not less than my minimum."</p>
+      <div class="callout purple">
+        <p>🍎 "Main exact Apple de raha hoon, jitne Orange milenge woh chahiye" — I give exact Apple, get however many Orange comes out.</p>
+      </div>
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+router.<span class="fn">swapExactTokensForTokens</span>(
+  uint amountIn,       <span class="comment">// Exact input amount (you control this)</span>
+  uint amountOutMin,   <span class="comment">// Minimum output (slippage guard)</span>
+  address[] path,      <span class="comment">// [tokenIn, tokenOut] or multi-hop</span>
+  address to,          <span class="comment">// Who receives the output tokens</span>
+  uint deadline        <span class="comment">// Transaction must complete by this time</span>
+);</div>
+
+      <div class="subsection-title">Math Example (Pool: Apple=100, Orange=200, k=20,000)</div>
+      <div class="code-block">
+User wants to swap 10 Apple
+
+New Apple reserve  = 100 + 10 = 110
+New Orange reserve = 20,000 / 110 = <span class="num">181.8</span>
+
+Orange out = 200 - 181.8 = <span class="num">18.2 Orange</span>
+
+(Before 0.3% fee deduction)
+Effective rate: 1 Apple ≈ 1.82 Orange (vs 2.0 spot — price impact!)</div>
+    </div>
+
+    <!-- Case 2 -->
+    <div class="swap-card">
+      <div class="swap-card-header">
+        <span class="swap-case-num">CASE 2</span>
+        <span class="swap-fn-name">swapTokensForExactTokens</span>
+      </div>
+      <p><strong>Meaning:</strong> "I want exactly X amount of Token B. Take as many Token A as you need — but don't take more than my maximum."</p>
+      <div class="callout purple">
+        <p>🍊 "Mujhe exact Orange chahiye, max Apple main dunga" — I want exact Orange, I'll give up to max Apple for it.</p>
+      </div>
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+router.<span class="fn">swapTokensForExactTokens</span>(
+  uint amountOut,      <span class="comment">// Exact output you want (you control this)</span>
+  uint amountInMax,    <span class="comment">// Max input you'll spend (slippage guard)</span>
+  address[] path,
+  address to,
+  uint deadline
+);</div>
+    </div>
+
+    <!-- Case 3 -->
+    <div class="swap-card">
+      <div class="swap-card-header">
+        <span class="swap-case-num">CASE 3</span>
+        <span class="swap-fn-name">swapExactETHForTokens</span>
+      </div>
+      <p><strong>Meaning:</strong> "I'm sending exact ETH. Give me tokens in return." The Router wraps ETH → WETH internally, then executes the swap.</p>
+      <div class="callout purple">
+        <p>⚡ "Main ETH de raha hoon, token chahiye" — Router handles: ETH → WETH → swap → Token</p>
+      </div>
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+router.<span class="fn">swapExactETHForTokens</span>{<span class="kw">value</span>: msg.value}(
+  uint amountOutMin,
+  address[] path,      <span class="comment">// path[0] must be WETH address</span>
+  address to,
+  uint deadline
+);
+
+<span class="comment">// Router internally: ETH → wrap → WETH → swap → Token</span></div>
+    </div>
+
+    <!-- Case 4 -->
+    <div class="swap-card">
+      <div class="swap-card-header">
+        <span class="swap-case-num">CASE 4</span>
+        <span class="swap-fn-name">swapExactTokensForETH</span>
+      </div>
+      <p><strong>Meaning:</strong> "I'm giving exact tokens. Give me ETH back." Router executes the swap then unwraps WETH → ETH for you.</p>
+      <div class="callout purple">
+        <p>💰 "Token de raha hoon, ETH chahiye" — Router handles: Token → swap → WETH → unwrap → ETH</p>
+      </div>
+      <span class="code-label">solidity</span>
+      <div class="code-block">
+router.<span class="fn">swapExactTokensForETH</span>(
+  uint amountIn,
+  uint amountOutMin,
+  address[] path,      <span class="comment">// path[last] must be WETH address</span>
+  address to,
+  uint deadline
+);
+
+<span class="comment">// Router internally: Token → swap → WETH → unwrap → ETH</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 7 -->
+<section class="part" id="part7">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 07</div>
+      <h2 class="part-title">What is <span class="highlight3">Path</span>?</h2>
+    </div>
+
+    <div class="section">
+      <p>The <strong>path</strong> is an array of token addresses that defines the route a swap takes. It tells the Router: "Go from Token A → Token B → Token C, using each adjacent pool along the way."</p>
+
+      <div class="code-block">
+<span class="kw">address[]</span> path;
+<span class="comment">// path[0] = token you're selling
+// path[last] = token you're receiving
+// everything in between = intermediate hops</span></div>
+
+      <div class="section-title">Types of Paths</div>
+
+      <div class="grid-2">
+        <div class="card green">
+          <div class="card-title">Simple Swap (2 hops)</div>
+          <div class="code-block" style="font-size:0.82rem">
+Apple → Orange
+path = [Apple, Orange]</div>
+          <p style="font-size:0.85rem">Direct pool: Apple/Orange pair</p>
+        </div>
+        <div class="card purple">
+          <div class="card-title">ETH Swap</div>
+          <div class="code-block" style="font-size:0.82rem">
+ETH → Apple
+path = [WETH, Apple]</div>
+          <p style="font-size:0.85rem">Note: ETH is represented as WETH in path</p>
+        </div>
+      </div>
+
+      <div class="card orange" style="margin-top:0">
+        <div class="card-title">Multi-Hop Swap (3+ tokens)</div>
+        <div class="code-block" style="font-size:0.82rem">
+Apple → Orange → Banana
+path = [Apple, Orange, Banana]
+
+<span class="comment">// Real example: SHIB → ETH → USDC
+// (No direct SHIB/USDC pool exists,
+//  but SHIB/ETH and ETH/USDC both exist)</span>
+path = [SHIB, WETH, USDC]</div>
+        <p style="font-size:0.85rem">Each adjacent pair in the path must have an existing liquidity pool. The Router automatically routes through multiple pools in a single transaction.</p>
+      </div>
+
+      <div class="callout green">
+        <p>🧭 <strong>Router automatically chooses the best path</strong> when you use off-chain helpers. For on-chain calls, you specify the path explicitly. Multi-hop enables trading any token for any other token, even without a direct pool.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 8 -->
+<section class="part" id="part8">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 08</div>
+      <h2 class="part-title">Fees &amp; <span class="highlight">Slippage</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="section-title">The 0.3% Fee</div>
+      <p>Every swap in Uniswap V2 charges a flat <strong>0.3% fee on the input amount</strong>. This fee is NOT taken out separately — it stays in the pool and automatically increases the reserves, effectively distributing it proportionally to all LP token holders.</p>
+
+      <div class="math-box">
+        <div class="math-formula">Fee = 0.3%</div>
+        <div class="math-desc">Per swap • Automatically added to pool reserves • LP holders earn pro-rata</div>
+      </div>
+
+      <div class="code-block">
+You swap 100 Apple:
+  Fee = 100 × 0.003 = <span class="num">0.3 Apple</span> stays in pool
+  Effective input = 99.7 Apple for price calculation
+
+After many trades, pool reserves grow beyond initial k value
+→ LP holders can claim this growth when removing liquidity</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Slippage Protection — amountOutMin</div>
+      <p>Slippage is the difference between the expected price and the actual execution price. Between when you submit a transaction and when it executes on-chain, other trades can move the price.</p>
+
+      <p><strong>amountOutMin</strong> is your safety net. If the actual output falls below this threshold (due to price movement or sandwich attacks), the transaction reverts — protecting your funds.</p>
+
+      <div class="grid-2">
+        <div class="card green">
+          <div class="card-title">✅ With Slippage Protection</div>
+          <div class="code-block" style="font-size:0.82rem">
+amountOutMin = expectedOut × 0.99
+<span class="comment">// Max 1% slippage tolerance</span>
+
+If price moves > 1%:
+→ Transaction REVERTS ✓
+→ Your tokens are safe ✓</div>
+        </div>
+        <div class="card red">
+          <div class="card-title">❌ Without Protection (amountOutMin=0)</div>
+          <div class="code-block" style="font-size:0.82rem">
+amountOutMin = 0
+<span class="comment">// Accept any output — DANGEROUS</span>
+
+Sandwich attacker:
+→ Buys before you (moves price)
+→ Your trade executes at bad price
+→ Attacker sells after you</div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-icon">⚠️</div>
+        <p><strong>Always set a reasonable amountOutMin.</strong> Setting it to 0 makes you vulnerable to MEV bots and sandwich attacks. Typical safe values: 0.5% to 2% slippage tolerance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 9 -->
+<section class="part" id="part9">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">PART 09</div>
+      <h2 class="part-title">Impermanent Loss — <span class="highlight2">The LP Risk</span></h2>
+    </div>
+
+    <div class="section">
+      <p>Impermanent Loss (IL) is the temporary loss experienced by liquidity providers when the price of deposited tokens changes relative to when they were deposited. The bigger the price divergence, the larger the IL.</p>
+
+      <div class="warn-box">
+        <div class="warn-icon">📊</div>
+        <p><strong>LP ≠ HODL.</strong> Being an LP is not the same as just holding your tokens. If the token prices move significantly in one direction, you'd have been better off just holding.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card orange">
+          <div class="card-title">LP Earns</div>
+          <ul class="check-list">
+            <li>0.3% fee from every trader swap</li>
+            <li>Proportional to pool share</li>
+            <li>Fees auto-compound in pool</li>
+          </ul>
+        </div>
+        <div class="card red">
+          <div class="card-title">LP Risks</div>
+          <ul class="cross-list">
+            <li>Price movement causes IL</li>
+            <li>Greater divergence = more IL</li>
+            <li>2x price move → ~5.7% IL</li>
+            <li>5x price move → ~25.5% IL</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="subsection-title">Why "Impermanent"?</div>
+      <p>It's called <em>impermanent</em> because if prices return to the original ratio when you exit, the loss disappears. It only becomes <strong>permanent</strong> when you actually remove liquidity while prices are diverged. If fees earned > IL experienced, LPs still profit overall.</p>
+
+      <div class="callout yellow">
+        <p>⚡ <strong>Developer perspective:</strong> As a developer integrating Uniswap, you don't implement IL — it's automatic. Just know it exists so you can warn users who are providing liquidity.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART: Developer Mental Model -->
+<section class="part">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">DEV MODE</div>
+      <h2 class="part-title">As a Developer — <span class="highlight3">What to Think</span></h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card green">
+        <div class="card-title">✅ YOUR Job</div>
+        <ul class="check-list">
+          <li>Call the Router contract</li>
+          <li>Distinguish ETH vs ERC-20 functions</li>
+          <li>Understand approve vs payable patterns</li>
+          <li>Set correct path arrays</li>
+          <li>Protect users with amountOutMin</li>
+        </ul>
+      </div>
+      <div class="card red">
+        <div class="card-title">❌ NOT Your Job</div>
+        <ul class="cross-list">
+          <li>Implementing x·y=k yourself</li>
+          <li>Managing reserves manually</li>
+          <li>Handling WETH wrapping manually</li>
+          <li>Writing Pair contract logic</li>
+          <li>Deploying your own Uniswap</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mental-model" style="margin-top:32px">
+      <div class="mental-model-title">🔥 FINAL MENTAL MODEL — PRINT THIS</div>
+      <div class="code-block">
+User sends ETH
+  → payable function
+  → Router wraps: ETH → WETH
+  → Pool sees ERC-20
+
+User sends Token
+  → approve() + transferFrom()
+  → Router pulls tokens
+  → Pool executes swap
+
+Router handles EVERYTHING:
+  → ETH ⇄ WETH conversion
+  → Swap execution
+  → Liquidity add/remove
+
+Pool only sees ERC-20
+  → Enforces x · y = k
+  → Mints/burns LP tokens
+  → Collects 0.3% fee</div>
+    </div>
+  </div>
+</section>
+
+<!-- PART: BIG PICTURE -->
+<section class="part" id="part-big">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">BIG PICTURE</div>
+      <h2 class="part-title">Uniswap V2 — <span class="highlight">One-Line Summary</span></h2>
+    </div>
+
+    <div class="callout purple" style="margin-bottom:40px">
+      <p style="font-size:1.1rem; line-height:1.6;"><strong>Uniswap V2 is a decentralized automated exchange where anyone can create a direct pool between any 2 ERC-20 tokens, trades happen via the AMM formula, liquidity providers earn fees, and the system includes advanced features like oracle support (TWAP) and flash swaps.</strong></p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Uniswap V1 vs V2 — Key Differences</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Uniswap V1</th>
+              <th>Uniswap V2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Pair Type</td><td><span class="no">Token ↔ ETH only</span></td><td><span class="yes">Token ↔ Token (direct)</span></td></tr>
+            <tr><td>ETH Handling</td><td>Native ETH</td><td>Wrapped ETH (WETH)</td></tr>
+            <tr><td>Routing</td><td>ETH mandatory middle</td><td><span class="yes">Direct or multi-hop</span></td></tr>
+            <tr><td>Oracle</td><td><span class="no">✗ None</span></td><td><span class="yes">✓ TWAP Oracle</span></td></tr>
+            <tr><td>Flash Swap</td><td><span class="no">✗ None</span></td><td><span class="yes">✓ Yes</span></td></tr>
+            <tr><td>ERC-20 Support</td><td>Weak</td><td><span class="yes">Better support</span></td></tr>
+            <tr><td>Price Manipulation</td><td>Easy</td><td><span class="yes">Harder</span></td></tr>
+            <tr><td>Architecture</td><td>Factory + Exchange</td><td><span class="yes">Factory + Pair + Router</span></td></tr>
+            <tr><td>Safety</td><td>Lower</td><td><span class="yes">Higher</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout green">
+        <p>🛣️ <strong>Analogy:</strong> V1 = single-lane road (everything goes through ETH). V2 = full highway system (direct routes, multi-lane, with on/off ramps).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART: ARCHITECTURE -->
+<section class="part" id="part-arch">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">ARCHITECTURE</div>
+      <h2 class="part-title">V2 Architecture — <span class="highlight2">Deep Dive</span></h2>
+    </div>
+
+    <div class="section">
+      <p>Uniswap V2 is split into two repositories/layers, each with a distinct purpose:</p>
+
+      <div class="grid-2">
+        <div class="card purple">
+          <div class="card-title">🔵 V2 Core (Backend / Engine)</div>
+          <p style="font-size:0.9rem">Contains only essential logic — no user convenience. Minimal, optimized, immutable.</p>
+          <ul class="dot-list">
+            <li><strong>Factory contract</strong> — pair registry</li>
+            <li><strong>Pair contract</strong> — reserves, pricing, LP tokens</li>
+          </ul>
+        </div>
+        <div class="card orange">
+          <div class="card-title">🔸 V2 Periphery (Frontend Helper)</div>
+          <p style="font-size:0.9rem">User-friendly convenience layer. Upgradeable without touching core.</p>
+          <ul class="dot-list">
+            <li><strong>Router01</strong> — original router</li>
+            <li><strong>Router02</strong> — improved, mostly used</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="subsection-title">Factory Contract Details</div>
+      <div class="code-block">
+<span class="comment">// Factory maps token pairs to their Pair contract address</span>
+TokenA + TokenB → Pair address
+
+Key properties:
+  ✓ Order doesn't matter: (A,B) == (B,A) → same pair
+  ✓ Only one pair per token-pair combination (ever)
+  ✗ Factory never performs any trading
+
+Real world analogy:
+  Factory = "Plot Registrar" (just registers shops, doesn't sell)
+  Pair    = "Actual market shop" (where trading happens)</div>
+
+      <div class="subsection-title">Pair Contract — The Core (Most Important)</div>
+      <p>Each token pair gets its <strong>own dedicated Pair contract</strong>. For example:</p>
+      <div class="code-block">
+USDC / DAI   → one UniswapV2Pair contract
+ETH  / USDT  → another UniswapV2Pair contract
+DAI  / WBTC  → yet another UniswapV2Pair contract</div>
+
+      <p>Each Pair contract holds and manages:</p>
+      <ul class="dot-list">
+        <li><strong>TokenA reserve</strong> — amount of token A in pool</li>
+        <li><strong>TokenB reserve</strong> — amount of token B in pool</li>
+        <li><strong>LP token mint/burn logic</strong> — issues/destroys LP tokens</li>
+        <li><strong>swap() function</strong> — the core swap execution</li>
+        <li><strong>price cumulative data</strong> — for TWAP oracle</li>
+      </ul>
+
+      <div class="code-block">
+<span class="comment">// The eternal formula — same as V1 base, but with better fee mechanism in V2</span>
+x * y = k
+
+Pricing formula per block:
+  price0Cumulative += (reserve1 / reserve0) × timeElapsed
+  price1Cumulative += (reserve0 / reserve1) × timeElapsed</div>
+
+      <div class="subsection-title">Router Contract — Amazon App Analogy</div>
+      <p>The Router is to the Pair what the Amazon app is to a warehouse — users interact with the app, not the warehouse directly.</p>
+      <ul class="check-list">
+        <li>Multi-hop swaps (route through multiple pools)</li>
+        <li>Slippage protection (amountOutMin / amountInMax)</li>
+        <li>ETH ↔ WETH automatic handling</li>
+        <li>Easier liquidity add/remove interface</li>
+      </ul>
+      <div class="warn-box">
+        <div class="warn-icon">💡</div>
+        <p>Trade can happen without the Router (calling Pair directly), but <strong>users should never do this</strong>. The Pair has no safety checks — it's the wholesale market, not the retail store.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART: LIQUIDITY DETAIL -->
+<section class="part" id="part-liq">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">LIQUIDITY DETAIL</div>
+      <h2 class="part-title">Liquidity &amp; Swaps — <span class="highlight3">V2 Deep Dive</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Becoming an LP — Real Example</div>
+      <p>Say you want to provide liquidity to the USDC/DAI pool (a stablecoin pool with 1:1 ratio):</p>
+
+      <div class="code-block">
+You deposit:
+  1000 USDC
+  1000 DAI
+
+Pool ratio: 1 USDC = 1 DAI
+
+You receive: LP tokens (representing your pool share)
+
+Fee earnings: 0.3% per trade × volume = your passive income
+
+Example: If pool does $1M/day volume:
+  Total LP fees/day = $1M × 0.003 = $3,000
+  If you own 1% of pool → you earn $30/day</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Types of Swaps in Uniswap V2</div>
+      <ol class="styled-list">
+        <li><strong>Exact Input</strong> — you specify exactly how much you send, get whatever comes out (most common)</li>
+        <li><strong>Exact Output</strong> — you specify exactly how much you want to receive, give whatever it costs</li>
+        <li><strong>Multi-hop</strong> — routes through multiple pools: Token A → Token B → Token C</li>
+      </ol>
+
+      <div class="code-block">
+<span class="comment">// Multi-hop example: SHIB → ETH → USDC
+// (No direct SHIB/USDC pool, but two pools exist)</span>
+path = [SHIB, WETH, USDC]
+
+Step 1: SHIB → WETH (using SHIB/WETH pool)
+Step 2: WETH → USDC (using WETH/USDC pool)
+
+Router handles this in one transaction automatically!</div>
+    </div>
+  </div>
+</section>
+
+<!-- PART: FLASH SWAP -->
+<section class="part" id="part-flash">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">FLASH SWAP</div>
+      <h2 class="part-title">Flash Swaps — <span class="highlight">DeFi Magic</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="golden-rule">
+        <span class="label">⚡ One-Line Intuition</span>
+        <div class="content">Take tokens from the pool WITHOUT paying first → use them → pay back WITH fee → all in one transaction. If you don't pay back → EVERYTHING REVERTS as if it never happened.</div>
+      </div>
+
+      <div class="section-title">Real-World Analogy — The Shop Deal</div>
+      <div class="card orange">
+        <div class="card-title">🏪 Scenario: You're a DeFi trader</div>
+        <p>You notice: Uniswap sells iPhone for ₹1000, SushiSwap sells iPhone for ₹1100. But you have ₹0.</p>
+        <div class="code-block" style="margin-top:12px">
+Normal world: "No money → can't trade" ❌
+
+Uniswap V2 says: "Take the iPhone, sell it for profit,
+give me my money + fee at the end."
+
+Steps:
+1. Borrow iPhone from Uniswap (free for now)
+2. Sell iPhone on SushiSwap for ₹1100
+3. Pay Uniswap back ₹1000 + 0.3% fee
+4. Keep ₹97 profit 💰
+
+All in ONE transaction.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Blockchain DeFi Version — With Real Numbers</div>
+      <p>You spot an arbitrage: Uniswap ETH/DAI pool has 1 ETH = 2000 DAI. SushiSwap ETH/DAI pool has 1 ETH = 2050 DAI. ETH is cheaper on Uniswap!</p>
+
+      <div class="code-block">
+Market prices:
+  Uniswap:   1 ETH = 2,000 DAI  (cheap)
+  SushiSwap: 1 ETH = 2,050 DAI  (expensive)
+
+Opportunity: Buy ETH cheap on Uni, sell expensive on Sushi</div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-label">STEP 1 — Call Uniswap</div>
+          <div class="timeline-content">You call <code class="tag">pair.swap(10 ETH, 0 DAI, myContract, data)</code>. The non-empty <code>data</code> field tells Uniswap this is a flash swap. You haven't paid anything yet.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-label">STEP 2 — Uniswap Sends ETH First 😱</div>
+          <div class="timeline-content">Uniswap V2's rule: "If <code>data</code> is non-empty, I send tokens first." So Uniswap sends you 10 ETH immediately. You now have 10 real ETH — but haven't paid anything yet!</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-label">STEP 3 — Callback Function</div>
+          <div class="timeline-content">Uniswap calls <code class="tag">uniswapV2Call(sender, amount0, amount1, data)</code> on your contract. This is where the magic happens — your code runs.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-label">STEP 4 — Arbitrage</div>
+          <div class="timeline-content">Inside the callback: sell 10 ETH on SushiSwap. You get 10 × 2050 = <strong>20,500 DAI</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-label">STEP 5 — Calculate Payback</div>
+          <div class="timeline-content">Uniswap wants back: 10 ETH + 0.3% fee = 10.03 ETH. At 2000 DAI/ETH, that's 10.03 × 2000 = <strong>20,060 DAI</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-label">STEP 6 — Payback + Profit ✅</div>
+          <div class="timeline-content">You pay Uniswap 20,060 DAI. You keep: 20,500 - 20,060 = <strong style="color:var(--green)">440 DAI profit</strong>! Transaction ends successfully.</div>
+        </div>
+      </div>
+
+      <div class="card green">
+        <div class="card-title">🎯 The Profit Math</div>
+        <div class="code-block">
+SushiSwap sale:  10 ETH × 2050 = 20,500 DAI received
+Uniswap payback: 10.03 ETH × 2000 = 20,060 DAI paid
+
+Net Profit: 20,500 - 20,060 = <span class="num">440 DAI 🎉</span>
+
+You started with: 0 money
+You ended with: 440 DAI
+Risk taken: 0 (atomic transaction)</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">What Happens If You Don't Pay Back?</div>
+      <div class="code-block">
+Suppose you fail:
+  SushiSwap price changed → you couldn't make profit
+  You couldn't afford to pay Uniswap back
+
+Uniswap checks at transaction end:
+  "Did I get my money + fee? NO ❌"
+  → Transaction REVERT
+
+Result:
+  - You never received ETH (it was never real)
+  - You have no loss
+  - Uniswap has no loss  
+  - Everything is as if nothing happened
+  - Gas fee is wasted, that's it</div>
+
+      <div class="success-box">
+        <div style="font-size:1.2rem">🛡️</div>
+        <p><strong>Ethereum transactions are ATOMIC</strong> — either ALL steps succeed, or ALL steps fail. There's no partial execution. This is why flash swaps are safe for both parties.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Why Uniswap Allows This — Atomicity</div>
+      <p>Ethereum transactions are atomic — they're indivisible units. Either every state change succeeds, or none of them persist. Uniswap exploits this property:</p>
+
+      <div class="card purple">
+        <div class="card-title">Technical Rule (Uniswap V2 Pair says)</div>
+        <div class="callout purple" style="margin-bottom:0">
+          <p>"At the END of swap(), either the reserve balance must be correct (accounting for fee), or the transaction reverts." — This is checked after your callback runs, making flash swaps safe.</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:32px">Flash Swap Use Cases</div>
+      <ol class="styled-list">
+        <li><strong>Arbitrage</strong> — Price difference exploitation between DEXes</li>
+        <li><strong>Collateral Swap</strong> — Switch collateral types in Aave/Compound without needing capital</li>
+        <li><strong>Liquidations</strong> — Liquidate undercollateralized positions using borrowed funds</li>
+        <li><strong>Debt Refinancing</strong> — Move debt from one protocol to another in one tx</li>
+      </ol>
+
+      <div class="divider"></div>
+
+      <div class="subsection-title">Flash Swap vs Flash Loan</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Feature</th><th>Flash Swap (Uniswap V2)</th><th>Flash Loan (Aave)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Mechanism</td><td>AMM-based</td><td>Lending-based</td></tr>
+            <tr><td>Asset Availability</td><td>Any token pair in pools</td><td>Limited to lending pool assets</td></tr>
+            <tr><td>Logic</td><td>Swap logic (pay same or different token)</td><td>Pure loan logic (repay same token)</td></tr>
+            <tr><td>Fee</td><td>0.3% of borrowed amount</td><td>0.09% typically</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">The Core Insight — One Transaction, Multiple Protocols</div>
+
+      <div class="callout purple" style="margin-bottom:24px">
+        <p><strong>Uniswap and SushiSwap are NOT connected to each other.</strong> They have different contracts, different addresses, different code, different teams. Only Ethereum blockchain connects them. Yet your contract can call BOTH in one transaction — because one Ethereum transaction can call any number of smart contracts sequentially.</p>
+      </div>
+
+      <p>Think of it like a phone call where you conference in Zomato, Uber, and your Bank — all in one call. If any call fails, everything is cancelled.</p>
+
+      <div class="code-block">
+<span class="comment">// Your arbitrage contract — calls BOTH protocols in one transaction</span>
+<span class="kw">function</span> <span class="fn">execute</span>() external {
+    <span class="comment">// 1. Get ETH from Uniswap (flash swap)</span>
+    uniswapPair.<span class="fn">swap</span>(...);
+
+    <span class="comment">// 2. Sell ETH on SushiSwap for profit</span>
+    sushiRouter.<span class="fn">swapExactTokensForTokens</span>(...);
+
+    <span class="comment">// 3. Pay back Uniswap (with fee)</span>
+    token.<span class="fn">transfer</span>(uniswapPair, amountOwed);
+}
+<span class="comment">// All 3 steps = ONE function call = ONE Ethereum transaction</span></div>
+
+      <div class="success-box">
+        <div style="font-size:1.2rem">⚡</div>
+        <p><strong>Final Feel Statement:</strong> In DeFi, you don't "connect" systems. You call their already-deployed smart contracts via function calls. Your contract orchestrates everything. Ethereum ensures all-or-nothing execution.</p>
+      </div>
+
+      <div class="section-title" style="margin-top:32px">DeFi is a LEGO System</div>
+      <div class="card green">
+        <p>Every protocol is a LEGO block. Uniswap, SushiSwap, Curve, Aave — all are already-deployed smart contracts with public addresses and public functions. You just call their functions from your contract. Like calling a library function in JavaScript. You don't copy their code. You just use their contract addresses + interfaces.</p>
+        <div class="code-block" style="margin-top:16px">
+<span class="comment">// Your contract stores protocol addresses and interfaces</span>
+<span class="kw">contract</span> MyArbContract {
+    address <span class="var">UNISWAP_PAIR</span>  = 0xAAA...;
+    address <span class="var">SUSHI_ROUTER</span>  = 0xBBB...;
+    address <span class="var">CURVE_POOL</span>    = 0xCCC...;
+
+    <span class="kw">function</span> <span class="fn">execute</span>() external {
+        IUniswapV2Pair(<span class="var">UNISWAP_PAIR</span>).<span class="fn">swap</span>(...);
+        ISushiRouter(<span class="var">SUSHI_ROUTER</span>).<span class="fn">swapExactTokensForTokens</span>(...);
+        ICurvePool(<span class="var">CURVE_POOL</span>).<span class="fn">exchange</span>(...);
+    }
+}</div>
+      </div>
+
+      <div class="grid-2" style="margin-top:24px">
+        <div class="card red">
+          <div class="card-title">❌ What NOT to Do</div>
+          <ul class="cross-list">
+            <li>Copy-paste full Uniswap code</li>
+            <li>Deploy your own Uniswap</li>
+            <li>Hardcode everything blindly</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <div class="card-title">✅ What to Do</div>
+          <ul class="check-list">
+            <li>Use interfaces (IUniswapV2Pair)</li>
+            <li>Use deployed protocol addresses</li>
+            <li>Keep logic modular</li>
+            <li>Let off-chain bots decide routes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART: TWAP ORACLE -->
+<section class="part" id="part-twap">
+  <div class="container">
+    <div class="part-header">
+      <div class="part-number">TWAP ORACLE</div>
+      <h2 class="part-title">Price Oracles — <span class="highlight2">TWAP Explained</span></h2>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Why Do Smart Contracts Need Prices?</div>
+      <p>Smart contracts are completely isolated from the real world — they can't Google a price, can't access the internet, can't call APIs. Yet many DeFi protocols desperately need reliable price data:</p>
+      <ul class="dot-list">
+        <li>Lending apps (like Aave): "What is ETH worth right now for collateral checks?"</li>
+        <li>Stablecoins: "What is the collateral price to maintain peg?"</li>
+        <li>Prediction markets and options protocols</li>
+        <li>Liquidation bots: "Is this position underwater?"</li>
+      </ul>
+
+      <div class="callout red">
+        <p>⚠️ Smart contracts cannot access the internet. They need <strong>on-chain price sources</strong> — systems that store price data directly on the blockchain. These are called <strong>ORACLES</strong>.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Types of Oracles</div>
+      <div class="grid-2">
+        <div class="card orange">
+          <div class="card-title">Chainlink (Off-chain reporters)</div>
+          <p>Trusted reporters submit prices on-chain. High trust, some centralization. Used by most major DeFi protocols.</p>
+        </div>
+        <div class="card purple">
+          <div class="card-title">Uniswap TWAP (On-chain, AMM-based)</div>
+          <p>Derived purely from on-chain trading activity. Fully decentralized. But can be manipulated if pool liquidity is low.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">The Naive Idea — And Why It's Wrong</div>
+      <p>The obvious approach: just read the current price from the pool.</p>
+
+      <div class="code-block">
+<span class="comment">// Naive approach: instant/spot price</span>
+price = tokenB_reserve / tokenA_reserve
+
+Example:
+  ETH  = 10  (in pool)
+  DAI  = 20,000  (in pool)
+  
+  Spot price: 1 ETH = 2,000 DAI  ← looks good!</div>
+
+      <div class="warn-box">
+        <div class="warn-icon">⚠️</div>
+        <p><strong>Problem: Spot price is easily manipulated!</strong> A large trade can dramatically move the price for just one block, allowing an attacker to drain a protocol that trusts the spot price.</p>
+      </div>
+
+      <div class="code-block">
+<span class="comment">// Real attack scenario</span>
+Normal pool:
+  ETH = 10, DAI = 20,000 → Price: 1 ETH = 2,000 DAI
+
+Attacker buys ETH with 18,000 DAI:
+  Pool becomes: ETH ≈ 5, DAI ≈ 38,000
+  
+New spot price:
+  1 ETH ≈ 38,000 / 5 = 7,600 DAI (!!)
+
+This 7600 price lasts only for 1 block.
+But if a lending contract trusts it → PROTOCOL DRAINED ❌</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">TWAP — The Solution</div>
+      <div class="callout green">
+        <p>💡 <strong>Core Idea of TWAP (Time-Weighted Average Price):</strong> Don't look at one instant. Average the price across TIME. A 1-block manipulation has almost no effect on a 30-minute average.</p>
+      </div>
+
+      <p>TWAP stands for <strong>Time-Weighted Average Price</strong>. Instead of reading the current price, it averages price over a time window — making manipulation prohibitively expensive.</p>
+
+      <div class="subsection-title">Real-Life Analogy — Petrol Station</div>
+      <div class="card yellow">
+        <div class="card-title">🚗 Petrol Price Example</div>
+        <div class="code-block" style="font-size:0.85rem">
+Petrol prices today:
+  For 1 hour (10am-11am): ₹100/litre (normal)
+  For 1 minute (11am):    ₹300/litre (glitch/spike!)
+  For 9 hours (11am-8pm): ₹100/litre (back to normal)
+
+Someone asks: "What was today's petrol price?"
+
+❌ Wrong answer: ₹300 (the spike)
+✅ Right answer: ₹102 (the time-weighted average)
+
+TWAP = the daily average petrol price, not the spike.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">How Uniswap V2 Implements TWAP</div>
+      <p>Uniswap V2 does NOT store the spot price. Instead, it stores <strong>price × time (priceCumulative)</strong>. Every block, it adds (current price × seconds elapsed) to a running total. This is called the <strong>price accumulator</strong>.</p>
+
+      <div class="code-block">
+<span class="comment">// Uniswap V2 stores these in the Pair contract:</span>
+uint224 price0CumulativeLast;   <span class="comment">// Token1/Token0 cumulative</span>
+uint224 price1CumulativeLast;   <span class="comment">// Token0/Token1 cumulative</span>
+uint32  blockTimestampLast;     <span class="comment">// Last update timestamp</span>
+
+<span class="comment">// Each block, before any swap, Uniswap updates:</span>
+priceCumulative += (reserve_B / reserve_A) × timeElapsed</div>
+
+      <div class="subsection-title">Working Through the Math</div>
+      <div class="twap-viz">
+        <div style="color:var(--green); margin-bottom:12px; font-weight:600">📊 TWAP Calculation Example</div>
+        <div class="code-block" style="margin:0; background:rgba(0,0,0,0.3); font-size:0.82rem">
+Start:
+  Time = 0, priceCumulative = 0
+
+For 10 minutes at normal price (2000 DAI/ETH):
+  Contribution = 2000 × 10 = 20,000
+  priceCumulative = 20,000
+
+Attack! 1 minute at spike price (7600 DAI/ETH):
+  Contribution = 7600 × 1 = 7,600
+  priceCumulative = 20,000 + 7,600 = 27,600
+
+Back to normal for 9 minutes:
+  Contribution = 2000 × 9 = 18,000
+  priceCumulative = 27,600 + 18,000 = 45,600
+
+TWAP calculation:
+  Total time = 10 + 1 + 9 = 20 minutes
+  TWAP = 45,600 / 20 = <span class="num" style="font-size:1.1rem">2,280 DAI/ETH</span>
+
+Spot price (manipulated): 7,600 ❌
+TWAP price (safe):         2,280 ✅  (barely moved!)
+Attack FAILED. 🛡️</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">How Developers Use TWAP in Smart Contracts</div>
+      <div class="code-block">
+<span class="comment">// Developer reads TWAP in 3 steps:</span>
+
+<span class="comment">// Step 1: Read at time T1 (e.g., 30 minutes ago)</span>
+uint priceCumulative1 = pair.price0CumulativeLast;
+uint32 timestamp1 = pair.blockTimestampLast;
+
+<span class="comment">// Step 2: Read at time T2 (now)</span>
+uint priceCumulative2 = pair.price0CumulativeLast;
+uint32 timestamp2 = uint32(block.timestamp);
+
+<span class="comment">// Step 3: Calculate TWAP</span>
+uint timeElapsed = timestamp2 - timestamp1;
+
+<span class="kw">uint</span> twap = (priceCumulative2 - priceCumulative1) / timeElapsed;
+<span class="comment">// twap is now the average price over that period</span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Why is TWAP Manipulation Expensive?</div>
+      <p>To manipulate the TWAP, an attacker must <strong>maintain a fake price for many blocks</strong>. Each block they do this:</p>
+      <ul class="cross-list">
+        <li>They must hold a large position (capital requirement)</li>
+        <li>Arbitrageurs drain them with every block (they lose money)</li>
+        <li>They pay 0.3% fees per block on each arbitrage trade</li>
+        <li>The longer they hold the fake price, the more they lose</li>
+      </ul>
+
+      <div class="callout green">
+        <p>💎 <strong>Result: TWAP manipulation is economically irrational.</strong> The attacker would need to sustain losses much larger than any potential gain from the manipulation.</p>
+      </div>
+
+      <div class="subsection-title">TWAP Limitations (Honest Talk)</div>
+      <div class="card red">
+        <div class="card-title">⚠️ TWAP is Not Perfect</div>
+        <ul class="cross-list">
+          <li><strong>Not real-time</strong> — always lags behind actual price</li>
+          <li><strong>Short window = less safe</strong> — easier to manipulate</li>
+          <li><strong>Long window = slow to respond</strong> — misses real price moves</li>
+          <li><strong>Low liquidity pools</strong> — easier and cheaper to manipulate</li>
+        </ul>
+      </div>
+
+      <div class="grid-2">
+        <div class="card green">
+          <div class="card-title">Use Long TWAP For:</div>
+          <ul class="dot-list">
+            <li>Lending protocols (Aave-style)</li>
+            <li>Collateral valuation</li>
+            <li>Governance decisions</li>
+            <li>Any high-stakes price check</li>
+          </ul>
+        </div>
+        <div class="card orange">
+          <div class="card-title">Use Spot Price For:</div>
+          <ul class="dot-list">
+            <li>Trading UI display</li>
+            <li>Quick price references</li>
+            <li>Low-stakes decisions</li>
+            <li>AMM routing calculations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Final TWAP Summary</div>
+      <ol class="styled-list">
+        <li>Smart contracts need on-chain price data → <strong>oracles</strong></li>
+        <li>Spot price = easily manipulated with one large trade ❌</li>
+        <li>Uniswap V2 stores <strong>price × time</strong> (priceCumulative) every block</li>
+        <li>TWAP = <strong>average price over a time window</strong></li>
+        <li>Short price spikes barely affect the long-term average</li>
+        <li>Attacker must sustain fake price for many blocks → huge cost</li>
+        <li>Result: <strong>Practically manipulation-resistant oracle</strong> ✅</li>
+      </ol>
+
+      <div class="golden-rule">
+        <span class="label">💬 The One Line That Should Click Now</span>
+        <div class="content">TWAP says: "Ignore the 1-second drama — let's look at what price did over a longer time window before we make any big decisions."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-logo">Uniswap <span>V2</span></div>
+    <p>Complete DeFi Reference Guide — From AMM Foundations to Flash Swaps &amp; TWAP Oracles</p>
+    <p style="margin-top:10px">Built for developers who want to understand DeFi from first principles.</p>
+  </div>
+</footer>
+
+<script>
+  // Smooth scroll indicator
+  document.querySelectorAll('.toc a').forEach(a => {
+    a.addEventListener('click', function() {
+      document.querySelectorAll('.toc a').forEach(x => x.style.color = '');
+    });
+  });
+
+  // Fade in sections on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll('.part').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Realistic Uniswap V3 Story — ETH/USDC Full Lifecycle</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --page-bg: #ffffff;
+        --text: #1a1a1a;
+        --muted: #555;
+        --code-bg: #f4f4f4;
+        --code-border: #e0e0e0;
+        --green: #1a7a3c;
+        --green-bg: #f0faf4;
+        --green-border: #b2dfca;
+        --red: #cc2200;
+        --red-bg: #fff5f3;
+        --red-border: #f5c6bc;
+        --blue: #0055cc;
+        --blue-bg: #f0f6ff;
+        --orange: #c75200;
+        --accent: #e67e00;
+        --divider: #e8e8e8;
+        --page-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: #f0f0f0;
+        font-family: "Inter", sans-serif;
+        font-size: 15px;
+        line-height: 1.75;
+        color: var(--text);
+      }
+
+      /* ── PAGE WRAPPER ── */
+      .page {
+        background: var(--page-bg);
+        max-width: 680px;
+        margin: 36px auto;
+        padding: 56px 60px;
+        box-shadow: var(--page-shadow);
+        border-radius: 4px;
+        position: relative;
+      }
+
+      /* ── PAGE NUMBER ── */
+      .pg-num {
+        position: absolute;
+        top: 18px;
+        right: 24px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: #bbb;
+        letter-spacing: 1px;
+      }
+
+      /* ── HEADINGS ── */
+      .page-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.55rem;
+        font-weight: 800;
+        line-height: 1.25;
+        margin-bottom: 6px;
+        color: var(--text);
+      }
+      .page-subtitle {
+        font-size: 0.92rem;
+        color: var(--muted);
+        margin-bottom: 28px;
+        font-style: italic;
+      }
+      .page-author {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 24px;
+        margin-top: -20px;
+        font-weight: 500;
+      }
+      .page-author span {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      h2 {
+        font-family: "Syne", sans-serif;
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin: 32px 0 12px;
+        color: var(--text);
+      }
+      h3 {
+        font-family: "Inter", sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 22px 0 8px;
+        color: var(--text);
+      }
+
+      p {
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+        margin-bottom: 12px;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+
+      strong {
+        font-weight: 600;
+      }
+      em {
+        font-style: italic;
+        color: var(--muted);
+      }
+
+      /* ── STEP LABEL ── */
+      .step-label {
+        display: inline-block;
+        font-family: "Syne", sans-serif;
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+
+      /* ── CODE / MONOSPACE BOX ── */
+      .code {
+        background: var(--code-bg);
+        border: 1px solid var(--code-border);
+        border-radius: 6px;
+        padding: 14px 18px;
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        line-height: 1.75;
+        margin: 12px 0;
+        overflow-x: auto;
+        color: var(--text);
+      }
+      .code .green {
+        color: var(--green);
+      }
+      .code .orange {
+        color: var(--orange);
+      }
+      .code .blue {
+        color: var(--blue);
+      }
+      .code .red {
+        color: var(--red);
+      }
+      .code .comment {
+        color: #999;
+        font-style: italic;
+      }
+
+      /* ── INLINE CODE ── */
+      code {
+        font-family: "DM Mono", monospace;
+        font-size: 0.88em;
+        background: #f0f0f0;
+        padding: 1px 6px;
+        border-radius: 3px;
+        color: var(--orange);
+      }
+
+      /* ── CALLOUT / TIP BOX ── */
+      .tip {
+        border-left: 3px solid var(--accent);
+        padding: 10px 16px;
+        background: #fffbf5;
+        border-radius: 0 6px 6px 0;
+        margin: 12px 0;
+        font-size: 0.95rem;
+      }
+      .tip-green {
+        border-left: 3px solid var(--green);
+        background: var(--green-bg);
+      }
+      .tip-red {
+        border-left: 3px solid var(--red);
+        background: var(--red-bg);
+      }
+      .tip-blue {
+        border-left: 3px solid var(--blue);
+        background: var(--blue-bg);
+      }
+
+      /* ── NOTICE / POINTER ── */
+      .pointer {
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin: 10px 0;
+      }
+      .pointer::before {
+        content: "👉 ";
+      }
+
+      /* ── SECTION DIVIDER ── */
+      .divider {
+        border: none;
+        border-top: 1px solid var(--divider);
+        margin: 28px 0;
+      }
+
+      /* ── BOLD DISPLAY MATH ── */
+      .display {
+        font-family: "DM Mono", monospace;
+        font-size: 1rem;
+        font-weight: 500;
+        text-align: center;
+        padding: 14px;
+        background: var(--code-bg);
+        border-radius: 6px;
+        margin: 12px 0;
+        color: var(--text);
+      }
+
+      /* ── V2 vs V3 TABLE ── */
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 14px 0;
+      }
+      .compare-v2 {
+        background: var(--red-bg);
+        border: 1px solid var(--red-border);
+        border-radius: 6px;
+        padding: 14px 16px;
+      }
+      .compare-v3 {
+        background: var(--green-bg);
+        border: 1px solid var(--green-border);
+        border-radius: 6px;
+        padding: 14px 16px;
+      }
+      .compare h4 {
+        font-family: "DM Mono", monospace;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+      }
+      .compare-v2 h4 {
+        color: var(--red);
+      }
+      .compare-v3 h4 {
+        color: var(--green);
+      }
+      .compare ul {
+        padding-left: 16px;
+      }
+      .compare li {
+        font-size: 0.88rem;
+        margin-bottom: 4px;
+      }
+
+      /* ── TABLE ── */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 0.9rem;
+      }
+      th {
+        background: #f5f5f5;
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--muted);
+        border-bottom: 1px solid var(--divider);
+      }
+      td {
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--divider);
+      }
+
+      /* ── MENTAL MODEL FLOW ── */
+      .flow-box {
+        background: #f8f8f8;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 14px 0;
+        font-family: "DM Mono", monospace;
+        font-size: 13.5px;
+        line-height: 2.4;
+      }
+      .flow-box .flow-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .flow-box .flow-arrow {
+        color: #aaa;
+        font-size: 18px;
+        margin-left: 8px;
+        line-height: 1;
+      }
+      .flow-box .flow-label {
+        font-size: 11px;
+        color: #999;
+        margin-left: 6px;
+        font-style: italic;
+      }
+
+      /* ── CHECK LIST ── */
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+      .checklist li {
+        padding: 3px 0;
+      }
+      .checklist li::before {
+        content: "✔ ";
+        color: var(--green);
+        font-weight: 700;
+      }
+
+      /* ── FINAL SENTENCE BOX ── */
+      .final-box {
+        background: #1a1a1a;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 24px 28px;
+        margin: 16px 0;
+        font-size: 1rem;
+        line-height: 1.75;
+        font-style: italic;
+      }
+
+      /* ── NFT BLOCK ── */
+      .nft-block {
+        background: #f8fff8;
+        border: 1px solid var(--green-border);
+        border-radius: 6px;
+        padding: 16px 20px;
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        line-height: 1.9;
+        margin: 12px 0;
+        color: var(--green);
+      }
+
+      /* ── FEE TIER TABLE (from image) ── */
+      .fee-table-wrapper {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 16px 20px;
+        background: #fff;
+        margin: 16px 0;
+        font-size: 0.9rem;
+      }
+      .fee-table-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .fee-table-title .num-box {
+        background: #3b5bdb;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Syne", sans-serif;
+      }
+      .fee-table-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .fee-tier-code {
+        background: #f4f4f4;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 10px 14px;
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        color: #c75200;
+        margin: 10px 0;
+      }
+
+      /* ── EMOJI ROW ── */
+      .emoji-note {
+        font-size: 1.05rem;
+        margin: 10px 0;
+      }
+
+      /* ── STICKY NAV ── */
+      .toc {
+        background: #1a1a1a;
+        padding: 14px 32px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        overflow-x: auto;
+      }
+      .toc-inner {
+        display: flex;
+        gap: 4px;
+        min-width: max-content;
+      }
+      .toc a {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: #888;
+        text-decoration: none;
+        padding: 4px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+      .toc a:hover {
+        color: #fff;
+        background: #333;
+      }
+      .toc-sep {
+        color: #444;
+        padding: 0 2px;
+        font-size: 14px;
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          padding: 36px 24px;
+          margin: 16px auto;
+        }
+        .compare {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- STICKY NAV -->
+    <nav class="toc">
+      <div class="toc-inner">
+        <a href="#p1">Step 0–1</a><span class="toc-sep">·</span>
+        <a href="#p2">Step 2–3</a><span class="toc-sep">·</span>
+        <a href="#p3">Step 4–5</a><span class="toc-sep">·</span>
+        <a href="#p4">Step 6</a><span class="toc-sep">·</span>
+        <a href="#p5">Step 7</a><span class="toc-sep">·</span>
+        <a href="#p6">Step 8</a><span class="toc-sep">·</span>
+        <a href="#p7">Step 9–10</a><span class="toc-sep">·</span>
+        <a href="#p8">Step 11–12</a><span class="toc-sep">·</span>
+        <a href="#p9">Coverage</a><span class="toc-sep">·</span>
+        <a href="#p10">Story: Scene 0</a><span class="toc-sep">·</span>
+        <a href="#p11">1️⃣ V2 Problem</a><span class="toc-sep">·</span>
+        <a href="#p12">2️⃣ Conc. Liquidity</a><span class="toc-sep">·</span>
+        <a href="#p13">3️⃣–4️⃣ Ticks + NFT</a><span class="toc-sep">·</span>
+        <a href="#p14">5️⃣–6️⃣ Fee Tiers + Engine</a
+        ><span class="toc-sep">·</span> <a href="#p15">sqrtPriceX96</a
+        ><span class="toc-sep">·</span> <a href="#p16">7️⃣ Swap Flow</a
+        ><span class="toc-sep">·</span> <a href="#p17">8️⃣–9️⃣ IL + Oracle</a
+        ><span class="toc-sep">·</span> <a href="#p18">🔟 Math + Mental Model</a
+        ><span class="toc-sep">·</span>
+        <a href="#p19">Final Sentence</a>
+      </div>
+    </nav>
+
+    <!-- ═══════════════════════════ PAGE 1 ═══════════════════════════ -->
+    <div class="page" id="p1">
+      <div class="pg-num">PAGE 1</div>
+
+      <div class="page-title">🌍 Realistic Uniswap V3 Story</div>
+      <div class="page-subtitle">(ETH / USDC pool — full lifecycle)</div>
+      <div class="page-author">Author: <span>Dhruv Patel</span></div>
+
+      <hr class="divider" />
+
+      <div class="tip tip-blue">
+        <strong>Note:</strong> This story is designed for fun or revision. If
+        you have already followed my previous 3-part guide, this is primarily a
+        conceptual recap and you may skip it if you wish.
+      </div>
+
+      <div class="step-label">🧱 STEP 0: WORLD SETUP (REALISTIC)</div>
+      <ul>
+        <li>Pair: ETH / USDC</li>
+        <li>Market price: $2000</li>
+        <li>Volatility: medium</li>
+        <li>Network: Ethereum mainnet</li>
+        <li>
+          Pool chosen: 0.30% fee tier
+          <ul>
+            <li>TickSpacing = 60</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p class="pointer">This is the most common real pool (ETH/USDC 0.3%)</p>
+
+      <hr class="divider" />
+
+      <div class="step-label">
+        🧮 STEP 1: PROTOCOL INTERNAL STATE (BEFORE YOU)
+      </div>
+      <p>Protocol already knows:</p>
+      <ul>
+        <li>Current price ≈ $2000</li>
+        <li>
+          Internally stored as:
+          <ul>
+            <li><code>sqrtPriceX96</code> (big integer)</li>
+            <li><code>currentTick</code> (let's say ≈ 200000)</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>You don't care about the numbers,<br />the protocol cares.</p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 2 ═══════════════════════════ -->
+    <div class="page" id="p2">
+      <div class="pg-num">PAGE 2</div>
+
+      <div class="step-label">
+        🧑‍💼 STEP 2: YOU DECIDE TO BE AN LP (FROM SCRATCH)
+      </div>
+      <p>You think:</p>
+      <div class="tip">
+        "ETH is strong, but above $2300 is risky<br />
+        and below $1800 is also risky."
+      </div>
+
+      <p>You decide:</p>
+      <div class="code">
+        Lower price = $1800<br />
+        Upper price = $2300<br />
+        Fee tier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0.30%<br />
+        Capital&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= $10,000
+      </div>
+
+      <hr class="divider" />
+
+      <div class="step-label">
+        🧱 STEP 3: PRICE → TICKS (IMPORTANT CONVERSION)
+      </div>
+      <p>Protocol internally does:</p>
+      <ul>
+        <li>$1800 → <code>lowerTick</code> ≈ 198600</li>
+        <li>$2300 → <code>upperTick</code> ≈ 201180</li>
+      </ul>
+
+      <div class="tip tip-green">
+        ✔️ Both multiples of 60 → valid<br />
+        ✔️ TickSpacing rule satisfied
+      </div>
+
+      <p class="pointer">This is where the tick concept comes into REAL use</p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 3 ═══════════════════════════ -->
+    <div class="page" id="p3">
+      <div class="pg-num">PAGE 3</div>
+
+      <div class="step-label">
+        💰 STEP 4: HOW MUCH ETH &amp; USDC YOU DEPOSIT
+      </div>
+      <p>At current price = $2000:</p>
+      <p>Protocol calculates:</p>
+      <ul>
+        <li>ETH ≈ 2.2</li>
+        <li>USDC ≈ 5600</li>
+      </ul>
+
+      <p>
+        <em>(Exact ratio comes from math, you don't need to remember it)</em>
+      </p>
+
+      <div class="tip">
+        <strong>Important FEEL:</strong><br />
+        If you're in the middle of the range → ETH + USDC<br />
+        If you're outside the range → single asset
+      </div>
+
+      <hr class="divider" />
+
+      <div class="step-label">🖼️ STEP 5: LP NFT IS MINTED (BIG MOMENT)</div>
+      <p>Protocol does:</p>
+      <ul>
+        <li>Mint ERC-721 NFT</li>
+      </ul>
+
+      <p>NFT stores:</p>
+      <div class="nft-block">
+        token0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ETH<br />
+        token1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= USDC<br />
+        fee&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+        0.30%<br />
+        lowerTick&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 198600<br />
+        upperTick&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 201180<br />
+        liquidity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= L<br />
+        feesOwed&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0
+      </div>
+
+      <p class="pointer">
+        THIS NFT = your entire LP strategy<br />No ERC20. No fractions.
+      </p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 4 ═══════════════════════════ -->
+    <div class="page" id="p4">
+      <div class="pg-num">PAGE 4</div>
+
+      <div class="step-label">
+        🔁 STEP 6: NORMAL MARKET DAY (PRICE MOVES INSIDE RANGE)
+      </div>
+
+      <p>ETH moves:</p>
+      <div class="display">$2000 → $2050 → $2100</div>
+
+      <p>What happens?</p>
+
+      <p><strong>Traders:</strong></p>
+      <ul>
+        <li>Buy ETH from pool</li>
+        <li>Pay USDC</li>
+      </ul>
+
+      <p><strong>Pool:</strong></p>
+      <ul>
+        <li>ETH ↓</li>
+        <li>USDC ↑</li>
+        <li>Price ↑</li>
+        <li><code>sqrtPriceX96</code> moves smoothly</li>
+        <li><code>currentTick</code> moves a few ticks</li>
+      </ul>
+
+      <p><strong>YOU (LP):</strong></p>
+      <ul>
+        <li>ETH gradually selling</li>
+        <li>USDC gradually increasing</li>
+        <li>Fees accumulate 💰</li>
+      </ul>
+
+      <p>NFT state:</p>
+      <div class="code"><span class="green">feesOwed = +$120</span></div>
+
+      <p class="pointer">Classic V3 behaviour</p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 5 ═══════════════════════════ -->
+    <div class="page" id="p5">
+      <div class="pg-num">PAGE 5</div>
+
+      <div class="step-label">
+        🔥 STEP 7: UPPER RANGE HIT (IMPORTANT SCENARIO)
+      </div>
+
+      <p>ETH hits:</p>
+      <div class="display">$2300</div>
+
+      <p>Protocol detects:</p>
+      <div class="code">
+        <span class="orange">currentTick == upperTick</span>
+      </div>
+
+      <p><strong>WHAT HAPPENS INSTANTLY:</strong></p>
+      <ul>
+        <li>Your liquidity REMOVED from active set</li>
+        <li>ETH balance = 0</li>
+        <li>All value now in USDC</li>
+        <li>You are OUT OF RANGE</li>
+      </ul>
+
+      <div class="tip">
+        <strong>👉 YES:</strong><br />
+        Liquidity becomes inactive<br />
+        ETH selling STOP
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 6 ═══════════════════════════ -->
+    <div class="page" id="p6">
+      <div class="pg-num">PAGE 6</div>
+
+      <div class="step-label">🚀 STEP 8: PRICE PUMPS HARD (CONTROLLED IL)</div>
+
+      <p>ETH goes:</p>
+      <div class="display">$2300 → $2600 → $3000</div>
+
+      <p><strong>Traders:</strong></p>
+      <ul>
+        <li>Still buying ETH</li>
+      </ul>
+
+      <p><strong>YOU:</strong></p>
+      <ul>
+        <li>❌ ETH is NOT being sold</li>
+        <li>❌ Fees are NOT coming in</li>
+        <li>❌ IL is NOT growing further</li>
+      </ul>
+
+      <p>😌 You are protected</p>
+
+      <p><strong>Compare:</strong></p>
+      <ul>
+        <li>V2 LP = still selling ETH (bad)</li>
+        <li>V3 LP = frozen position (good)</li>
+      </ul>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 7 ═══════════════════════════ -->
+    <div class="page" id="p7">
+      <div class="pg-num">PAGE 7</div>
+
+      <div class="step-label">🔄 STEP 9: PRICE COMES BACK (RE-ENTER RANGE)</div>
+
+      <p>ETH crashes:</p>
+      <div class="display">$3000 → $2400 → $2200</div>
+
+      <p>At $2300:</p>
+      <ul>
+        <li>Your position RE-ACTIVATES</li>
+        <li>ETH buying starts again</li>
+        <li>You start accumulating ETH</li>
+      </ul>
+
+      <p class="pointer">Liquidity auto ON / OFF<br />No action from you.</p>
+
+      <hr class="divider" />
+
+      <div class="step-label">
+        😈 STEP 10: FLASH ATTACK ATTEMPT (ORACLE STORY)
+      </div>
+
+      <p>Someone tries:</p>
+      <ul>
+        <li>Flash loan</li>
+        <li>Push price to $4000 for 1 block</li>
+      </ul>
+
+      <p><strong>Lending protocol:</strong></p>
+      <ul>
+        <li>Uses Uniswap V3 TWAP (30 min)</li>
+      </ul>
+
+      <p><strong>Result:</strong></p>
+      <ul>
+        <li>Average price ≈ $2350</li>
+        <li>Attack FAIL ❌</li>
+      </ul>
+
+      <p class="pointer">Oracle + TWAP saved the protocol</p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 8 ═══════════════════════════ -->
+    <div class="page" id="p8">
+      <div class="pg-num">PAGE 8</div>
+
+      <div class="step-label">📉 STEP 11: BIG DUMP SCENARIO</div>
+
+      <p>ETH dumps:</p>
+      <div class="display">$2200 → $1900 → $1800</div>
+
+      <p>At $1800:</p>
+      <ul>
+        <li>Lower tick hit</li>
+        <li>Liquidity inactive</li>
+        <li>You now hold only ETH</li>
+      </ul>
+
+      <p>IL stops again.</p>
+
+      <hr class="divider" />
+
+      <div class="step-label">🧠 STEP 12: FEES vs IL (FINAL RESULT)</div>
+
+      <p>After 1 week:</p>
+      <ul>
+        <li>Fees earned: <strong>$480</strong></li>
+        <li>
+          Net value vs HODL:
+          <ul>
+            <li>Slightly lower ETH exposure</li>
+            <li>But fees compensated the risk</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p class="pointer">Controlled IL + income</p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 9 ═══════════════════════════ -->
+    <div class="page" id="p9">
+      <div class="pg-num">PAGE 9</div>
+
+      <div class="step-label">🧩 WHAT THIS ONE STORY COVERED</div>
+
+      <ul class="checklist">
+        <li>Problem in V2</li>
+        <li>Concentrated liquidity</li>
+        <li>Price ranges</li>
+        <li>Ticks &amp; TickSpacing</li>
+        <li>sqrtPriceX96 (movement logic)</li>
+        <li>LP NFT</li>
+        <li>Fee tiers</li>
+        <li>Swap flow</li>
+        <li>Impermanent Loss V3 style</li>
+        <li>Oracle (TWAP)</li>
+        <li>Math intuition</li>
+        <li>Real market behaviour</li>
+      </ul>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 10 ═══════════════════════════ -->
+    <div class="page" id="p10">
+      <div class="pg-num">PAGE 10</div>
+
+      <div class="step-label">🧑‍💻 STORY STARTS — YOU ARE THE LP</div>
+
+      <h2>Scene 0️⃣: Market Reality (Real World)</h2>
+      <ul>
+        <li>Asset: ETH</li>
+        <li>Pair: ETH / USDC</li>
+      </ul>
+
+      <p>Market price (TradingView):</p>
+      <div class="display">1 ETH = $2000</div>
+
+      <p>Your capital:</p>
+      <div class="display">$10,000</div>
+
+      <p>You think:</p>
+      <div class="tip">
+        "ETH has high trading volume,<br />
+        I will provide liquidity and earn fees."
+      </div>
+
+      <hr class="divider" />
+
+      <h2>1️⃣ Problem in V2 — WHY DID V3 COME?</h2>
+
+      <h3>What you do in V2</h3>
+      <p>Uniswap V2 says:</p>
+      <div class="tip tip-red">
+        "Want to give liquidity?<br />
+        Then give it for the full price range: 0 → ∞"
+      </div>
+
+      <p>You deposit:</p>
+      <div class="display">2.5 ETH &nbsp;&nbsp;+&nbsp;&nbsp; 5000 USDC</div>
+      <p><em>(equal value at $2000)</em></p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 11 ═══════════════════════════ -->
+    <div class="page" id="p11">
+      <div class="pg-num">PAGE 11</div>
+
+      <div class="step-label">💥 Reality Check (Feel This)</div>
+
+      <p>ETH actually trades between:</p>
+      <div class="display">$1950 – $2050</div>
+
+      <p>But your money is working across:</p>
+      <div class="display">$1 – $100,000</div>
+
+      <p>Meaning:</p>
+      <ul>
+        <li>You put in $10,000</li>
+        <li>~$1,000 is actually working</li>
+        <li>~$9,000 is just locked there</li>
+      </ul>
+
+      <div class="tip">
+        🧠 <strong>Pain:</strong><br />
+        "My money is sitting in useless places"
+      </div>
+
+      <hr class="divider" />
+
+      <div class="step-label">😤 And more pain</div>
+
+      <p>
+        You are smart.<br />
+        You know:
+      </p>
+      <div class="tip">"ETH mostly moves in a narrow range"</div>
+
+      <p>But V2 says:</p>
+      <div class="tip tip-red">❌ "There is no such option"</div>
+
+      <p>
+        Noob LP + You = same fees<br />
+        Skill = 0 reward
+      </p>
+
+      <p class="pointer">This pain is what created V3</p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 12 ═══════════════════════════ -->
+    <div class="page" id="p12">
+      <div class="pg-num">PAGE 12</div>
+
+      <h2>🔥 2️⃣ Concentrated Liquidity — CORE IDEA</h2>
+
+      <p>V3 says:</p>
+      <div class="tip">
+        "You decide<br />
+        which price range to give liquidity in"
+      </div>
+
+      <p>You say:</p>
+      <div class="code">
+        Lower price = $1800<br />
+        Upper price = $2200
+      </div>
+
+      <p>Meaning:</p>
+      <div class="tip">"I will only do market making here"</div>
+
+      <p>🎯 <strong>Result:</strong></p>
+      <ul>
+        <li>Same $10,000</li>
+        <li>But only in the active zone</li>
+        <li>Capital efficiency 🚀</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <h2>3️⃣ Price Ranges (Ticks) — FEEL MODE</h2>
+
+      <p>Reality:</p>
+      <p>Price looks smooth:</p>
+      <div class="display">$1999 → $2001 → $2003</div>
+
+      <p>But smart contracts can't understand smooth things.</p>
+
+      <p><strong>Solution:</strong></p>
+      <p>Uniswap breaks price into stairs.</p>
+      <p>Each stair = tick</p>
+
+      <p><strong>Example (approx):</strong></p>
+      <div class="code">
+        Tick 199260 → $1993<br />
+        Tick 199320 → $2000<br />
+        Tick 199380 → $2008
+      </div>
+
+      <p>You say:</p>
+      <div class="code">
+        I will be active from tick 198600 to tick 199800<br />
+        ($1800 – $2200)
+      </div>
+
+      <div class="tip">
+        <strong>👉 Tick = gate</strong><br />
+        Inside the gate = active<br />
+        Outside the gate = inactive
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 13 ═══════════════════════════ -->
+    <div class="page" id="p13">
+      <div class="pg-num">PAGE 13</div>
+
+      <h2>4️⃣ LP NFT — Why? (ERC-721)</h2>
+
+      <p>In V2:</p>
+      <ul>
+        <li>All LPs in the same bucket</li>
+      </ul>
+
+      <p>In V3:</p>
+      <ul>
+        <li>Every LP's strategy is different</li>
+      </ul>
+
+      <p>Your NFT contains:</p>
+      <div class="nft-block">
+        Pair:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ETH/USDC<br />
+        Fee tier:&nbsp;&nbsp;0.3%<br />
+        Lower tick: 198600<br />
+        Upper tick: 199800<br />
+        Liquidity:&nbsp;&nbsp;L
+      </div>
+
+      <div class="tip">
+        🧠 <strong>NFT = your strategy's legal document</strong>
+      </div>
+
+      <p>Therefore:</p>
+      <ul>
+        <li>ERC-20 ❌</li>
+        <li>ERC-721 ✅</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <!-- FEE TIERS — from image on page 13 -->
+      <div class="fee-table-wrapper">
+        <div class="fee-table-title">
+          <span class="num-box">5</span>
+          Fee Tiers (0.05%, 0.3%, 1%)
+        </div>
+        <div class="fee-table-sub">Different assets, different behavior.</div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Pool type</th>
+              <th>Fee</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Stablecoins (USDC/USDT)</td>
+              <td>0.05%</td>
+            </tr>
+            <tr>
+              <td>ETH pairs</td>
+              <td>0.3%</td>
+            </tr>
+            <tr>
+              <td>Volatile / Exotic</td>
+              <td>1%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top: 12px; margin-bottom: 6px; font-size: 0.9rem">
+          You choose ETH/USDC:
+        </p>
+        <div class="fee-tier-code">Fee = 0.3%</div>
+        <p style="font-size: 0.88rem; margin-bottom: 4px">
+          <strong>Reason:</strong>
+        </p>
+        <ul style="font-size: 0.88rem">
+          <li>ETH is volatile</li>
+          <li>LP needs more compensation</li>
+        </ul>
+      </div>
+
+      <h2>6️⃣ Ticks, TickSpacing, sqrtPriceX96 (ENGINE)</h2>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 14 ═══════════════════════════ -->
+    <div class="page" id="p14">
+      <div class="pg-num">PAGE 14 / 15</div>
+
+      <h3>🔹 sqrtPriceX96 — REAL TRUTH</h3>
+      <p>The protocol does not look at price.</p>
+      <p>The protocol has:</p>
+
+      <div class="code">
+        <span class="orange">sqrtPriceX96 = √price × 2^96</span>
+      </div>
+
+      <p>At $2000:</p>
+      <div class="code">
+        √2000 ≈ 44.72<br />
+        sqrtPriceX96 ≈ 44.72 × 2^96
+      </div>
+
+      <ul>
+        <li>👉 Integer</li>
+        <li>👉 Engine value</li>
+        <li>👉 Driver</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <h3>🔹 Tick's role</h3>
+      <p>Protocol does:</p>
+      <div class="code"><span class="blue">tick = log₁.₀₀₀₁(price)</span></div>
+
+      <p>Tick only tells:</p>
+      <div class="tip">"Which price zone is active right now?"</div>
+
+      <hr class="divider" />
+
+      <h3>🔹 TickSpacing</h3>
+      <p>In ETH/USDC (0.3%):</p>
+      <div class="code"><span class="green">TickSpacing = 60</span></div>
+
+      <p>Meaning:</p>
+      <ul>
+        <li>You can only choose ranges at every 60 ticks</li>
+        <li>Gas efficient</li>
+        <li>Clean liquidity layers</li>
+      </ul>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 15 / 16 ═══════════════════════════ -->
+    <div class="page" id="p15">
+      <div class="pg-num">PAGE 15 / 16</div>
+
+      <h2>7️⃣ Swap Flow — V3 vs V2 (REAL TRADE)</h2>
+
+      <p>Trader arrives:</p>
+      <div class="display">Swap: 100,000 USDC → ETH</div>
+
+      <div class="compare">
+        <div class="compare-v2">
+          <h4>🟥 IN V2:</h4>
+          <ul>
+            <li>ETH exits the pool</li>
+            <li>You keep selling ETH at every price</li>
+            <li>No control</li>
+            <li>IL keeps growing</li>
+          </ul>
+        </div>
+        <div class="compare-v3">
+          <h4>🟩 IN V3:</h4>
+          <p style="font-size: 0.88rem; margin-bottom: 6px">Price moves:</p>
+          <div
+            style="
+              font-family: &quot;DM Mono&quot;, monospace;
+              font-size: 12px;
+              margin-bottom: 8px;
+            "
+          >
+            $2000 → $2050 → $2100 → $2200
+          </div>
+          <ul>
+            <li>Your ETH gradually sells</li>
+            <li>Fees keep coming in</li>
+            <li>At $2200: out of range</li>
+            <li>ETH = 0, USDC = full</li>
+            <li>ETH selling STOP</li>
+            <li>Control ✅</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 16 / 17 ═══════════════════════════ -->
+    <div class="page" id="p16">
+      <div class="pg-num">PAGE 16 / 17</div>
+
+      <h2>8️⃣ Impermanent Loss — V3 Style</h2>
+
+      <div class="compare">
+        <div class="compare-v2">
+          <h4>V2:</h4>
+          <p style="font-size: 0.88rem">ETH $2000 → $3000</p>
+          <p style="font-size: 0.88rem">You keep selling ETH all the way</p>
+          <p style="font-size: 0.88rem">Regret 😭</p>
+        </div>
+        <div class="compare-v3">
+          <h4>V3:</h4>
+          <p style="font-size: 0.88rem">You say:</p>
+          <p
+            style="
+              font-family: &quot;DM Mono&quot;, monospace;
+              font-size: 12px;
+              margin: 6px 0;
+            "
+          >
+            "Don't sell after $2200"
+          </p>
+          <p style="font-size: 0.88rem">At $2200:</p>
+          <ul style="font-size: 0.88rem">
+            <li>Liquidity inactive</li>
+            <li>IL freezes here</li>
+            <li>Peace 😌</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>9️⃣ Oracle (TWAP) — REAL FEEL</h2>
+
+      <p>Pool writes every second:</p>
+      <div class="code">
+        <span class="blue">tickCumulative += currentTick × time</span>
+      </div>
+
+      <p><strong>Example:</strong></p>
+      <ul>
+        <li>$2000 for 10 sec</li>
+        <li>$2100 for 2 sec</li>
+      </ul>
+
+      <p>TWAP will say:</p>
+      <div class="tip">"Price was at $2000 for more time"</div>
+
+      <p>Therefore:</p>
+      <ul>
+        <li>Flash manipulation fails</li>
+        <li>Oracle is safe</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <h3><code>secondsPerLiquidityCumulative</code></h3>
+
+      <p>Every second:</p>
+      <div class="code"><span class="orange">+= time / liquidity</span></div>
+
+      <p>
+        Low liquidity → suspicious<br />
+        High liquidity → trusted
+      </p>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 17 / 18 ═══════════════════════════ -->
+    <div class="page" id="p17">
+      <div class="pg-num">PAGE 17 / 18</div>
+
+      <h2>🔟 Math Intuition (NO HEAVY MATH)</h2>
+
+      <h3>Why √price?</h3>
+
+      <p>Because:</p>
+      <ul>
+        <li>Price ratios multiply</li>
+        <li>√price makes the math linear</li>
+        <li>Less gas</li>
+        <li>More precision</li>
+      </ul>
+
+      <div class="tip">
+        In one line:<br />
+        <strong
+          >Math is for the machine,<br />
+          price is for humans</strong
+        >
+      </div>
+
+      <hr class="divider" />
+
+      <h2>🧠 FINAL ONE-PAGE MENTAL MODEL (LOCK THIS)</h2>
+
+      <div class="flow-box">
+        <div>Trader executes a trade</div>
+        <div style="color: #aaa; padding-left: 12px">↓</div>
+        <div>
+          <code>sqrtPriceX96</code> moves &nbsp;<span
+            style="color: #999; font-size: 11px; font-style: italic"
+            >(ENGINE)</span
+          >
+        </div>
+        <div style="color: #aaa; padding-left: 12px">↓</div>
+        <div>
+          tick updates &nbsp;<span
+            style="color: #999; font-size: 11px; font-style: italic"
+            >(GATE)</span
+          >
+        </div>
+        <div style="color: #aaa; padding-left: 12px">↓</div>
+        <div>
+          LP turns ON/OFF &nbsp;<span
+            style="color: #999; font-size: 11px; font-style: italic"
+            >(STRATEGY)</span
+          >
+        </div>
+        <div style="color: #aaa; padding-left: 12px">↓</div>
+        <div>ETH / USDC changes</div>
+        <div style="color: #aaa; padding-left: 12px">↓</div>
+        <div>price appears on UI</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ PAGE 18 / 19 ═══════════════════════════ -->
+    <div class="page" id="p18">
+      <div class="pg-num">PAGE 18 / 19</div>
+
+      <h2>🛑 FINAL SENTENCE (PLEASE REMEMBER THIS)</h2>
+
+      <div class="final-box">
+        Uniswap V3 is an on-chain automated trading strategy<br />
+        where the LP defines their buy/sell zone upfront,<br />
+        and the protocol executes it through rules.
+      </div>
+    </div>
+  </body>
+</html>

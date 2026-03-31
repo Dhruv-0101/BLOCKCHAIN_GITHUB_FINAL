@@ -1,0 +1,3248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeFi Fundamentals — The Complete Guide</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+      :root {
+        --bg: #050a12;
+        --bg2: #0a1222;
+        --bg3: #0e1a2e;
+        --surface: #0f1f38;
+        --surface2: #152640;
+        --border: #1e3a5f;
+        --border2: #243f6a;
+        --cyan: #00d4ff;
+        --cyan2: #00a8cc;
+        --green: #00ff88;
+        --green2: #00cc6a;
+        --purple: #7b5ea7;
+        --purple2: #a07fd0;
+        --orange: #ff6b35;
+        --yellow: #ffd700;
+        --text: #c8ddf0;
+        --text2: #8aafd0;
+        --text3: #567090;
+        --white: #e8f4ff;
+        --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+        --glow2: 0 0 40px rgba(0, 212, 255, 0.15);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Syne", sans-serif;
+        font-size: 15px;
+        line-height: 1.75;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated background grid */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── SIDEBAR ── */
+      #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        background: rgba(5, 10, 18, 0.97);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        z-index: 100;
+        padding: 0 0 40px 0;
+        backdrop-filter: blur(12px);
+      }
+
+      #sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      #sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #sidebar::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+
+      .sidebar-header {
+        padding: 24px 20px 20px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: rgba(5, 10, 18, 0.98);
+        z-index: 10;
+      }
+
+      .sidebar-logo {
+        font-family: "Space Mono", monospace;
+        font-size: 11px;
+        color: var(--cyan);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 6px;
+      }
+
+      .sidebar-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--white);
+        line-height: 1.3;
+      }
+
+      .toc-section-label {
+        font-family: "Space Mono", monospace;
+        font-size: 9px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        padding: 18px 20px 8px;
+      }
+
+      .toc-item {
+        display: block;
+        padding: 6px 20px;
+        color: var(--text3);
+        text-decoration: none;
+        font-size: 12px;
+        line-height: 1.4;
+        transition: all 0.2s;
+        border-left: 2px solid transparent;
+      }
+
+      .toc-item:hover,
+      .toc-item.active {
+        color: var(--cyan);
+        background: rgba(0, 212, 255, 0.05);
+        border-left-color: var(--cyan);
+      }
+
+      /* ── MAIN CONTENT ── */
+      #main {
+        margin-left: 280px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── HERO ── */
+      .hero {
+        padding: 80px 80px 60px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(0, 212, 255, 0.08) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .hero-tag {
+        display: inline-block;
+        font-family: "Space Mono", monospace;
+        font-size: 10px;
+        color: var(--cyan);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        border: 1px solid var(--border2);
+        padding: 4px 12px;
+        border-radius: 2px;
+        margin-bottom: 24px;
+        background: rgba(0, 212, 255, 0.05);
+      }
+
+      .hero h1 {
+        font-size: clamp(28px, 4vw, 52px);
+        font-weight: 800;
+        line-height: 1.1;
+        color: var(--white);
+        margin-bottom: 16px;
+        letter-spacing: -1px;
+      }
+
+      .hero h1 span {
+        background: linear-gradient(135deg, var(--cyan), var(--green));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-sub {
+        font-size: 16px;
+        color: var(--text2);
+        font-style: italic;
+        margin-bottom: 28px;
+      }
+
+      .hero-meta {
+        font-family: "Space Mono", monospace;
+        font-size: 11px;
+        color: var(--text3);
+      }
+
+      .hero-meta span {
+        color: var(--cyan);
+      }
+
+      /* ── CONTENT WRAPPER ── */
+      .content {
+        max-width: 900px;
+        padding: 0 80px 120px;
+      }
+
+      /* ── SECTIONS ── */
+      .section {
+        padding-top: 64px;
+        border-top: 1px solid var(--border);
+        margin-top: 48px;
+      }
+
+      .section:first-child {
+        border-top: none;
+        margin-top: 40px;
+      }
+
+      .section-num {
+        font-family: "Space Mono", monospace;
+        font-size: 10px;
+        color: var(--cyan);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 8px;
+        opacity: 0.7;
+      }
+
+      .section h2 {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--white);
+        margin-bottom: 24px;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+      }
+
+      .section h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--cyan);
+        margin: 28px 0 12px;
+        letter-spacing: 0.3px;
+      }
+
+      .section h3::before {
+        content: "▸ ";
+        color: var(--cyan2);
+        font-size: 12px;
+      }
+
+      .section p {
+        color: var(--text);
+        margin-bottom: 16px;
+        line-height: 1.8;
+      }
+
+      strong {
+        color: var(--white);
+        font-weight: 700;
+      }
+
+      em {
+        color: var(--text2);
+      }
+
+      /* ── BLOCKQUOTE ── */
+      blockquote {
+        border-left: 3px solid var(--cyan);
+        padding: 14px 20px;
+        margin: 24px 0;
+        background: rgba(0, 212, 255, 0.04);
+        border-radius: 0 6px 6px 0;
+        color: var(--text2);
+        font-style: italic;
+      }
+
+      blockquote strong {
+        color: var(--cyan);
+      }
+
+      /* ── CODE BLOCKS ── */
+      pre {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        overflow-x: auto;
+        margin: 20px 0;
+        position: relative;
+      }
+
+      pre::before {
+        content: "// CODE";
+        position: absolute;
+        top: 8px;
+        right: 14px;
+        font-family: "Space Mono", monospace;
+        font-size: 9px;
+        color: var(--text3);
+        letter-spacing: 2px;
+      }
+
+      pre code,
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: var(--green);
+        background: none;
+        border: none;
+        padding: 0;
+      }
+
+      :not(pre) > code {
+        background: rgba(0, 255, 136, 0.08);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: var(--green);
+      }
+
+      /* ── TABLES ── */
+      .table-wrap {
+        overflow-x: auto;
+        margin: 24px 0;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+      }
+
+      thead tr {
+        background: var(--surface);
+        border-bottom: 2px solid var(--border2);
+      }
+
+      th {
+        padding: 12px 16px;
+        text-align: left;
+        font-family: "Space Mono", monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--cyan);
+        font-weight: 400;
+        white-space: nowrap;
+      }
+
+      td {
+        padding: 11px 16px;
+        color: var(--text);
+        border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+        vertical-align: top;
+        line-height: 1.5;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody tr:hover td {
+        background: rgba(0, 212, 255, 0.02);
+      }
+
+      /* ── MATH ── */
+      .math-block {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-left: 3px solid var(--purple2);
+        border-radius: 0 8px 8px 0;
+        padding: 18px 24px;
+        margin: 24px 0;
+        text-align: center;
+        overflow-x: auto;
+      }
+
+      .katex {
+        color: var(--white);
+        font-size: 1.05em !important;
+      }
+      .katex-display {
+        color: var(--white);
+      }
+
+      /* ── FORMULA BOX ── */
+      .formula-box {
+        background: linear-gradient(
+          135deg,
+          rgba(123, 94, 167, 0.12),
+          rgba(0, 212, 255, 0.08)
+        );
+        border: 1px solid var(--purple);
+        border-radius: 10px;
+        padding: 20px 28px;
+        margin: 24px 0;
+        text-align: center;
+      }
+
+      /* ── INFO BOXES ── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 24px 0;
+      }
+
+      .info-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.2s;
+      }
+
+      .info-card:hover {
+        border-color: var(--border2);
+        transform: translateY(-2px);
+        box-shadow: var(--glow2);
+      }
+
+      .info-card .icon {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+      .info-card h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 6px;
+      }
+      .info-card p {
+        font-size: 12.5px;
+        color: var(--text2);
+        margin: 0;
+      }
+
+      /* ── LIST ── */
+      ul,
+      ol {
+        padding-left: 24px;
+        margin: 12px 0 16px;
+      }
+
+      li {
+        margin-bottom: 8px;
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      li::marker {
+        color: var(--cyan);
+      }
+
+      /* ── CALLOUT ── */
+      .callout {
+        background: rgba(0, 255, 136, 0.05);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 20px 0;
+        color: var(--text2);
+        font-size: 13.5px;
+      }
+
+      .callout::before {
+        content: "💡 ";
+      }
+
+      .callout-warn {
+        background: rgba(255, 107, 53, 0.05);
+        border-color: rgba(255, 107, 53, 0.25);
+      }
+
+      .callout-warn::before {
+        content: "⚠️ ";
+      }
+
+      /* ── DIVIDER ── */
+      hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--border2),
+          transparent
+        );
+        margin: 40px 0;
+      }
+
+      /* ── FORMULA REFERENCE TABLE ── */
+      .formula-ref {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .formula-ref-header {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 212, 255, 0.1),
+          rgba(123, 94, 167, 0.1)
+        );
+        padding: 16px 24px;
+        font-family: "Space Mono", monospace;
+        font-size: 11px;
+        color: var(--cyan);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* ── TIMELINE ── */
+      .timeline {
+        position: relative;
+        margin: 28px 0;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 50px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(
+          180deg,
+          var(--cyan),
+          var(--purple),
+          transparent
+        );
+      }
+
+      .timeline-item {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 28px;
+        align-items: flex-start;
+      }
+
+      .timeline-year {
+        font-family: "Space Mono", monospace;
+        font-size: 13px;
+        color: var(--cyan);
+        font-weight: 700;
+        min-width: 50px;
+        padding-top: 2px;
+      }
+
+      .timeline-dot {
+        width: 10px;
+        height: 10px;
+        background: var(--cyan);
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+        box-shadow: 0 0 8px var(--cyan);
+      }
+
+      .timeline-content {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px 18px;
+        flex: 1;
+      }
+
+      .timeline-content strong {
+        color: var(--yellow);
+      }
+
+      /* ── STEP BOXES ── */
+      .steps {
+        counter-reset: step;
+        margin: 20px 0;
+      }
+
+      .step-item {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        align-items: flex-start;
+      }
+
+      .step-num {
+        background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+        color: var(--bg);
+        font-family: "Space Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .step-content {
+        flex: 1;
+        padding-top: 4px;
+      }
+
+      /* ── ANSWER BOX ── */
+      .answer-box {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 255, 136, 0.06),
+          rgba(0, 212, 255, 0.04)
+        );
+        border: 1px solid rgba(0, 255, 136, 0.25);
+        border-radius: 10px;
+        padding: 18px 24px;
+        margin: 20px 0;
+      }
+
+      .answer-box .label {
+        font-family: "Space Mono", monospace;
+        font-size: 9px;
+        color: var(--green);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      /* ── ARCH DIAGRAM ── */
+      .arch-diagram {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 24px;
+        margin: 20px 0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--text2);
+        line-height: 1.7;
+        overflow-x: auto;
+        white-space: pre;
+      }
+
+      /* ── SECTION BREAK ── */
+      .section-break {
+        text-align: center;
+        padding: 48px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin: 56px 0;
+      }
+
+      .section-break-title {
+        font-family: "Space Mono", monospace;
+        font-size: 10px;
+        color: var(--text3);
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .section-break-heading {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--white);
+        background: linear-gradient(135deg, var(--purple2), var(--cyan));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* ── BACK TO TOP ── */
+      #back-top {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        color: var(--cyan);
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s;
+        z-index: 200;
+        text-decoration: none;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #back-top.visible {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #back-top:hover {
+        background: var(--surface2);
+        box-shadow: var(--glow);
+      }
+
+      /* ── MOBILE TOGGLE ── */
+      #menu-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--cyan);
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 300;
+        font-size: 18px;
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 900px) {
+        #sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s;
+        }
+        #sidebar.open {
+          transform: translateX(0);
+        }
+        #main {
+          margin-left: 0;
+        }
+        .hero {
+          padding: 80px 24px 40px;
+        }
+        .content {
+          padding: 0 24px 80px;
+        }
+        #menu-toggle {
+          display: flex;
+        }
+      }
+
+      /* ── PROGRESS BAR ── */
+      #progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--cyan), var(--green));
+        z-index: 500;
+        transition: width 0.1s;
+        box-shadow: 0 0 8px var(--cyan);
+      }
+
+      /* ── ANIMATIONS ── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .section {
+        animation: fadeUp 0.5s ease both;
+      }
+
+      /* ── MASTER FORMULA TABLE ── */
+      .master-table code {
+        font-size: 11.5px;
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        color: var(--cyan);
+      }
+
+      /* ── QUIZ ── */
+      .quiz-box {
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        padding: 24px;
+        margin: 24px 0;
+      }
+
+      .quiz-box .quiz-label {
+        font-family: "Space Mono", monospace;
+        font-size: 9px;
+        color: var(--yellow);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+
+      .quiz-option {
+        padding: 8px 14px;
+        border-radius: 6px;
+        margin: 6px 0;
+        font-size: 13.5px;
+        border: 1px solid var(--border);
+        color: var(--text2);
+      }
+
+      .quiz-option.correct {
+        background: rgba(0, 255, 136, 0.08);
+        border-color: rgba(0, 255, 136, 0.3);
+        color: var(--green);
+      }
+
+      .footnote {
+        font-size: 12.5px;
+        color: var(--text3);
+        font-style: italic;
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="progress"></div>
+
+    <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">Dhruv Patel</div>
+        <div class="sidebar-title">DeFi & AMM<br />Complete Guide</div>
+      </div>
+      <div class="toc-section-label">Part I — Foundations</div>
+      <a class="toc-item" href="#s1">1. What is DeFi?</a>
+      <a class="toc-item" href="#s2">2. DeFi Platforms</a>
+      <a class="toc-item" href="#s3">3. CeFi Platforms</a>
+      <a class="toc-item" href="#s4">4. DeFi Features</a>
+      <a class="toc-item" href="#s5">5. What is an AMM?</a>
+      <a class="toc-item" href="#s6">6. History of AMM</a>
+      <a class="toc-item" href="#s7">7. AMM Workflow</a>
+      <a class="toc-item" href="#s8">8. Liquidity</a>
+      <a class="toc-item" href="#s9">9. Liquidity Pool</a>
+      <a class="toc-item" href="#s10">10. Order Book</a>
+      <div class="toc-section-label">Part II — Architecture</div>
+      <a class="toc-item" href="#s11">11. AMM Architecture</a>
+      <a class="toc-item" href="#s12">12. AMM Callers</a>
+      <a class="toc-item" href="#s13">13. AMM Router</a>
+      <a class="toc-item" href="#s14">14. Pair Factory</a>
+      <a class="toc-item" href="#s15">15. Factory: getPair</a>
+      <a class="toc-item" href="#s16">16. Uniswap Real Data</a>
+      <a class="toc-item" href="#s17">17. V2 Token Fetch</a>
+      <div class="toc-section-label">Part III — Math</div>
+      <a class="toc-item" href="#s18">18. Types of AMM</a>
+      <a class="toc-item" href="#s19">19. CPMM Basics</a>
+      <a class="toc-item" href="#s20">20. XY = K Formula</a>
+      <a class="toc-item" href="#s21">21. Worked Example</a>
+      <a class="toc-item" href="#s22">22. Practice Problem</a>
+      <a class="toc-item" href="#s23">23. Token Price</a>
+      <a class="toc-item" href="#s24">24. Price Example</a>
+      <a class="toc-item" href="#s25">25. AMM Graph</a>
+      <div class="toc-section-label">Part IV — Derivations</div>
+      <a class="toc-item" href="#s28">28. CPMM: Zero Fee</a>
+      <a class="toc-item" href="#s29">29. Derive dy</a>
+      <a class="toc-item" href="#s30">30. dx Formula</a>
+      <a class="toc-item" href="#s31">31. 0.3% Fee</a>
+      <a class="toc-item" href="#s32">32. Fee Derivation</a>
+      <a class="toc-item" href="#s34">34. Final Formula</a>
+      <div class="toc-section-label">Part V — Price Impact</div>
+      <a class="toc-item" href="#s35">35. Price Impact</a>
+      <a class="toc-item" href="#s37">37. TVL Definition</a>
+      <a class="toc-item" href="#s38">38. TVL Formula</a>
+      <a class="toc-item" href="#s39">39–43. Price Impact Calcs</a>
+      <div class="toc-section-label">Part VI — Liquidity</div>
+      <a class="toc-item" href="#s44">44. Add Liquidity Flow</a>
+      <a class="toc-item" href="#s47">47. Ratio Rule</a>
+      <a class="toc-item" href="#s49">49–50. Quiz</a>
+      <a class="toc-item" href="#s51">51. dx & dy Formula</a>
+      <a class="toc-item" href="#s52">52. Mining & Burning</a>
+      <div class="toc-section-label">Part VII — LP Shares</div>
+      <a class="toc-item" href="#s53">53–62. Minting Shares</a>
+      <a class="toc-item" href="#s63">63. LP Tokens</a>
+      <a class="toc-item" href="#s65">65. LP Summary</a>
+      <a class="toc-item" href="#s66">66–68. Burning LP</a>
+      <a class="toc-item" href="#master">📐 Master Formulas</a>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div id="main">
+      <div class="hero">
+        <div class="hero-tag">DeFi Fundamentals</div>
+        <h1>The Complete Guide to<br /><span>AMMs & DeFi</span></h1>
+        <div class="hero-sub">
+          From Zero to Understanding Automated Market Makers, LP Shares &
+          Everything In Between
+        </div>
+        <div class="hero-meta">
+          By <span>Dhruv Patel</span> &nbsp;·&nbsp; 68 Sections &nbsp;·&nbsp;
+          Complete Mathematical Derivations
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- S1 -->
+        <div class="section" id="s1">
+          <div class="section-num">Section 01</div>
+          <h2>What is DeFi?</h2>
+          <blockquote>
+            <strong>DeFi is short for decentralized finance</strong> — an
+            umbrella term for peer-to-peer financial services on public
+            blockchains.
+          </blockquote>
+          <p>
+            In traditional (centralized) finance, every transaction flows
+            through an institution — a bank, a broker, or an exchange. That
+            institution acts as the trusted middleman. DeFi removes that
+            middleman entirely and replaces it with
+            <strong>open-source smart contracts</strong> running on a public
+            blockchain.
+          </p>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">🏦</div>
+              <h4>Traditional Finance (TradFi)</h4>
+              <p>
+                You → Bank → Counterparty. Central authority controls all
+                transactions.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">⛓️</div>
+              <h4>Decentralized Finance (DeFi)</h4>
+              <p>
+                You → Smart Contract ← Counterparty. No bank, no CEO, just
+                transparent code.
+              </p>
+            </div>
+          </div>
+          <p>
+            There is no bank. No CEO. No office. Just transparent, immutable
+            code that executes automatically when conditions are met.
+          </p>
+          <div class="callout">
+            Anyone in the world with an internet connection can participate —
+            without needing permission, an account, or approval from any
+            authority.
+          </div>
+        </div>
+
+        <!-- S2 -->
+        <div class="section" id="s2">
+          <div class="section-num">Section 02</div>
+          <h2>DeFi Platforms</h2>
+          <p>
+            DeFi platforms run entirely on-chain. Their code is public, their
+            smart contracts are auditable, and nobody controls your funds but
+            you.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Platform</th>
+                  <th>Type</th>
+                  <th>Blockchain</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Uniswap</strong></td>
+                  <td>Decentralized Exchange (DEX)</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>PancakeSwap</strong></td>
+                  <td>Decentralized Exchange (DEX)</td>
+                  <td>BNB Smart Chain</td>
+                </tr>
+                <tr>
+                  <td><strong>AAVE</strong></td>
+                  <td>Lending & Borrowing</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>Compound</strong></td>
+                  <td>Lending & Borrowing</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>Curve Finance</strong></td>
+                  <td>Stablecoin DEX</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>Yearn Finance</strong></td>
+                  <td>Yield Aggregator</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>SushiSwap</strong></td>
+                  <td>DEX</td>
+                  <td>Multi-chain</td>
+                </tr>
+                <tr>
+                  <td><strong>Balancer</strong></td>
+                  <td>DEX / Portfolio</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>Lido</strong></td>
+                  <td>Liquid Staking</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>GMX</strong></td>
+                  <td>Perpetuals DEX</td>
+                  <td>Arbitrum/Avalanche</td>
+                </tr>
+                <tr>
+                  <td><strong>Polkadot</strong></td>
+                  <td>Layer 0 Protocol</td>
+                  <td>Own chain</td>
+                </tr>
+                <tr>
+                  <td><strong>Solana</strong></td>
+                  <td>Layer 1 Blockchain</td>
+                  <td>Own chain</td>
+                </tr>
+                <tr>
+                  <td><strong>Avalanche</strong></td>
+                  <td>Layer 1 Blockchain</td>
+                  <td>Own chain</td>
+                </tr>
+                <tr>
+                  <td><strong>DAI</strong></td>
+                  <td>Stablecoin Protocol</td>
+                  <td>Ethereum</td>
+                </tr>
+                <tr>
+                  <td><strong>DeFi Swap</strong></td>
+                  <td>DEX</td>
+                  <td>Multi-chain</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- S3 -->
+        <div class="section" id="s3">
+          <div class="section-num">Section 03</div>
+          <h2>CeFi Platforms</h2>
+          <p>
+            <strong>CeFi (Centralized Finance)</strong> platforms are crypto
+            exchanges that still operate with a central authority. They're
+            easier to use for beginners but come with trade-offs — you don't
+            control your private keys, meaning you don't truly own your assets.
+          </p>
+          <blockquote>
+            <em>"Not your keys, not your coins"</em> — the core argument against
+            CeFi.
+          </blockquote>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Platform</th>
+                  <th>Notable Feature</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Binance</strong></td>
+                  <td>Largest exchange by volume globally</td>
+                </tr>
+                <tr>
+                  <td><strong>Coinbase</strong></td>
+                  <td>Most popular in the US, publicly listed</td>
+                </tr>
+                <tr>
+                  <td><strong>Bitfinex</strong></td>
+                  <td>Long-running exchange with advanced tools</td>
+                </tr>
+                <tr>
+                  <td><strong>Huobi</strong></td>
+                  <td>Major Asian exchange</td>
+                </tr>
+                <tr>
+                  <td><strong>Gemini</strong></td>
+                  <td>Regulated US exchange</td>
+                </tr>
+                <tr>
+                  <td><strong>OKX</strong></td>
+                  <td>Global exchange with diverse products</td>
+                </tr>
+                <tr>
+                  <td><strong>Crypto.com</strong></td>
+                  <td>Known for Visa crypto cards</td>
+                </tr>
+                <tr>
+                  <td><strong>CEX.io</strong></td>
+                  <td>European exchange</td>
+                </tr>
+                <tr>
+                  <td><strong>Bitstamp</strong></td>
+                  <td>One of the oldest crypto exchanges</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- S4 -->
+        <div class="section" id="s4">
+          <div class="section-num">Section 04</div>
+          <h2>DeFi Features</h2>
+          <p>
+            DeFi is not just "banking without banks." It has four fundamental
+            properties that make it categorically different:
+          </p>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">🌐</div>
+              <h4>Open</h4>
+              <p>
+                Anyone on Earth with an internet connection and a crypto wallet
+                can access DeFi protocols. No credit score, no identity
+                verification, no geographic restrictions.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🔐</div>
+              <h4>Non-Custodial</h4>
+              <p>
+                DeFi protocols never take custody of your funds. When you
+                interact with a smart contract, your tokens move only according
+                to predefined rules.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🎭</div>
+              <h4>Anonymous</h4>
+              <p>
+                You interact with DeFi using only your wallet address. No KYC
+                required by the protocol itself.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">⚡</div>
+              <h4>Zero Downtime</h4>
+              <p>
+                Smart contracts run as long as the blockchain runs. No
+                maintenance window, no market close. DeFi operates
+                <strong>24/7/365</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5 -->
+        <div class="section" id="s5">
+          <div class="section-num">Section 05</div>
+          <h2>What is an AMM?</h2>
+          <blockquote>
+            <strong>AMM stands for Automated Market Maker.</strong> It's a DeFi
+            concept and a key component of most decentralized exchanges (DEXs).
+            Used in: Uniswap, SushiSwap, Balancer, PancakeSwap, and many more.
+          </blockquote>
+          <h3>🤖 Automated</h3>
+          <p>
+            The process is carried out entirely by computer programs (algorithms
+            and smart contracts),
+            <strong>without any need for manual intervention.</strong> Automated
+            systems execute trades, make pricing decisions, and respond to
+            market conditions based on predefined mathematical rules.
+          </p>
+          <h3>🏪 Market</h3>
+          <p>
+            In finance, a market is a platform or environment where assets are
+            bought and sold — a place where buyers and sellers come together to
+            trade financial instruments like stocks, bonds, commodities, or
+            digital assets.
+          </p>
+          <h3>💧 Maker</h3>
+          <p>
+            A maker is typically someone who
+            <strong>provides liquidity to a liquidity pool.</strong> By
+            depositing both tokens of a trading pair, they are "making the
+            market" — creating the conditions that allow others to trade.
+          </p>
+          <div class="callout">
+            Put it all together: an AMM is a system where
+            <strong>algorithms automatically price and execute trades</strong>
+            against a shared pool of tokens that users have deposited, without
+            any human market makers or order books required.
+          </div>
+        </div>
+
+        <!-- S6 -->
+        <div class="section" id="s6">
+          <div class="section-num">Section 06</div>
+          <h2>History of AMM</h2>
+          <p>
+            AMMs didn't appear overnight. Here's the timeline of how they
+            evolved:
+          </p>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-year">2016</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Vitalik Buterin</strong> proposed the implementation of
+                on-chain AMMs. The idea was born — decentralized price discovery
+                using math instead of human market makers.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2017</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Bancor Protocol</strong> — Buterin's idea was first
+                applied. This allowed trades between the Bancor Network Token
+                (BNT) and other ERC-20 tokens through specific smart contracts.
+                First live proof of concept.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2018</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Uniswap v1</strong> launched with the implementation of
+                the constant product formula (x·y = k) and liquidity pools,
+                allowing trades between ETH and any other ERC-20 token. This
+                changed everything.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2020</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Curve Finance</strong> launched a new AMM designed
+                exclusively to trade between stablecoins, with low price impact
+                and high efficiency. Solved a specific weakness of CPMM for
+                near-pegged assets.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2021</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Uniswap V3</strong> introduced an entirely new concept:
+                <em>Concentrated Liquidity</em>. LPs could now specify price
+                ranges, dramatically improving capital efficiency.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S7 -->
+        <div class="section" id="s7">
+          <div class="section-num">Section 07</div>
+          <h2>AMM Workflow</h2>
+          <img
+            src="images/amm-workflow.png"
+            alt="photo"
+            style="width: 70%; border-radius: 8px; margin: 20px 0"
+          />
+          <p>
+            An AMM has two types of participants. Their interactions create a
+            self-sustaining marketplace:
+          </p>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">💼</div>
+              <h4>Liquidity Provider (LP)</h4>
+              <p>
+                Deposits Token A + Token B → Receives LP Shares (proof of
+                ownership of their portion of the pool)
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🔄</div>
+              <h4>Trader</h4>
+              <p>
+                Sends Token A + small fee (e.g., 0.3%) → Receives Token B at the
+                price determined by the pool's math
+              </p>
+            </div>
+          </div>
+          <p>
+            The fees collected from traders accumulate in the pool and are
+            shared proportionally among all LPs — this is their reward for
+            providing liquidity.
+          </p>
+        </div>
+
+        <!-- S8 -->
+        <div class="section" id="s8">
+          <div class="section-num">Section 08</div>
+          <h2>Liquidity</h2>
+          <blockquote>
+            <strong
+              >In DeFi, liquidity refers to the availability of assets in a
+              market that can be quickly and easily bought or sold without
+              causing a significant impact on the asset's price.</strong
+            >
+          </blockquote>
+          <p>
+            High liquidity in DeFi markets means there are ample assets
+            available for trading, ensuring that transactions can occur
+            <strong>smoothly and efficiently.</strong>
+          </p>
+          <h3>Why does liquidity matter?</h3>
+          <p>Imagine you want to swap 1 ETH for USDC. If the pool has:</p>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">✅</div>
+              <h4>High Liquidity</h4>
+              <p>
+                e.g., 10,000 ETH + 20,000,000 USDC: your 1 ETH barely changes
+                the ratio. You get a fair price.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">⚠️</div>
+              <h4>Low Liquidity</h4>
+              <p>
+                e.g., 2 ETH + 4,000 USDC: your 1 ETH is 50% of the pool! The
+                price shoots up dramatically. You get a terrible deal.
+              </p>
+            </div>
+          </div>
+          <div class="callout">
+            This is why deep liquidity is the lifeblood of a healthy DEX.
+          </div>
+        </div>
+
+        <!-- S9 -->
+        <div class="section" id="s9">
+          <div class="section-num">Section 09</div>
+          <h2>Liquidity Pool</h2>
+          <blockquote>
+            <strong
+              >A Liquidity Pool is a pool of tokens (usually two different
+              types) locked in a smart contract. These pools facilitate the
+              trading of tokens without the need for an intermediary.</strong
+            >
+          </blockquote>
+          <p>
+            Generally, liquidity pools involve <strong>two tokens</strong> —
+            often a popular cryptocurrency like Ethereum (ETH) paired with
+            either a stablecoin like <strong>DAI</strong> or
+            <strong>USDC</strong>, or another cryptocurrency like
+            <strong>LINK</strong>.
+          </p>
+          <h3>🔑 The Key Insight: Ratio = Price</h3>
+          <div class="callout">
+            The ratio of the tokens in the liquidity pool defines the prices of
+            the two types of tokens in the pool.
+          </div>
+          <p>If a pool has 100 ETH and 200,000 USDC, then:</p>
+          <pre><code>1 ETH = 200,000 / 100 = 2,000 USDC
+1 USDC = 100 / 200,000 = 0.0005 ETH</code></pre>
+          <p>
+            No oracle needed. No external price feed.
+            <strong>The ratio IS the price.</strong>
+          </p>
+          <div class="callout">
+            The amount of liquidity in a pool determines the stability of the
+            price when people are swapping tokens. When the liquidity pool is
+            bigger, the ratio of the pooled tokens is more stable for a
+            transaction of the same amount.
+          </div>
+        </div>
+
+        <!-- S10 -->
+        <div class="section" id="s10">
+          <div class="section-num">Section 10</div>
+          <h2>Order Book</h2>
+          <p>
+            Before AMMs, DEXes tried to use order books — the same model used by
+            stock exchanges and centralized crypto exchanges like Binance.
+          </p>
+          <blockquote>
+            In a DEX, order book operations are carried out through smart
+            contracts on the blockchain. This means every action — placing an
+            order, cancelling, or executing a trade — requires an
+            <strong>on-chain transaction</strong>. This leads to
+            <strong>high gas costs.</strong>
+          </blockquote>
+          <p>
+            Some DEXes that use order books: <strong>dYdX</strong> (perpetuals),
+            <strong>0x</strong> (decentralized order book),
+            <strong>Serum</strong> (Solana-based).
+          </p>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">📋</div>
+              <h4>The Problem</h4>
+              <p>
+                Every order placement, cancellation, and fill costs gas. Makes
+                on-chain order books expensive and slow, especially during high
+                network congestion.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🧮</div>
+              <h4>The AMM Solution</h4>
+              <p>
+                Replace the order book entirely with a mathematical formula and
+                a shared pool. No orders to place. No matching engine. Just
+                math.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S11 -->
+        <div class="section" id="s11">
+          <div class="section-num">Section 11</div>
+          <h2>AMM Architecture</h2>
+          <p>
+            An AMM is not a single contract — it's a layered system with
+            <strong>three key components:</strong>
+          </p>
+          <img
+            src="images/amm-architecture.png"
+            alt="photo"
+            style="width: 100%; border-radius: 8px; margin: 20px 0"
+          />
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">👤</div>
+              <h4>1. AMM Callers</h4>
+              <p>
+                Who interacts with the system — users, DApps, wallets,
+                protocols, bots.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🧠</div>
+              <h4>2. AMM Router</h4>
+              <p>
+                The brain that routes actions and finds the best trade paths.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🏭</div>
+              <h4>3. Pair Factory + Pools</h4>
+              <p>
+                The actual liquidity pools — each a separate smart contract per
+                token pair.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S12 -->
+        <div class="section" id="s12">
+          <div class="section-num">Section 12</div>
+          <h2>AMM Callers</h2>
+          <blockquote>
+            <strong
+              >AMM Callers are the users or smart contracts that interact with
+              the AMM (e.g., DApps, wallets, or other protocols).</strong
+            >
+          </blockquote>
+          <p>Callers can be:</p>
+          <ul>
+            <li>
+              <strong>Individual users</strong> using a DApp frontend like
+              app.uniswap.org
+            </li>
+            <li>
+              <strong>Wallets</strong> like MetaMask that call the router
+              directly
+            </li>
+            <li>
+              <strong>Other smart contracts</strong> — e.g., a yield farming
+              protocol that auto-compounds by swapping reward tokens
+            </li>
+            <li>
+              <strong>Bots</strong> — arbitrage bots that constantly monitor
+              price discrepancies and trade to profit
+            </li>
+          </ul>
+        </div>
+
+        <!-- S13 -->
+        <div class="section" id="s13">
+          <div class="section-num">Section 13</div>
+          <h2>AMM Router</h2>
+          <blockquote>
+            <strong
+              >The AMM router is a smart contract that handles the interactions
+              between users and various liquidity pools. It acts as an
+              intermediary that finds the best trade routes across multiple
+              pools to facilitate token swaps.</strong
+            >
+          </blockquote>
+          <h3>1. Routing Trades</h3>
+          <p>
+            When a user wants to swap tokens, the router finds the best path to
+            complete the trade.
+            <strong
+              >This may involve multiple pools to get the best price or minimize
+              slippage.</strong
+            >
+          </p>
+          <p>
+            For example: You want to swap DAI → LINK but there's no direct
+            DAI/LINK pool. The router automatically routes:
+            <code>DAI → ETH → LINK</code> using two hops.
+          </p>
+          <h3>2. Optimizing Trades</h3>
+          <p>
+            The router optimizes the trade by
+            <strong>splitting it across different pools if necessary</strong>,
+            ensuring that users get the best possible rate. This is called
+            "smart order routing."
+          </p>
+          <h3>3. Interface for Actions</h3>
+          <p>
+            The router acts as the <strong>interface</strong> for users to
+            <strong>Swap</strong> tokens, <strong>Mint</strong> liquidity (add
+            tokens and receive LP tokens), and <strong>Burn</strong> liquidity
+            (remove tokens by giving back LP tokens).
+          </p>
+        </div>
+
+        <!-- S14 -->
+        <div class="section" id="s14">
+          <div class="section-num">Section 14</div>
+          <h2>Pair Factory</h2>
+          <blockquote>
+            <strong
+              >A pair factory is a smart contract responsible for creating and
+              managing liquidity pools (pairs) on a DEX. It listens to "Create
+              Pair" calls from the router or directly from callers.</strong
+            >
+          </blockquote>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th>Actor</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. User Request</strong></td>
+                  <td>User</td>
+                  <td>
+                    Wants to create a new liquidity pool for a specific token
+                    pair
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>2. Factory Interaction</strong></td>
+                  <td>User ↔ Contract</td>
+                  <td>
+                    The user interacts with the pair factory smart contract,
+                    specifying the two tokens
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>3. Pool Creation</strong></td>
+                  <td>Factory Contract</td>
+                  <td>
+                    Checks if the pair already exists. If NOT, deploys a new
+                    pair contract and initializes it
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>4. Registration</strong></td>
+                  <td>Factory Contract</td>
+                  <td>
+                    The new pair's address is added to the factory's registry —
+                    a master ledger of all pools
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>5. User Interaction</strong></td>
+                  <td>Anyone</td>
+                  <td>
+                    The user and others can now add liquidity or trade tokens
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">
+            Rather than deploying each pool manually, the factory automates the
+            creation. You describe the two tokens, and it stamps out a brand new
+            pool contract for you.
+          </div>
+        </div>
+
+        <!-- S15 -->
+        <div class="section" id="s15">
+          <div class="section-num">Section 15</div>
+          <h2>Factory Contract — getPair</h2>
+          <p>The Uniswap V2 Factory contract has a key function:</p>
+          <pre><code>getPair(address tokenA, address tokenB) → address</code></pre>
+          <p><strong>What it does:</strong></p>
+          <ul>
+            <li>Takes two ERC-20 token addresses as input</li>
+            <li>
+              Returns the address of the
+              <strong>liquidity pool (pair) contract</strong> associated with
+              them
+            </li>
+            <li>
+              If the pair doesn't exist, it returns <code>address(0)</code> (the
+              zero address)
+            </li>
+          </ul>
+          <pre><code>// Real example from Uniswap V2:
+Input Token A: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 (WETH)
+Input Token B: 0x6B175474E89094C44Da98b954EedeAC495271d0F (DAI)
+Output: → The specific pool contract holding all WETH/DAI liquidity</code></pre>
+        </div>
+
+        <!-- S16 -->
+        <div class="section" id="s16">
+          <div class="section-num">Section 16</div>
+          <h2>Uniswap Pools — Real Data</h2>
+          <img
+            src="images/uniswap-live.png"
+            alt="photo"
+            style="width: 100%; border-radius: 8px; margin: 20px 0"
+          />
+
+          
+          <div class="callout">
+            This is real capital — billions of dollars — managed entirely by
+            smart contracts with no human custodian. The math we're learning
+            here is literally running these pools right now.
+          </div>
+        </div>
+
+        <!-- S17 -->
+        <div class="section" id="s17">
+          <div class="section-num">Section 17</div>
+          <h2>Uniswap V2 Token Fetch</h2>
+          <p>
+            Uniswap V2 Router has a useful read function:
+            <code>getAmountsOut(uint256 amountIn, address[] path)</code>
+          </p>
+          <h3>Parameters</h3>
+          <ul>
+            <li>
+              <code>amountIn (uint256)</code> — The amount of the input token
+              you want to swap. For 1 DAI (18 decimals):
+              <code>1000000000000000000</code>
+            </li>
+            <li>
+              <code>path (address[])</code> — The route the swap should follow.
+              Example: <code>[DAI, WETH]</code> for a direct swap, or
+              <code>[DAI, WETH, USDC]</code> for a multi-hop swap.
+            </li>
+          </ul>
+          <p>
+            This function is what DEX aggregators and arbitrage bots use to
+            calculate optimal swap paths without executing the actual
+            transaction first.
+          </p>
+        </div>
+
+        <!-- S18 -->
+        <div class="section" id="s18">
+          <div class="section-num">Section 18</div>
+          <h2>Types of AMM</h2>
+          <p>
+            AMMs come in different mathematical flavors. Each formula has
+            different trade-offs:
+          </p>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">✖️</div>
+              <h4>Constant Product</h4>
+              <p>
+                <code>x · y = k</code><br />Used by <strong>Uniswap</strong>.
+                Best for general token pairs and volatile assets.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">➕</div>
+              <h4>Constant Sum</h4>
+              <p>
+                <code>x + y = k</code><br />Used by <strong>Balancer</strong>.
+                Best for multi-asset pools.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">〰️</div>
+              <h4>Curve-Based AMMs</h4>
+              <p>
+                Hybrid formula<br />Used by <strong>Curve Finance</strong>. Best
+                for stablecoin-to-stablecoin swaps (low slippage near peg).
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🔀</div>
+              <h4>Hybrid AMMs</h4>
+              <p>
+                Combined approaches<br />Used by <strong>SushiSwap</strong>.
+                Multiple strategies with extended features.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S19 -->
+        <div class="section" id="s19">
+          <div class="section-num">Section 19</div>
+          <h2>Constant Product AMM — Basics</h2>
+          <blockquote>
+            <strong
+              >The CPMM means the product of the reserves of two or more tokens
+              in a liquidity pool is a constant value.</strong
+            >
+          </blockquote>
+          <h3>General Formula</h3>
+          <div class="math-block">$$\prod_{i=1}^{n} \text{Reserve}_i = K$$</div>
+          <p>
+            Where <code>Reserve_i</code> is the reserve of the i-th token, and
+            <code>K</code> is a <strong>constant value</strong> that never
+            changes during trading.
+          </p>
+          <h3>Simplified for Two Tokens</h3>
+          <div class="math-block">
+            $$\text{Reserve}_A \times \text{Reserve}_B = K$$
+          </div>
+          <div class="callout">
+            <strong>Key insight:</strong> K only changes when liquidity is added
+            or removed by LPs. Trading alone never changes K.
+          </div>
+        </div>
+
+        <!-- S20 -->
+        <div class="section" id="s20">
+          <div class="section-num">Section 20</div>
+          <h2>Constant Product AMM — XY = K Formula</h2>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">$$X \times Y = K$$</div>
+          </div>
+          <p>
+            Where: <code>X</code> = Amount of Token A in the pool,
+            <code>Y</code> = Amount of Token B in the pool, <code>K</code> = The
+            constant (set when the pool is first created and maintained
+            forever).
+          </p>
+          <h3>How trading changes the price</h3>
+          <p>When a trader buys Token A:</p>
+          <ul>
+            <li>Token A leaves the pool → X decreases</li>
+            <li>Token B enters the pool → Y increases</li>
+            <li>X × Y must still equal K</li>
+            <li>
+              Since X decreased, Y must increase — so
+              <strong>more Y is needed</strong> to maintain K
+            </li>
+            <li>
+              This means the price of Token A (in terms of Y) went
+              <strong>UP</strong>
+            </li>
+          </ul>
+          <div class="callout">
+            This is supply and demand, automated by algebra.
+          </div>
+        </div>
+
+        <!-- S21 -->
+        <div class="section" id="s21">
+          <div class="section-num">Section 21</div>
+          <h2>Constant Product AMM — Worked Example</h2>
+          <p>
+            <strong>Given:</strong> X = 100, Y = 200, K = 20,000. Fee = 0.
+            Trader wants to buy <strong>60 X tokens.</strong>
+          </p>
+          <pre><code>Step 1: Remaining X after trade
+  40 X tokens left in pool
+
+Step 2: Find new Y using K = constant
+  40 * y = 20,000
+  y = 20,000 / 40
+  y = 500
+
+Step 3: How many Y tokens must trader deposit?
+  Y tokens deposited = 500 - 200 = 300
+
+Step 4: After deposit, number of Y tokens in pool
+  300 + 200 = 500 ✓
+
+Step 5: Verify K
+  x * y = 40 * 500 = 20,000 ✓  K is preserved!</code></pre>
+          <div class="answer-box">
+            <div class="label">✅ Answer</div>
+            <p>
+              To buy 60 X tokens, the trader must deposit
+              <strong>300 Y tokens.</strong> The pool's K remains exactly
+              20,000.
+            </p>
+          </div>
+        </div>
+
+        <!-- S22 -->
+        <div class="section" id="s22">
+          <div class="section-num">Section 22</div>
+          <h2>Practice Problem</h2>
+          <div class="quiz-box">
+            <div class="quiz-label">📝 Practice Problem</div>
+            <p>
+              <strong>Given:</strong> Initial reserve of Token X =
+              <strong>50</strong>, Initial reserve of Token Y =
+              <strong>500</strong>, Fee = 0%
+            </p>
+            <p>
+              <strong>Task:</strong> A trader wants to
+              <strong>buy 30 Token X.</strong> How many Y tokens must the trader
+              deposit?
+            </p>
+          </div>
+          <pre><code>K = 50 * 500 = 25,000
+
+After buying 30 X:
+  Remaining X = 50 - 30 = 20
+
+Find new Y:
+  20 * Y_new = 25,000
+  Y_new = 25,000 / 20 = 1,250
+
+Y tokens trader must deposit:
+  1,250 - 500 = 750 Y tokens
+
+Verify:
+  20 * 1,250 = 25,000 ✓</code></pre>
+          <div class="answer-box">
+            <div class="label">✅ Answer</div>
+            <p>
+              The trader must deposit <strong>750 Y tokens</strong> to buy 30 X
+              tokens.
+            </p>
+          </div>
+        </div>
+
+        <!-- S23 -->
+        <div class="section" id="s23">
+          <div class="section-num">Section 23</div>
+          <h2>Price of a Token in a Liquidity Pool</h2>
+          <p>
+            For CPMMs with two tokens in reserve, the
+            <strong
+              >price of a token is the ratio of the other token's
+              reserve:</strong
+            >
+          </p>
+          <div class="math-block">
+            $$\text{Price of Token A} =
+            \frac{\text{Reserve}_B}{\text{Reserve}_A}$$
+          </div>
+          <div class="math-block">
+            $$\text{Price of Token B} =
+            \frac{\text{Reserve}_A}{\text{Reserve}_B}$$
+          </div>
+          <div class="callout">
+            <strong>Intuition:</strong> If there are twice as many B tokens as A
+            tokens in the pool, then A is worth 2 B tokens each. The ratio
+            captures the relative scarcity — scarcer token = higher price.
+          </div>
+        </div>
+
+        <!-- S24 -->
+        <div class="section" id="s24">
+          <div class="section-num">Section 24</div>
+          <h2>Token Price — Worked Example</h2>
+          <p>
+            <strong>Given:</strong> Reserve of Token A = 100, Reserve of Token B
+            = 200
+          </p>
+          <pre><code>Price of Token A = Reserve_B / Reserve_A
+                 = 200 / 100
+                 = 2 Token B per Token A
+
+Price of Token B = Reserve_A / Reserve_B
+                 = 100 / 200
+                 = 0.5 Token A per Token B</code></pre>
+          <ul>
+            <li>
+              <strong>Token A Price:</strong> If you want to buy 1 Token A, you
+              need to provide <strong>2 Tokens B.</strong>
+            </li>
+            <li>
+              <strong>Token B Price:</strong> If you want to buy 1 Token B, you
+              need to provide <strong>0.5 Tokens A.</strong>
+            </li>
+          </ul>
+          <p>
+            As trades happen, these ratios shift — when people buy Token A, its
+            reserve decreases, making it more expensive. This is
+            <strong>automatic price discovery.</strong>
+          </p>
+        </div>
+
+        <!-- S25 -->
+        <div class="section" id="s25">
+          <div class="section-num">Section 25</div>
+          <h2>Constant Product AMM Graph</h2>
+          <p>
+            The constant product formula <code>X * Y = K</code> creates a
+            <strong>hyperbolic curve</strong> when plotted:
+          </p>
+          <img
+            src="images/constant-product-graph.png"
+            alt="photo"
+            style="width: 70%; border-radius: 8px; margin: 20px 0"
+          <h3>Key observations</h3>
+          <ul>
+            <li>
+              <strong>The curve never touches the axes</strong> — you can never
+              fully drain a pool of either token. As X approaches 0, the price
+              of X approaches infinity.
+            </li>
+            <li>
+              <strong>Moving along the curve = trading.</strong> When a trader
+              buys X (moves left), they must provide Y (moves up).
+            </li>
+            <li>
+              <strong>The curve gets steeper near the axes</strong> — buying
+              more of a scarce token costs exponentially more. This is "price
+              impact" in visual form.
+            </li>
+            <li>
+              The points <strong>(40, 500)</strong> and
+              <strong>(100, 200)</strong> correspond to the worked example.
+            </li>
+          </ul>
+        </div>
+
+        <!-- SECTION BREAK -->
+        <div class="section-break">
+          <div class="section-break-title">Part II</div>
+          <div class="section-break-heading">
+            AMM Terminologies & Mathematics
+          </div>
+          <p style="color: var(--text3); margin-top: 12px; font-size: 13px">
+            Full mathematical derivations of swap formulas, fee calculations,
+            and liquidity measurements
+          </p>
+        </div>
+
+        <!-- S28 -->
+        <div class="section" id="s28">
+          <div class="section-num">Section 28</div>
+          <h2>CPMM Mathematics — Condition 1 (Zero Fee)</h2>
+          <p>
+            <strong>Setup:</strong> A trader is selling Token A and buying Token
+            B, where:
+          </p>
+          <ul>
+            <li><code>X</code> = Token A amount currently in pool</li>
+            <li><code>Y</code> = Token B amount currently in pool</li>
+            <li>
+              <code>dx</code> = Amount of Token A the trader is putting IN
+            </li>
+            <li>
+              <code>dy</code> = Amount of Token B the trader is taking OUT
+            </li>
+            <li><strong>Platform Fee = 0</strong></li>
+          </ul>
+          <h3>Starting equations</h3>
+          <pre><code>Before trade:  X * Y = K    ──── equation (1)
+
+After trade (trader adds dx of A, pool gives out dy of B):
+               (X + dx)(Y - dy) = K    ──── equation (2)</code></pre>
+        </div>
+
+        <!-- S29 -->
+        <div class="section" id="s29">
+          <div class="section-num">Section 29</div>
+          <h2>CPMM Mathematics — Derivation of dy</h2>
+          <pre><code>(X + dx)(Y - dy) = K
+
+Expand the left side:
+X(Y - dy) + dx(Y - dy) = K
+XY - X·dy + dx·Y - dx·dy = K
+
+Substitute XY = K (from equation 1):
+K - X·dy + dx·Y - dx·dy = K
+
+Simplify (K cancels):
+-X·dy + dx·Y - dx·dy = 0
+-dy(X + dx) + Y·dx = 0
+Y·dx = dy(X + dx)
+
+Solve for dy:
+dy = (Y · dx) / (X + dx)</code></pre>
+          <h3>Result</h3>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$dy = \frac{Y \cdot dx}{X + dx}$$
+            </div>
+          </div>
+          <p>
+            This is the core formula: given that a trader puts in
+            <code>dx</code> of Token A, they receive <code>dy</code> of Token B.
+          </p>
+        </div>
+
+        <!-- S30 -->
+        <div class="section" id="s30">
+          <div class="section-num">Section 30</div>
+          <h2>CPMM Mathematics — dx Formula</h2>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$dy = \frac{Y \cdot dx}{X + dx} \qquad \text{and} \qquad dx =
+              \frac{X \cdot dy}{Y - dy}$$
+            </div>
+          </div>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">📤</div>
+              <h4>Use dy = ...</h4>
+              <p>
+                When you know how much you're <strong>sending</strong> (exact
+                input) → calculate what you'll receive
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">📥</div>
+              <h4>Use dx = ...</h4>
+              <p>
+                When you know how much you want to
+                <strong>receive</strong> (exact output) → calculate what you
+                must send
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S31 -->
+        <div class="section" id="s31">
+          <div class="section-num">Section 31</div>
+          <h2>CPMM Mathematics — Condition 2 (With 0.3% Fee)</h2>
+          <p>
+            In Uniswap (and most AMMs), the fee is deducted from the input
+            before it participates in the price calculation. So if you send in
+            <code>dx</code> tokens, only <code>dx * (1 - fee)</code> actually
+            enters the formula.
+          </p>
+          <h3>Modified Equation</h3>
+          <pre><code>X * Y = (X + dx * (1 - fee)) * (Y - dy)
+
+For fee = 0.3% = 0.003, so (1 - fee) = 0.997:
+
+X * Y = (X + dx * 0.997) * (Y - dy)</code></pre>
+        </div>
+
+        <!-- S32 -->
+        <div class="section" id="s32">
+          <div class="section-num">Section 32</div>
+          <h2>Fee Derivation — Whiteboard</h2>
+          <pre><code>Trader → sends 1000 tokens of A
+
+Fee = 0.3% of 1000
+    = (0.3 / 100) * 1000
+    = 3 tokens
+
+Total actually used for trade:
+    = 1000 - 3
+    = 997 tokens
+
+So: Total actual for trader = 1000 * (1 - fee)</code></pre>
+          <div class="math-block">
+            $$\text{Effective input} = dx \times (1 - \text{fee})$$
+          </div>
+          <div class="callout">
+            The 3 tokens stay in the pool as earnings for liquidity providers.
+            Over time, fees accumulate and increase the pool's TVL — which means
+            LP tokens become worth more when redeemed.
+          </div>
+        </div>
+
+        <!-- S33 & S34 -->
+        <div class="section" id="s34">
+          <div class="section-num">Section 33–34</div>
+          <h2>Final Formula</h2>
+          <p>Starting from the fee-adjusted invariant and solving for dy:</p>
+          <pre><code>X·Y = (X + dx×0.997)·(Y - dy)
+
+Expand:
+X·Y = X·Y - X·dy + dx×0.997·Y - dx×0.997·dy
+
+Simplify (X·Y cancels):
+0 = -X·dy + dx×0.997·Y - dx×0.997·dy
+
+Factor out dy:
+dy × (X + dx×0.997) = dx×0.997·Y</code></pre>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$dy = \frac{dx \times 0.997 \times Y}{X + dx \times 0.997}$$
+            </div>
+          </div>
+          <p>
+            This is the <strong>real Uniswap V2 swap formula</strong> used in
+            production. The <code>0.997</code> accounts for the 0.3% fee.
+          </p>
+          <h3>Generalizing for any fee</h3>
+          <div class="math-block">
+            $$dy = \frac{dx \times (1 - \text{fee}) \times Y}{X + dx \times (1 -
+            \text{fee})}$$
+          </div>
+          <blockquote>
+            This is the exact same formula in Uniswap V2's
+            <code>getAmountOut()</code> function in Solidity. When you call the
+            router, this calculation runs under the hood, every single time.
+          </blockquote>
+        </div>
+
+        <!-- S35 -->
+        <div class="section" id="s35">
+          <div class="section-num">Section 35</div>
+          <h2>Price Impact</h2>
+          <blockquote>
+            <strong
+              >Price impact in a Constant Product AMM refers to the change in
+              price resulting from a trade. When a trader buys or sells a token,
+              it affects the reserves in the liquidity pool, and consequently,
+              the price.</strong
+            >
+          </blockquote>
+          <h3>Real-world example from Uniswap</h3>
+          <p>Suppose 1 ETH ≈ 0.005 WBTC. A huge trade of 100,000 ETH:</p>
+          <ul>
+            <li>Should give ≈ 500 WBTC normally</li>
+            <li>
+              But due to price impact, you're only getting
+              <strong>459.875 WBTC</strong>
+            </li>
+            <li>
+              The actual value in USD is $31.21M, while your ETH was worth $325.36M
+            </li>
+            <li>
+              <strong>Price impact warning: ~−90.4%</strong> — catastrophic!
+            </li>
+          </ul>
+          <h3>Price Impact Formula</h3>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$\text{Price Impact} = \frac{\text{Price}_\text{new} -
+              \text{Price}_\text{initial}}{\text{Price}_\text{initial}} \times
+              100\%$$
+            </div>
+          </div>
+          <p>
+            Large trades in small pools = high price impact. Small trades in
+            large pools = low price impact.
+          </p>
+          <p>
+            Higher TVL generally means deeper liquidity, which leads to lower price impact for trades.
+          </p>
+          <p>
+            Real Uniswap example - selling 10,000 ETH:
+          </p>
+                    <img src="images/swap.png" alt="Uniswap" style="width: 100%;" >
+
+          <ul>
+            <li>
+              ETH → WBTC pool (TVL = $315.9M):<br />
+              Price impact = −32.39% (High TVL → Low Slippage)
+            </li>
+            <li>
+              ETH → PMPY pool (TVL = $2.1M):<br />
+              Price impact = −97.15% (Low TVL → High Slippage)
+            </li>
+          </ul>
+          <p>
+            Same trade size. Wildly different outcomes. The high-TVL pool absorbs the trade easily. The low-TVL pool is overwhelmed - you'd essentially crash the price.
+          </p>
+          <div class="callout">
+            <strong>The Golden Rule:</strong><br />
+            High TVL  →  Deep Liquidity  →  Low Price Impact  ✅<br />
+            Low TVL   →  Shallow Liquidity  →  High Price Impact  ⚠️
+          </div>
+          
+          <div class="example-box" style="margin: 48px 0; padding-top: 32px; border-top: 1px solid var(--border);">
+            <h3 style="color: var(--cyan); margin-bottom: 20px; font-size: 19px;"> Pool ke andar kya hota hai?</h3>
+            <p style="margin-bottom: 20px;">Socho pool ek dukaan hai:</p>
+
+            <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">Pehle:</h4>
+            <ul style="margin-left: 20px; margin-bottom: 24px; color: var(--text);">
+              <li style="margin-bottom: 8px;">ETH = kam</li>
+              <li style="margin-bottom: 8px;">WBTC = zyada
+                <ul style="margin-left: 24px; margin-top: 8px; list-style-type: none;">
+                  <li>👉 ETH mehenga</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">Tumne kya kiya?</h4>
+            <ul style="margin-left: 20px; margin-bottom: 24px; color: var(--text);">
+              <li style="margin-bottom: 8px;">100,000 ETH pool me daal diya
+                <ul style="margin-left: 24px; margin-top: 8px; list-style-type: none;">
+                  <li>👉 ETH flood ho gaya (supply ↑)</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">Result:</h4>
+            <ul style="margin-left: 20px; margin-bottom: 24px; color: var(--text);">
+              <li style="margin-bottom: 8px;">ETH ki value gir gayi 📉</li>
+              <li style="margin-bottom: 8px;">WBTC mehenga ho gaya 📈</li>
+            </ul>
+
+            <p style="margin-bottom: 16px;">Isliye:</p>
+            <pre style="margin: 0 0 48px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border2);"><code><span style="color: #ef4444; text-decoration: line-through;">500 WBTC</span> ❌
+<span style="color: #22c55e;">459.875 WBTC</span> ✅</code></pre>
+
+            <h3 style="color: var(--cyan); margin-bottom: 24px; font-size: 19px;"> Demand–Supply yahan kaise connected hai?</h3>
+            <div class="table-wrap" style="margin-bottom: 24px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tum kya karte ho</th>
+                    <th>Pool kya feel karta hai</th>
+                    <th>Price pe effect</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>ETH bechte ho</td>
+                    <td>ETH supply ↑</td>
+                    <td>ETH price ↓</td>
+                  </tr>
+                  <tr>
+                    <td>WBTC kharidte ho</td>
+                    <td>WBTC supply ↓</td>
+                    <td>WBTC price ↑</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin-bottom: 48px; color: var(--text);">👉 <strong>Demand & supply yahin se banti hai</strong></p>
+
+            <h3 style="color: var(--cyan); margin-bottom: 20px; font-size: 19px;"> Price Impact ka real meaning</h3>
+            <p style="margin-bottom: 16px;">Price Impact =</p>
+            <blockquote style="margin: 0 0 28px; border-left: 3px solid var(--text3); padding-left: 16px; color: var(--text2);">
+              Tumhari trade ki wajah se price kitni zyada badal gayi
+            </blockquote>
+
+            <ul style="margin-left: 20px; margin-bottom: 28px; color: var(--text);">
+              <li style="margin-bottom: 8px;">Choti trade → chota impact</li>
+              <li style="margin-bottom: 8px;">Badi trade → bada impact ❌</li>
+            </ul>
+
+            <p style="margin-bottom: 16px;">Is image me:</p>
+            <pre style="margin: 0 0 28px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border2); color: var(--text);"><code><span style="color: var(--text3);">java</span>
+Price Impact = <span style="color: #eab308;">-90.4%</span></code></pre>
+
+            <p style="margin-bottom: 16px;">👉 Matlab:</p>
+            <blockquote style="margin: 0 0 48px; border-left: 3px solid var(--text3); padding-left: 16px; color: var(--text2);">
+              Tumhari trade ne market ko hi hila diya 💥
+            </blockquote>
+
+            <h3 style="color: var(--purple2); margin-bottom: 20px; font-size: 19px;">🧠 Pehle TVL kya hota hai?</h3>
+            <p style="margin-bottom: 16px;">TVL (Total Value Locked) =</p>
+            <blockquote style="margin: 0 0 28px; border-left: 3px solid var(--text3); padding-left: 16px; color: var(--text2);">
+              Pool ke andar total paisa (ETH + token) kitna pada hai (USD me)
+            </blockquote>
+
+            <h4 style="color: var(--white); margin-bottom: 16px; font-size: 17px;">Example:</h4>
+            <ul style="margin-left: 20px; margin-bottom: 48px; color: var(--text);">
+              <li style="margin-bottom: 8px;">ETH–WBTC pool = $315.9M TVL</li>
+              <li style="margin-bottom: 8px;">ETH–PMPY pool = $2.1M TVL</li>
+            </ul>
+
+            <h3 style="color: var(--purple2); margin-bottom: 20px; font-size: 19px;">🔗 Golden Rule (yaad rakhna)</h3>
+            <blockquote style="margin: 0 0 48px; border-left: 3px solid var(--text3); padding-left: 16px; color: var(--text2);">
+              TVL zyada → liquidity deep → price impact kam<br>
+              TVL kam → liquidity shallow → price impact zyada
+            </blockquote>
+
+            <h4 style="color: var(--green); margin-bottom: 20px; font-size: 17px;">LEFT SIDE (High TVL Pool) ✅</h4>
+            <p style="margin-bottom: 16px; font-weight: bold; color: var(--text);">ETH → WBTC</p>
+            <ul style="margin-left: 20px; margin-bottom: 28px; color: var(--text);">
+              <li style="margin-bottom: 8px;">TVL = $315.9M 💰💰💰</li>
+              <li style="margin-bottom: 8px;">Tum sell kar rahe ho: 10,000 ETH</li>
+              <li style="margin-bottom: 8px;">Price impact ≈ -32%</li>
+            </ul>
+
+            <h4 style="color: var(--white); margin-bottom: 16px; font-size: 17px;">Kyun?</h4>
+            <p style="margin-bottom: 20px;">Socho pool ek bahut badi nadi hai 🌊</p>
+            <ul style="margin-left: 20px; margin-bottom: 24px; color: var(--text);">
+              <li style="margin-bottom: 8px;">Tum 1 balti paani daalo</li>
+              <li style="margin-bottom: 8px;">Water level thoda hi change hoga</li>
+            </ul>
+            <p style="margin-bottom: 8px; color: var(--text);">👉 ETH zyada hone ke baad bhi pool disturb nahi hota</p>
+            <p style="margin-bottom: 48px; color: var(--text);">👉 Isliye slippage kam</p>
+
+            <h4 style="color: #ef4444; margin-bottom: 20px; font-size: 17px;">RIGHT SIDE (Low TVL Pool) ❌</h4>
+            <p style="margin-bottom: 16px; font-weight: bold; color: var(--text);">ETH → PMPY</p>
+            <ul style="margin-left: 20px; margin-bottom: 28px; color: var(--text);">
+              <li style="margin-bottom: 8px;">TVL = $2.1M 💧</li>
+              <li style="margin-bottom: 8px;">Same sell: 10,000 ETH</li>
+              <li style="margin-bottom: 8px;">Price impact ≈ -97% 😱</li>
+            </ul>
+
+            <h4 style="color: var(--white); margin-bottom: 16px; font-size: 17px;">Kyun?</h4>
+            <p style="margin-bottom: 20px;">Socho pool ek chhota talaab hai 🪣</p>
+            <ul style="margin-left: 20px; margin-bottom: 24px; color: var(--text);">
+              <li style="margin-bottom: 8px;">Tum tanker bhar paani daal do</li>
+              <li style="margin-bottom: 8px;">Talaab overflow / balance bigad gaya</li>
+            </ul>
+            <p style="margin-bottom: 8px; color: var(--text);">👉 ETH supply achanak bahut zyada</p>
+            <p style="margin-bottom: 8px; color: var(--text);">👉 PMPY almost khatam</p>
+            <p style="margin-bottom: 8px; color: var(--text);">👉 Price crash</p>
+          </div>
+        
+        </div>
+
+        <!-- S37 & S38 -->
+        <div class="section" id="s37">
+          <div class="section-num">Section 37–38</div>
+          <h2>Total Value Locked (TVL)</h2>
+          <blockquote>
+            <strong
+              >TVL refers to the total amount of assets that are currently being
+              staked, locked, or otherwise used in decentralized finance
+              protocols.</strong
+            >
+          </blockquote>
+          <p>
+            TVL is a key metric used to gauge the overall health, growth, and
+            trust in the DeFi ecosystem. A rising TVL indicates more user trust
+            and protocol adoption.
+          </p>
+          <h3>TVL Formula</h3>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$\text{TVL} = \text{Reserve}_A \times \text{Price of Token A} +
+              \text{Reserve}_B \times \text{Price of Token B}$$
+            </div>
+          </div>
+          <p><strong>Example:</strong></p>
+          <pre><code>Reserve A = 100 ETH, Price of ETH = $3,000
+Reserve B = 300,000 USDC, Price of USDC = $1
+TVL = (100 × $3,000) + (300,000 × $1)
+    = $300,000 + $300,000
+    = $600,000</code></pre>
+        </div>
+
+        <!-- S39-43 -->
+        <div class="section" id="s39">
+          <div class="section-num">Section 39–43</div>
+          <h2>Price Impact — Full Worked Solutions</h2>
+          <p>
+            <strong>Given:</strong> Reserve A = 100, Reserve B = 200, K =
+            20,000. Trader buys 10 Token A.
+          </p>
+          <div class="steps">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <p><strong>Initial Price:</strong></p>
+                <div class="math-block">
+                  $$\text{Price}_\text{initial} = \frac{200}{100} = 2 \text{
+                  Token B per Token A}$$
+                </div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <p>
+                  <strong>New Reserves:</strong> Reserve'_A = 90, Reserve'_B =
+                  20,000 / 90 ≈ 222.22
+                </p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <p><strong>New Price:</strong></p>
+                <div class="math-block">
+                  $$\text{Price}_\text{new} = \frac{222.22}{90} \approx 2.47$$
+                </div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <p><strong>Price Impact:</strong></p>
+                <div class="math-block">
+                  $$\text{Price Impact} = \left(\frac{2.47 - 2}{2}\right) \times
+                  100\% \approx 23\%$$
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3>Two Pools Comparison — Same Trade, Different TVL</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Pool 1 (High TVL)</th>
+                  <th>Pool 2 (Low TVL)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Reserve A</td>
+                  <td>1,000</td>
+                  <td>100</td>
+                </tr>
+                <tr>
+                  <td>Reserve B</td>
+                  <td>2,000</td>
+                  <td>200</td>
+                </tr>
+                <tr>
+                  <td>Trade</td>
+                  <td>Buy 10 Token A</td>
+                  <td>Buy 10 Token A</td>
+                </tr>
+                <tr>
+                  <td><strong>Price Impact</strong></td>
+                  <td style="color: var(--green)"><strong>~2% ✅</strong></td>
+                  <td style="color: var(--orange)">
+                    <strong>~23.5% ⚠️</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">
+            Higher TVL pools (deeper liquidity) have lower price impact because
+            they can absorb larger trades with smaller changes in price.
+          </div>
+
+          <div style="background: rgba(185, 28, 28, 0.9); border: 1px solid #ff4444; padding: 18px 24px; border-radius: 8px; margin: 40px 0 30px;">
+            <p style="margin: 0; color: #ffffff; font-weight: 500; font-size: 16px;">
+              Scenario: A trader wants to buy 10 Token A from both pools.
+            </p>
+          </div>
+
+          <div class="info-grid" style="gap: 40px; margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column;">
+              <h4 style="color: var(--white); margin-bottom: 20px; font-size: 18px; font-weight: 700;">Pool 1 (High TVL):</h4>
+              <ul style="margin-left: 20px; margin-bottom: 30px; color: var(--text);">
+                <li style="margin-bottom: 16px;">Initial Reserves: $\text{Reserve}_A = 1000, \text{Reserve}_B = 2000$</li>
+                <li style="margin-bottom: 16px;">New Reserves: $\text{Reserve}'_A = 990, \text{Reserve}'_B = \frac{1000 \times 2000}{990} \approx 2020.2$</li>
+                <li style="margin-bottom: 16px;">Initial Price: $\frac{2000}{1000} = 2$</li>
+                <li style="margin-bottom: 16px;">New Price: $\frac{2020.2}{990} \approx 2.04$</li>
+                <li style="margin-bottom: 16px;">Price Impact: $\left(\frac{2.04 - 2}{2}\right) \times 100\% \approx 2\%$</li>
+              </ul>
+              <div style="margin-top: auto; background: rgba(34, 197, 94, 0.05); border: 1px solid #22c55e; padding: 20px; border-radius: 8px; font-size: 14.5px; color: #86efac; line-height: 1.6;">
+                Higher TVL pools (deeper liquidity) have lower price impact because they can absorb larger trades with smaller changes in price
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+              <h4 style="color: var(--white); margin-bottom: 20px; font-size: 18px; font-weight: 700;">Pool 2 (Low TVL):</h4>
+              <ul style="margin-left: 20px; margin-bottom: 30px; color: var(--text);">
+                <li style="margin-bottom: 16px;">Initial Reserves: $\text{Reserve}_A = 100, \text{Reserve}_B = 200$</li>
+                <li style="margin-bottom: 16px;">New Reserves: $\text{Reserve}'_A = 90, \text{Reserve}'_B = \frac{100 \times 200}{90} \approx 222.22$</li>
+                <li style="margin-bottom: 16px;">Initial Price: $\frac{200}{100} = 2$</li>
+                <li style="margin-bottom: 16px;">New Price: $\frac{222.22}{90} \approx 2.47$</li>
+                <li style="margin-bottom: 16px;">Price Impact: $\left(\frac{2.47 - 2}{2}\right) \times 100\% \approx 23.5\%$</li>
+              </ul>
+              <div style="margin-top: auto; background: rgba(34, 197, 94, 0.05); border: 1px solid #22c55e; padding: 20px; border-radius: 8px; font-size: 14.5px; color: #86efac; line-height: 1.6;">
+                Lower TVL pools (shallower liquidity) experience higher price impact from the same trade size due to more significant changes in the reserves' ratios.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S44-46 -->
+        <div class="section" id="s44">
+          <div class="section-num">Section 44–46</div>
+          <h2>Adding Liquidity — Flow Chart</h2>
+          <p>
+            When a user calls
+            <code>addLiquidity(TokenA, TokenB, AmountA, AmountB)</code>, the
+            smart contract follows this decision tree:
+          </p>
+          <img src="./images/adding-liquidity-flow.png" alt="Flowchart" style="width: 60%;" style="margin: 20px 0;">
+          
+          <div class="example-box" style="margin: 40px 0; padding-top: 20px; border-top: 1px solid var(--border);">
+            <h3 style="color: var(--cyan); margin-bottom: 16px;">🧪 Example:</h3>
+            <p>You want to add liquidity to a new DEX for:</p>
+            <ul style="margin-left: 20px; margin-bottom: 24px;">
+              <li><strong>TokenA</strong> = USDC</li>
+              <li><strong>TokenB</strong> = ETH</li>
+              <li>You want to add: <strong>AmountA = 1000 USDC, AmountB = 1 ETH</strong></li>
+            </ul>
+
+            <h3 style="color: var(--green); margin-top: 40px; margin-bottom: 24px;">✅ Step-by-Step Breakdown (with Reference to Flowchart):</h3>
+
+            <div class="step-breakdown" style="display: flex; flex-direction: column; gap: 32px; padding-left: 10px;">
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 16px; font-size: 17px;">1. Start with Inputs:</h4>
+                <pre style="margin: 0;"><code>TokenA = USDC
+TokenB = ETH
+AmountA = 1000
+AmountB = 1</code></pre>
+              </div>
+
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">2. Find the Token Pair Address:</h4>
+                <ul style="margin-left: 20px;">
+                  <li style="margin-bottom: 8px;">The system checks if a pool (pair) for <code>USDC-ETH</code> already exists.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">3. Check: Does the Token Pair Exist?</h4>
+                <ul style="margin-left: 20px;">
+                  <li style="margin-bottom: 8px;">🔷 <strong>If it does not exist:</strong>
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                      <li style="margin-bottom: 6px;">Go to Token Factory.</li>
+                      <li style="margin-bottom: 6px;">Create Token Pair for Liquidity Pool → e.g., USDC-ETH pool is created.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">4. Check: Is the Liquidity Pool Empty?</h4>
+                <ul style="margin-left: 20px;">
+                  <li style="margin-bottom: 8px;"><strong>If Yes</strong> (means it's the first liquidity being added):
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                      <li style="margin-bottom: 6px;">✅ You are allowed to provide <strong>any ratio</strong> of USDC and ETH.</li>
+                      <li style="margin-bottom: 6px;">So, the DEX accepts 1000 USDC and 1 ETH without validation.</li>
+                      <li style="margin-bottom: 6px;">➡ Then go to <strong>Transfer the pair of tokens from user account to the token pair address</strong>.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">5. If the Liquidity Pool is NOT empty:</h4>
+                <ul style="margin-left: 20px;">
+                  <li style="margin-bottom: 8px;">This means there's already some liquidity in the pool.</li>
+                  <li style="margin-bottom: 8px;">Now the DEX must maintain the <strong>price ratio</strong> of USDC:ETH.
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                      <li style="margin-bottom: 6px;">Suppose current pool has:
+                        <ul style="margin-left: 24px; margin-top: 8px;">
+                          <li>10,000 USDC and 10 ETH → <strong>1 ETH = 1000 USDC</strong></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li style="margin-bottom: 8px;">So:
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                      <li style="margin-bottom: 6px;">The system calculates required ratio for adding more liquidity.
+                        <ul style="margin-left: 24px; margin-top: 8px;">
+                          <li>You provide: 1000 USDC and 1 ETH → ✅ <strong>That's the correct ratio.</strong></li>
+                        </ul>
+                      </li>
+                      <li style="margin-bottom: 6px;">If the ratio is wrong, e.g. 500 USDC and 1 ETH → ❌
+                        <ul style="margin-left: 24px; margin-top: 8px;">
+                          <li>👉 <strong>The system will revert the transaction.</strong></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">6. Tokens Transferred to Pool:</h4>
+                <ul style="margin-left: 20px;">
+                  <li style="margin-bottom: 8px;">✅ If the ratio is correct or it's the first liquidity:
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                      <li>The tokens are transferred from your wallet to the <strong>pool address</strong>.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style="color: var(--white); margin-bottom: 12px; font-size: 17px;">7. LP Token Calculation and Minting:</h4>
+                <ul style="margin-left: 20px;">
+                  <li style="margin-bottom: 8px;">System calculates your share in the pool and gives you <strong>LP tokens</strong> (Liquidity Provider tokens).
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                      <li style="margin-bottom: 6px;">These represent your <strong>ownership share</strong> in the pool.</li>
+                      <li style="margin-bottom: 6px;">E.g., if you contributed 10% of the total pool, you get 10% of LP tokens.</li>
+                    </ul>
+                  </li>
+                  <li style="margin-bottom: 8px;">LP tokens are <strong>minted and sent to your wallet</strong>.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout-warn callout">
+            Why revert on wrong ratio? Because accepting wrong-ratio liquidity
+            would effectively change the pool's price — which would be unfair to
+            existing LPs and would create instant arbitrage opportunities.
+          </div>
+
+          <h2 style="text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 6px; color: var(--white); margin: 60px 0 24px; font-size: 32px; font-weight: 500;">Adding Liquidity</h2>
+
+          <div style="background: #8b0000; border: 1px solid #ffcccc; border-radius: 16px; padding: 22px 28px; margin-bottom: 24px;">
+            <p style="margin: 0; color: #ffffff; font-size: 17px; line-height: 1.6;">
+              Suppose the pool has 100 units of token A and 200 units of token B. And there is an LP(Liquid Provider) who want to add some liquidity in the liquidity pool. What is the thing the LP should keep in mind?
+            </p>
+          </div>
+
+          <div style="background: #38761d; border: 1px solid #d9ead3; border-radius: 16px; padding: 22px 28px; margin-bottom: 40px;">
+            <p style="margin: 0 0 20px; color: #ffffff; font-size: 17px; line-height: 1.6;">
+              Ration of Tokens = 100/200 = ½
+            </p>
+            <p style="margin: 0 0 20px; color: #ffffff; font-size: 17px; line-height: 1.6;">
+              In other words we can say for 1 token of A there are 2 tokens of B.
+            </p>
+            <p style="margin: 0 0 20px; color: #ffffff; font-size: 17px; line-height: 1.6;">
+              In short, this ratio is helpful to determine the price of a token.
+            </p>
+            <p style="margin: 0 0 20px; color: #ffffff; font-size: 17px; line-height: 1.6;">
+              Hence, it very important to maintain the ratio so that there is no price fluctuation.
+            </p>
+            <p style="margin: 0; color: #ffffff; font-size: 17px; line-height: 1.6;">
+              And for that reason the LP while adding tokens to the liquidity pool should maintain the ratio of tokens.
+            </p>
+          </div>
+        </div>
+
+        <!-- S47-48 -->
+        <div class="section" id="s47">
+          <div class="section-num">Section 47–48</div>
+          <h2>Adding Liquidity — The Ratio Rule</h2>
+          <blockquote>
+            It is very important to maintain the ratio so that there is no price
+            fluctuation. Think of it like a recipe: if a dish requires flour and
+            sugar in a 1:2 ratio, adding them in any other ratio ruins the
+            recipe. The pool's ratio IS the recipe for fair pricing.
+          </blockquote>
+          <h3>Ratio Formula</h3>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$\frac{x}{y} = \frac{dx}{dy}$$
+            </div>
+          </div>
+          <p>
+            The LP must ensure their deposit ratio <code>dx/dy</code> exactly
+            matches the current pool ratio <code>x/y</code>.
+          </p>
+
+          <div style="border: 1px solid var(--text3); padding: 24px 28px; margin: 32px 0 10px; background: transparent;">
+            <p style="margin: 0 0 20px; font-size: 17px; color: var(--text);">Given:</p>
+            <ul style="margin-left: 24px; color: var(--text);">
+              <li style="margin-bottom: 16px; font-size: 17px;">$x$ and $y$ are the initial amounts of token A and token B in the pool.</li>
+              <li style="font-size: 17px;">$dx$ and $dy$ are the amounts of token A and token B being added to the pool.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- S49-50 -->
+        <div class="section" id="s49">
+          <div class="section-num">Section 49–50</div>
+          <h2>Adding Liquidity — Quiz</h2>
+          <div class="quiz-box">
+            <div class="quiz-label">📝 Quiz Question</div>
+            <p>
+              <strong
+                >Pool has 100 units of token A and 200 units of token B.</strong
+              >
+              An LP wants to add liquidity. What will be the correct amount of
+              tokens?
+            </p>
+            <div class="quiz-option">A) Token A = 4, Token B = 16</div>
+            <div class="quiz-option correct">
+              B) Token A = 5000, Token B = 10000 ✓
+            </div>
+            <div class="quiz-option">C) Token A = 250, Token B = 800</div>
+            <div class="quiz-option">D) Cannot Say</div>
+          </div>
+          <pre><code>Current pool ratio = 100/200 = 1/2
+
+A) 4/16    = 1/4  ✗  (wrong ratio)
+B) 5000/10000 = 1/2  ✓  (maintains 1:2 ratio!) ← CORRECT
+C) 250/800 = ~1/3.2 ✗  (wrong ratio)
+D) "Cannot Say" — incorrect, we CAN determine it ✗</code></pre>
+        </div>
+
+        <!-- S51 -->
+        <div class="section" id="s51">
+          <div class="section-num">Section 51</div>
+          <h2>Adding Liquidity — dx and dy Formula</h2>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$dx = x \cdot \frac{dy}{y} \qquad \text{and} \qquad dy = y \cdot
+              \frac{dx}{x}$$
+            </div>
+          </div>
+          <p><strong>How to use these:</strong></p>
+          <ul>
+            <li>
+              If you decide to add <code>dx</code> of Token A, use:
+              <code>dy = y × (dx / x)</code>
+            </li>
+            <li>
+              If you decide to add <code>dy</code> of Token B, use:
+              <code>dx = x × (dy / y)</code>
+            </li>
+          </ul>
+          <p>
+            <strong>Example:</strong> Pool has X=100, Y=200. You want to add
+            dx=50 of Token A.
+          </p>
+          <pre><code>dy = 200 × (50 / 100) = 200 × 0.5 = 100
+→ Add 50 of Token A and 100 of Token B.
+Ratio check: 50/100 = 1/2 ✓</code></pre>
+        </div>
+
+        <!-- S52 -->
+        <div class="section" id="s52">
+          <div class="section-num">Section 52</div>
+          <h2>Liquidity Mining &amp; Burning</h2>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="icon">💎</div>
+              <h4>Liquidity Mining</h4>
+              <p>
+                When providing liquidity, the liquidity pool takes tokens from
+                the LP's wallet and <strong>mints new LP tokens</strong> for the
+                liquidity provider. Just like gold miners extract gold from the
+                earth, liquidity miners "extract" LP tokens by depositing
+                assets.
+              </p>
+            </div>
+            <div class="info-card">
+              <div class="icon">🔥</div>
+              <h4>Liquidity Burning</h4>
+              <p>
+                When removing liquidity, the pool takes the LP tokens from the
+                LP's wallet and sends back the tokens from the reserve. The LP
+                tokens are <strong>burned</strong> (permanently destroyed). In
+                return, the LP gets back their proportional share of the pool's
+                underlying tokens.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S53-62 -->
+        <div class="section" id="s53">
+          <div class="section-num">Section 53–62</div>
+          <h2>Minting Shares — Full Derivation</h2>
+          <h3>Problem Setup</h3>
+          <p>Find <code>s</code> (shares to mint), given:</p>
+          <ul>
+            <li><code>L₀</code> — Initial liquidity of the pool</li>
+            <li><code>L₁</code> — New liquidity after adding</li>
+            <li><code>T</code> — Total shares before adding</li>
+            <li><code>s</code> — Shares to mint for new LP</li>
+          </ul>
+          <blockquote>
+            The proportion of the change in liquidity to the initial liquidity
+            should be equal to the proportion of the new shares to the initial
+            shares.
+          </blockquote>
+          <h3>Step 1 — Proportionality Condition</h3>
+          <div class="math-block">
+            $$\frac{\Delta L}{L_0} = \frac{s}{T} \implies s = T \times \frac{L_1
+            - L_0}{L_0}$$
+          </div>
+          <h3>Step 2 — Measuring Liquidity</h3>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$\text{Total Liquidity} = \sqrt{x \cdot y} = L$$
+            </div>
+          </div>
+          <p>
+            The geometric mean √(xy) is used because it's
+            <strong>scale-invariant</strong>, directly relates to
+            <code>x*y=K</code>, and prevents manipulation.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Formula</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>x · y</strong></td>
+                  <td>Product of reserves</td>
+                  <td>Fundamental AMM invariant — pricing and balance</td>
+                </tr>
+                <tr>
+                  <td><strong>√(x · y)</strong></td>
+                  <td>Geometric mean</td>
+                  <td>
+                    Practical measure of liquidity depth — for comparing pools
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Step 3 — Express L₀ and L₁</h3>
+          <div class="math-block">
+            $$L_0 = \sqrt{xy} \qquad L_1 = \sqrt{(x + dx)(y + dy)}$$
+          </div>
+          <p>
+            Since <code>dy = (y/x) × dx</code> (to maintain the ratio),
+            substituting into L₁:
+          </p>
+          <div class="math-block">
+            $$L_1 = \sqrt{(x + dx)\left(\frac{y(x + dx)}{x}\right)} = (x +
+            dx)\sqrt{\frac{y}{x}}$$
+          </div>
+          <h3>Step 4 — Compute L₁ − L₀ and Simplify</h3>
+          <div class="math-block">
+            $$L_1 - L_0 = \sqrt{xy\left(1 + \frac{dx}{x}\right)^2} - \sqrt{xy} =
+            \sqrt{xy} \cdot \frac{dx}{x}$$
+          </div>
+          <h3>Step 5 — Final Formula</h3>
+          <div class="formula-box">
+            <div class="math-block" style="margin: 0">
+              $$\boxed{s = T \times \frac{dx}{x}}$$
+            </div>
+          </div>
+          <p>
+            <strong>What this means:</strong> The number of new LP shares to
+            mint = Total existing shares × (tokens you're adding ÷ existing
+            reserve of that token)
+          </p>
+          <pre><code>Example:
+Pool has x = 1,000 Token A, y = 2,000 Token B
+Total existing LP shares T = 500
+You add dx = 100 Token A (and dy = 200 Token B to maintain ratio)
+
+s = 500 × (100 / 1,000) = 500 × 0.1 = 50 new LP shares
+
+You contributed 10% more Token A, so you get 10% of existing supply.</code></pre>
+        </div>
+
+        <!-- S63-65 -->
+        <div class="section" id="s63">
+          <div class="section-num">Section 63–65</div>
+          <h2>LP Tokens</h2>
+          <blockquote>
+            <strong
+              >LP Token = A special ERC-20 token that proves how much of the
+              pool you own.</strong
+            >
+          </blockquote>
+          <p>
+            When you add liquidity (e.g., 1 ETH + 1,000 USDC) to the pool, the
+            smart contract <strong>mints</strong> LP tokens and sends them to
+            your wallet. If you provided 10% of the pool's total value, you get
+            <strong>10% of the total LP tokens.</strong>
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pool Contents</th>
+                  <th>LP in Circulation</th>
+                  <th>You Deposit</th>
+                  <th>Your LP Share</th>
+                  <th>LP Tokens You Get</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>10 ETH + 10,000 USDC</td>
+                  <td>1,000 LP Tokens</td>
+                  <td>1 ETH + 1,000 USDC</td>
+                  <td>10%</td>
+                  <td><strong>100 LP Tokens</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>LP Share</h3>
+          <div class="math-block">
+            $$\text{LP Share} = \frac{\text{Your LP Tokens}}{\text{Total LP
+            Tokens}}$$
+          </div>
+          <h3>What Can You Do With LP Tokens?</h3>
+          <div class="table-wrap">
+            <table class="master-table">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Hold LP Tokens</strong></td>
+                  <td>Continue earning a share of trading fees</td>
+                </tr>
+                <tr>
+                  <td><strong>Stake LP Tokens</strong></td>
+                  <td>
+                    Earn extra rewards in yield farms (like CAKE, UNI, etc.)
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Transfer LP Tokens</strong></td>
+                  <td>Someone else now owns your share of the pool</td>
+                </tr>
+                <tr>
+                  <td><strong>Burn LP Tokens</strong></td>
+                  <td>
+                    Remove liquidity; get your tokens back based on your share
+                    of the pool
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>LP Tokens Summary</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Term</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Liquidity Pool</strong></td>
+                  <td>Pool of 2 tokens used for swapping on a DEX</td>
+                </tr>
+                <tr>
+                  <td><strong>Add Liquidity</strong></td>
+                  <td>Deposit both tokens in the correct ratio</td>
+                </tr>
+                <tr>
+                  <td><strong>LP Token</strong></td>
+                  <td>ERC-20 token proving your pool ownership</td>
+                </tr>
+                <tr>
+                  <td><strong>LP Share</strong></td>
+                  <td>Percentage of the pool you own (based on LP tokens)</td>
+                </tr>
+                <tr>
+                  <td><strong>Use of LP Token</strong></td>
+                  <td>Earn fees, withdraw tokens, stake, transfer, etc.</td>
+                </tr>
+                <tr>
+                  <td><strong>Burn LP Token</strong></td>
+                  <td>Remove liquidity and get your share of the pool back</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- S66-68 -->
+        <div class="section" id="s66">
+          <div class="section-num">Section 66–68</div>
+          <h2>Burning LP Tokens</h2>
+          <blockquote>
+            <strong
+              >Burning LP tokens = You return your LP tokens to the pool smart
+              contract and withdraw your share of the liquidity.</strong
+            >
+          </blockquote>
+          <p>When you burn LP tokens:</p>
+          <ol>
+            <li>
+              LP tokens are <strong>destroyed</strong> (removed from total
+              supply permanently)
+            </li>
+            <li>
+              The pool sends you back your
+              <strong>portion of the two tokens</strong> (e.g., ETH and USDC)
+            </li>
+            <li>
+              Your LP share is <strong>removed</strong> from the accounting
+            </li>
+          </ol>
+          <h3>Worked Example</h3>
+          <p>
+            <strong>Pool State:</strong> 100 ETH + 100,000 USDC, 1,000 total LP
+            tokens. You have 100 LP tokens (10% of pool).
+          </p>
+          <pre><code>1. Smart contract checks your LP share:
+   LP Share = 100 / 1,000 = 10%
+
+2. You receive:
+   10% of ETH:  100 ETH × 10% = 10 ETH
+   10% of USDC: 100,000 USDC × 10% = 10,000 USDC
+
+3. Your 100 LP tokens are burned (removed from total supply).
+
+4. Pool now contains:
+   90 ETH
+   90,000 USDC
+   900 LP tokens remaining</code></pre>
+          <blockquote>
+            Note: You receive your original tokens
+            <strong>plus any fees earned</strong> while you held the LP tokens.
+            The pool's fee accumulation makes the ratio slightly better for you
+            at withdrawal than at deposit — this is your LP yield.
+          </blockquote>
+          <h3>Burning LP Tokens — Key Points</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Action / Concept</th>
+                  <th>What Happens</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Burn LP Token</strong></td>
+                  <td>Withdraw your share of both tokens from the pool</td>
+                </tr>
+                <tr>
+                  <td><strong>Tokens Returned</strong></td>
+                  <td>Based on your LP share at time of burning</td>
+                </tr>
+                <tr>
+                  <td><strong>LP Token Burned</strong></td>
+                  <td>Permanently removed from circulation</td>
+                </tr>
+                <tr>
+                  <td><strong>Pool Size Decreases</strong></td>
+                  <td>Because you're taking tokens out</td>
+                </tr>
+                <tr>
+                  <td><strong>No Penalty</strong></td>
+                  <td>
+                    You get your share + fees earned while you held LP tokens
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MASTER FORMULAS -->
+        <div class="section" id="master">
+          <div class="section-num">📐 Master Reference</div>
+          <h2>Master Formula Reference</h2>
+          <div class="formula-ref">
+            <div class="formula-ref-header">
+              All Key Formulas — DeFi AMM Guide
+            </div>
+            <div
+              class="table-wrap"
+              style="margin: 0; border: none; border-radius: 0"
+            >
+              <table class="master-table">
+                <thead>
+                  <tr>
+                    <th>Formula</th>
+                    <th>What It's For</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>X × Y = K</code></td>
+                    <td>
+                      The constant product invariant — price discovery engine
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>Price(A) = Reserve_B / Reserve_A</code></td>
+                    <td>Token price in a CPMM pool</td>
+                  </tr>
+                  <tr>
+                    <td><code>dy = (Y × dx) / (X + dx)</code></td>
+                    <td>
+                      Amount of B received when selling dx of A (zero fee)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>dx = (X × dy) / (Y - dy)</code></td>
+                    <td>Amount of A needed to buy dy of B (zero fee)</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>dy = (dx × 0.997 × Y) / (X + dx × 0.997)</code>
+                    </td>
+                    <td>Swap formula with 0.3% fee</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code
+                        >Price Impact = ((P_new - P_init) / P_init) × 100%</code
+                      >
+                    </td>
+                    <td>How much a trade moves the price</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code
+                        >TVL = Reserve_A × Price_A + Reserve_B × Price_B</code
+                      >
+                    </td>
+                    <td>Total value in the pool</td>
+                  </tr>
+                  <tr>
+                    <td><code>L = √(x × y)</code></td>
+                    <td>Total liquidity of a pool</td>
+                  </tr>
+                  <tr>
+                    <td><code>dx/dy = x/y</code></td>
+                    <td>Ratio to maintain when adding liquidity</td>
+                  </tr>
+                  <tr>
+                    <td><code>dy = y × (dx/x)</code></td>
+                    <td>How much Token B to add given dx of Token A</td>
+                  </tr>
+                  <tr>
+                    <td><code>s = T × (dx / x)</code></td>
+                    <td>Number of LP shares to mint for a given deposit</td>
+                  </tr>
+                  <tr>
+                    <td><code>LP Share = Your LP / Total LP</code></td>
+                    <td>Your ownership percentage of the pool</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>Tokens received = Pool_reserve × LP_share</code>
+                    </td>
+                    <td>How many tokens you get when burning LP</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="footnote">
+          <p>
+            This guide covered every concept from the DeFi Fundamentals course
+            by <strong>Dhruv Patel</strong> — from the first principles of what
+            DeFi is, all the way through the complete mathematical derivation of
+            LP share minting. The math is real, the pools are live, and you now
+            understand exactly how it all works.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to top -->
+    <a href="#" id="back-top" title="Back to top">↑</a>
+
+    <script>
+      // Render KaTeX
+      document.addEventListener("DOMContentLoaded", function () {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+          ],
+          throwOnError: false,
+        });
+      });
+
+      // Progress bar
+      window.addEventListener("scroll", () => {
+        const scroll = window.scrollY;
+        const total = document.body.scrollHeight - window.innerHeight;
+        document.getElementById("progress").style.width =
+          (scroll / total) * 100 + "%";
+        const bt = document.getElementById("back-top");
+        bt.classList.toggle("visible", scroll > 400);
+      });
+
+      // Active TOC
+      const sections = document.querySelectorAll(".section[id]");
+      const links = document.querySelectorAll(".toc-item");
+
+      function updateActive() {
+        let current = "";
+        sections.forEach((s) => {
+          if (window.scrollY >= s.offsetTop - 120) current = s.id;
+        });
+        links.forEach((l) => {
+          l.classList.toggle(
+            "active",
+            l.getAttribute("href") === "#" + current,
+          );
+        });
+      }
+
+      window.addEventListener("scroll", updateActive);
+
+      // Mobile sidebar
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+      }
+
+      // Close sidebar on link click (mobile)
+      document.querySelectorAll(".toc-item").forEach((l) => {
+        l.addEventListener("click", () => {
+          document.getElementById("sidebar").classList.remove("open");
+        });
+      });
+    </script>
+  </body>
+</html>
