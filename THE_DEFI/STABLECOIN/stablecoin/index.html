@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The DeFi Odyssey — Stablecoin Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --surface: #111318;
+    --surface2: #1a1d26;
+    --surface3: #222638;
+    --gold: #f5c842;
+    --gold-dim: #c9a227;
+    --green: #3dffa0;
+    --red: #ff4f6a;
+    --blue: #5b9cf6;
+    --purple: #b57bff;
+    --orange: #ff8c42;
+    --text: #e8eaf0;
+    --text-dim: #8a90a8;
+    --text-muted: #545870;
+    --border: #2a2f45;
+    --border-bright: #3d4460;
+    --code-bg: #0d0f18;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 6rem 2rem;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,200,66,0.12) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%,-50%) scale(1.1); opacity: 1; }
+  }
+
+  .hero-orbit {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(245,200,66,0.08);
+  }
+  .hero-orbit:nth-child(2) { width: 500px; height: 500px; top:50%; left:50%; transform:translate(-50%,-50%); animation: spin 20s linear infinite; }
+  .hero-orbit:nth-child(3) { width: 750px; height: 750px; top:50%; left:50%; transform:translate(-50%,-50%); animation: spin 35s linear infinite reverse; }
+  .hero-orbit:nth-child(4) { width: 1000px; height: 1000px; top:50%; left:50%; transform:translate(-50%,-50%); animation: spin 50s linear infinite; }
+
+  @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid rgba(245,200,66,0.3);
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    margin-bottom: 2rem;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 .gold { color: var(--gold); }
+
+  .hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    max-width: 600px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 3rem;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    z-index: 1;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollLine 1.5s ease-in-out infinite;
+  }
+  @keyframes scrollLine { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,11,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 1rem 0.9rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  nav a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ─── LAYOUT ─── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  section {
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border-bright), transparent);
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  p { color: var(--text-dim); margin-bottom: 1.2rem; }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .callout::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    border-radius: 12px;
+  }
+  .callout-gold { background: rgba(245,200,66,0.06); border-color: var(--gold); }
+  .callout-green { background: rgba(61,255,160,0.06); border-color: var(--green); }
+  .callout-red { background: rgba(255,79,106,0.06); border-color: var(--red); }
+  .callout-blue { background: rgba(91,156,246,0.06); border-color: var(--blue); }
+  .callout-purple { background: rgba(181,123,255,0.06); border-color: var(--purple); }
+  .callout-orange { background: rgba(255,140,66,0.06); border-color: var(--orange); }
+
+  .callout-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+  .callout h4 { margin-bottom: 0.25rem; }
+  .callout p { margin-bottom: 0; }
+
+  /* ─── INSIGHT BOX ─── */
+  .insight {
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .insight-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+  .insight p { margin-bottom: 0; }
+
+  /* ─── STORY STAGES ─── */
+  .stages { display: flex; flex-direction: column; gap: 0; margin: 2rem 0; }
+
+  .stage {
+    display: flex;
+    gap: 1.5rem;
+    position: relative;
+    padding-bottom: 2.5rem;
+  }
+  .stage:last-child { padding-bottom: 0; }
+
+  .stage-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .stage-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .stage-line {
+    width: 1px;
+    flex: 1;
+    margin-top: 0.5rem;
+    min-height: 30px;
+  }
+  .stage:last-child .stage-line { display: none; }
+
+  .stage-num.gold { background: rgba(245,200,66,0.15); color: var(--gold); border: 1px solid rgba(245,200,66,0.4); }
+  .stage-num.green { background: rgba(61,255,160,0.1); color: var(--green); border: 1px solid rgba(61,255,160,0.3); }
+  .stage-num.red { background: rgba(255,79,106,0.1); color: var(--red); border: 1px solid rgba(255,79,106,0.3); }
+  .stage-num.blue { background: rgba(91,156,246,0.1); color: var(--blue); border: 1px solid rgba(91,156,246,0.3); }
+  .stage-num.purple { background: rgba(181,123,255,0.1); color: var(--purple); border: 1px solid rgba(181,123,255,0.3); }
+
+  .stage-line.gold { background: linear-gradient(to bottom, rgba(245,200,66,0.3), transparent); }
+  .stage-line.green { background: linear-gradient(to bottom, rgba(61,255,160,0.3), transparent); }
+  .stage-line.red { background: linear-gradient(to bottom, rgba(255,79,106,0.3), transparent); }
+  .stage-line.blue { background: linear-gradient(to bottom, rgba(91,156,246,0.3), transparent); }
+  .stage-line.purple { background: linear-gradient(to bottom, rgba(181,123,255,0.3), transparent); }
+
+  .stage-body { flex: 1; padding-top: 0.6rem; }
+
+  /* ─── MATH BOX ─── */
+  .math-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    color: var(--text);
+  }
+  .math-box .comment { color: var(--text-muted); }
+  .math-box .highlight { color: var(--gold); font-weight: 600; }
+  .math-box .safe { color: var(--green); }
+  .math-box .danger { color: var(--red); }
+
+  /* ─── COMPARISON TABLE ─── */
+  .table-wrap { overflow-x: auto; margin: 2rem 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--text);
+    font-weight: 600;
+    padding: 0.85rem 1.1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border-bright);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  td {
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-green { background: rgba(61,255,160,0.15); color: var(--green); }
+  .badge-red { background: rgba(255,79,106,0.15); color: var(--red); }
+  .badge-yellow { background: rgba(245,200,66,0.15); color: var(--gold); }
+
+  /* ─── GRID CARDS ─── */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin: 2rem 0; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin: 2rem 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+  .card-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .card p { font-size: 0.9rem; margin-bottom: 0; }
+
+  /* ─── ANALOGY CARDS ─── */
+  .analogy {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin: 1.25rem 0;
+    border: 1px solid var(--border);
+  }
+  .analogy-icon { font-size: 2.5rem; flex-shrink: 0; }
+  .analogy-body h4 { color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; margin-bottom: 0.25rem; }
+  .analogy-body p { font-size: 0.88rem; margin: 0; }
+
+  /* ─── Q&A BOX ─── */
+  .qa {
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+  }
+  .qa-question {
+    background: var(--surface2);
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+  }
+  .qa-q-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(245,200,66,0.15);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .qa-q-text { color: var(--text); font-size: 0.95rem; font-style: italic; }
+  .qa-answer { padding: 1.5rem; }
+  .qa-answer p { margin-bottom: 0.8rem; }
+  .qa-answer p:last-child { margin-bottom: 0; }
+
+  /* ─── CODE SECTION ─── */
+  .code-section { background: var(--code-bg); border-radius: 16px; overflow: hidden; margin: 2rem 0; border: 1px solid var(--border); }
+  .code-header {
+    background: var(--surface2);
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #28ca41; }
+  .code-filename { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim); margin-left: 0.5rem; }
+  .code-block {
+    padding: 1.5rem 1.75rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    color: #abb2bf;
+    white-space: pre;
+  }
+
+  /* Syntax highlighting */
+  .kw { color: #c678dd; }
+  .fn { color: #61afef; }
+  .str { color: #98c379; }
+  .num { color: #d19a66; }
+  .cm { color: #5c6370; font-style: italic; }
+  .ty { color: #e5c07b; }
+  .var { color: #e06c75; }
+  .op { color: #56b6c2; }
+
+  /* ─── SCENARIOS ─── */
+  .scenario-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+  .scenario-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .scenario-body { padding: 1.5rem; }
+
+  /* ─── NUMBERS ─── */
+  .big-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  /* ─── FLOW DIAGRAM ─── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: var(--surface2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .flow-item {
+    background: var(--surface3);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .flow-arrow { color: var(--text-muted); font-size: 1.1rem; flex-shrink: 0; }
+
+  /* ─── PEG SCENARIOS ─── */
+  .peg-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .peg-card { border-radius: 12px; padding: 1.25rem; border: 1px solid; text-align: center; }
+  .peg-perfect { border-color: rgba(61,255,160,0.3); background: rgba(61,255,160,0.05); }
+  .peg-low { border-color: rgba(91,156,246,0.3); background: rgba(91,156,246,0.05); }
+  .peg-high { border-color: rgba(245,200,66,0.3); background: rgba(245,200,66,0.05); }
+  .peg-price { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; margin: 0.5rem 0; }
+
+  /* ─── METRIC CHIPS ─── */
+  .metrics { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0; }
+  .metric {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    min-width: 130px;
+  }
+  .metric-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; line-height: 1; }
+  .metric-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ─── HORIZONTAL RULE ─── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* ─── PILL TAGS ─── */
+  .pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.3em 0.75em;
+    border-radius: 2rem;
+    border: 1px solid var(--border-bright);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── COLLATERAL TABLE ─── */
+  .cr-table { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  .cr-safe { color: var(--green); }
+  .cr-warn { color: var(--orange); }
+  .cr-danger { color: var(--red); }
+
+  /* ─── PULSE DOT ─── */
+  .live-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 0.5rem;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    .stage { gap: 1rem; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .metrics { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ HERO ═══ -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-orbit"></div>
+  <div class="hero-orbit"></div>
+  <div class="hero-orbit"></div>
+
+  <span class="hero-tag">🌟 The DeFi Odyssey</span>
+  <h1>The Complete<br><span class="gold">Stablecoin</span><br>Deep Dive</h1>
+  <p class="hero-subtitle">From "what is a stablecoin" all the way to a production-grade Solidity smart contract — every concept explained with crystal-clear examples.</p>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    scroll to explore
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ NAV ═══ -->
+<nav>
+  <div class="nav-inner">
+    <a href="#what">What is it?</a>
+    <a href="#why">Why Exist?</a>
+    <a href="#peg">The Peg</a>
+    <a href="#types">Types</a>
+    <a href="#biggest">USDT</a>
+    <a href="#others">Others</a>
+    <a href="#collateral">Collateral</a>
+    <a href="#story">The Story</a>
+    <a href="#liquidation">Liquidation</a>
+    <a href="#qa">Q&A</a>
+    <a href="#code">The Code</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════ WHAT IS ═══ -->
+<section id="what">
+  <div class="container">
+    <div class="section-label">Chapter 01</div>
+    <h2>💰 What is a Stablecoin?</h2>
+    <p>A stablecoin is a cryptocurrency designed to <strong>stay stable in value</strong>, usually pegged to something like the US Dollar.</p>
+
+    <div class="grid-2">
+      <div class="callout callout-green">
+        <span class="callout-icon">✅</span>
+        <h4>1 USDT ≈ 1 USD</h4>
+        <p>Tether — the largest stablecoin by market cap, always tracks the US dollar.</p>
+      </div>
+      <div class="callout callout-blue">
+        <span class="callout-icon">✅</span>
+        <h4>1 USDC ≈ 1 USD</h4>
+        <p>USD Coin by Circle — fully backed by cash and US Treasury bonds.</p>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">🧠 Simple Definition</div>
+      <p><strong>Stablecoin = Digital money on the blockchain that doesn't fluctuate like normal crypto.</strong> It's the "calm" asset in a sea of volatility.</p>
+    </div>
+
+    <h3>🎯 Why Do Stablecoins Exist? (The Real Need)</h3>
+    <p>Let's understand the problem first.</p>
+
+    <div class="callout callout-red">
+      <span class="callout-icon">⚠️</span>
+      <h4>Problem: Crypto is wildly volatile</h4>
+      <p>You buy Bitcoin at $60,000. Next day → $55,000. Next week → $65,000.<br>
+      That's great for profit, but <strong>terrible for stability</strong> if you want to use money in everyday life.</p>
+    </div>
+
+    <div class="callout callout-gold">
+      <span class="callout-icon">💡</span>
+      <h4>Solution: Stablecoin</h4>
+      <p>Stablecoins give you a way to say: <em>"I want to stay inside crypto, but I don't want price risk right now."</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ WHY ═══ -->
+<section id="why">
+  <div class="container">
+    <div class="section-label">Chapter 02</div>
+    <h2>🎯 Real-Life Use Cases</h2>
+
+    <h3>🧾 Scenario: You're a Trader</h3>
+    <p>You have Bitcoin. The price is going up — so you sell. Now what?</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🏦</div>
+        <h3>Option A: Move to Bank</h3>
+        <p style="color:var(--red)">❌ Slow. Expensive fees. You completely exit the crypto ecosystem. Not ideal.</p>
+      </div>
+      <div class="card" style="border-color: var(--border-bright);">
+        <div class="card-icon">🪙</div>
+        <h3>Option B: Move to Stablecoin</h3>
+        <p style="color:var(--green)">✅ Instant. Stay in crypto. Zero volatility. You convert BTC → USDT and pause.</p>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">🧠 What just happened?</div>
+      <p>You basically said: <strong>"Pause. I'll re-enter the market later."</strong> That's the core use of stablecoins — a parking spot for value inside the crypto world.</p>
+    </div>
+
+    <h3>🏦 Another Real Example: Cross-Border Payments</h3>
+    <p>Imagine you're a freelancer in India and someone from the US wants to pay you.</p>
+    <div class="grid-2">
+      <div class="callout callout-red">
+        <h4>Send BTC</h4>
+        <p>Value may drop significantly before you even use it. Risky for both parties. ❌</p>
+      </div>
+      <div class="callout callout-green">
+        <h4>Send Stablecoin</h4>
+        <p>Stays ~$1,000. Arrives instantly. No exchange rate drama. No bank middleman. ✅</p>
+      </div>
+    </div>
+
+    <h3>🔄 Where Stablecoins Are Used in DeFi</h3>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">📈</div>
+        <h3>Trading</h3>
+        <p>Acts as the base currency on all exchanges — just like USD in the traditional stock market. Every pair has a stablecoin side.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏦</div>
+        <h3>Lending & Borrowing</h3>
+        <p>You lend USDC and earn interest. Or you borrow stablecoins against your crypto collateral — like a DeFi loan.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💧</div>
+        <h3>Liquidity Pools</h3>
+        <p>Provide USDT + ETH to a liquidity pool and earn transaction fees. Stablecoins make pools less risky.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Payments</h3>
+        <p>Fast, borderless, cheap transfers anywhere in the world. No SWIFT. No 3–5 business days. Instant.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-gold">
+      <span class="callout-icon">⚡</span>
+      <h4>Core Intuition (Very Important)</h4>
+      <p>The crypto world has no "real cash." <strong>Stablecoins become that cash layer.</strong> Without them, trading becomes chaotic, DeFi protocols become unstable, and payments become risky. They are the bridge between traditional finance (USD) and DeFi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ PEG ═══ -->
+<section id="peg">
+  <div class="container">
+    <div class="section-label">Chapter 03</div>
+    <h2>🔗 What Does "Pegged" Mean?</h2>
+    <p><strong>Pegged = Fixed to a reference value.</strong> A stablecoin is pegged to USD, meaning 1 coin ≈ 1 USD — always trying to stay equal.</p>
+
+    <div class="analogy">
+      <div class="analogy-icon">🎮</div>
+      <div class="analogy-body">
+        <h4>The Game Zone Analogy</h4>
+        <p>You go to a game zone and give ₹1000. You get 1000 game tokens. 1 token = ₹1 (fixed). No matter what happens — you can always exchange 1 token back for ₹1. That fixed relationship = the PEG.</p>
+      </div>
+    </div>
+
+    <h3>📊 How the Peg Plays Out in Practice</h3>
+
+    <div class="peg-row">
+      <div class="peg-card peg-perfect">
+        <div style="font-size:1.5rem">✅</div>
+        <h4 style="color:var(--green); margin:0.5rem 0;">Scenario 1: Perfect Peg</h4>
+        <div class="peg-price" style="color:var(--green)">$1.00</div>
+        <p style="font-size:0.85rem; margin:0.5rem 0 0; color:var(--text-dim)">Market price = $1. Everything balanced.</p>
+      </div>
+
+      <div class="peg-card peg-low">
+        <div style="font-size:1.5rem">📉</div>
+        <h4 style="color:var(--blue); margin:0.5rem 0;">Scenario 2: Peg Drops</h4>
+        <div class="peg-price" style="color:var(--blue)">$0.98</div>
+        <p style="font-size:0.85rem; margin:0.5rem 0 0; color:var(--text-dim)">Arbitrage traders buy at $0.98, redeem for $1. Demand rises → peg restored.</p>
+      </div>
+
+      <div class="peg-card peg-high">
+        <div style="font-size:1.5rem">📈</div>
+        <h4 style="color:var(--gold); margin:0.5rem 0;">Scenario 3: Peg Rises</h4>
+        <div class="peg-price" style="color:var(--gold)">$1.02</div>
+        <p style="font-size:0.85rem; margin:0.5rem 0 0; color:var(--text-dim)">Traders mint new coins for $1, sell at $1.02. Supply increases → peg restored.</p>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">🧠 Deep Intuition</div>
+      <p><strong>The peg is NOT magic.</strong> It works because of three things: <strong>Incentives</strong> (profit opportunities for arbitrageurs), <strong>Trust</strong> (people believe the backing exists), and <strong>Mechanisms</strong> (the ability to mint/redeem). Remove any one of these, and the peg starts to wobble.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ TYPES ═══ -->
+<section id="types">
+  <div class="container">
+    <div class="section-label">Chapter 04</div>
+    <h2>🧩 Types of Stablecoins</h2>
+    <p>How a stablecoin maintains its $1 peg is what truly differentiates it. There are several approaches — each with different trade-offs.</p>
+
+    <!-- Fiat Backed -->
+    <div class="scenario-box" style="margin-bottom:1.5rem;">
+      <div class="scenario-header" style="background:rgba(61,255,160,0.07); border-color:rgba(61,255,160,0.2);">
+        <span style="font-size:1.5rem">1️⃣</span>
+        <h3 style="font-size:1.1rem; margin:0; color:var(--green)">Fiat-Backed (Most Common) — Backed/Anchored</h3>
+        <span class="badge badge-green">🟢 Safer</span>
+      </div>
+      <div class="scenario-body">
+        <p><strong>Example: USDT, USDC</strong></p>
+        <p>For every 1 coin issued, $1 is stored in a bank (or equivalent assets like Treasury bonds). You give $1000 → you get 1000 USDC. Return 1000 USDC → you get $1000 back.</p>
+        <div class="analogy">
+          <div class="analogy-icon">🎫</div>
+          <div class="analogy-body">
+            <h4>Cloakroom Ticket Analogy</h4>
+            <p>You give your bag (real money) to the cloakroom. They give you a token. The token is proof of your real asset — always redeemable. <strong>USDT = that token.</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crypto Backed -->
+    <div class="scenario-box" style="margin-bottom:1.5rem;">
+      <div class="scenario-header" style="background:rgba(91,156,246,0.07); border-color:rgba(91,156,246,0.2);">
+        <span style="font-size:1.5rem">2️⃣</span>
+        <h3 style="font-size:1.1rem; margin:0; color:var(--blue)">Crypto-Backed (Over-Collateralized)</h3>
+        <span class="badge badge-yellow">🟡 Medium</span>
+      </div>
+      <div class="scenario-body">
+        <p><strong>Example: DAI (by MakerDAO)</strong></p>
+        <p>Instead of dollars, you lock crypto (like ETH). But because crypto is volatile, you must lock <em>more than</em> what you borrow.</p>
+        <div class="math-box">
+Lock $150 worth of ETH
+→ Get $100 DAI
+
+<span class="comment">// Over-collateralization protects against price swings</span>
+Ratio: 150% minimum collateral
+        </div>
+      </div>
+    </div>
+
+    <!-- Algorithmic -->
+    <div class="scenario-box" style="margin-bottom:1.5rem;">
+      <div class="scenario-header" style="background:rgba(255,79,106,0.07); border-color:rgba(255,79,106,0.2);">
+        <span style="font-size:1.5rem">3️⃣</span>
+        <h3 style="font-size:1.1rem; margin:0; color:var(--red)">Algorithmic (Risky)</h3>
+        <span class="badge badge-red">🔴 High Risk</span>
+      </div>
+      <div class="scenario-body">
+        <p><strong>Example: TerraUSD (now failed)</strong></p>
+        <p>No real backing — stability comes purely from code + supply control. If price > $1: increase supply. If price < $1: decrease supply.</p>
+        <div class="analogy">
+          <div class="analogy-icon">🌡️</div>
+          <div class="analogy-body">
+            <h4>The Thermostat Analogy</h4>
+            <p>Too hot → cool it down. Too cold → heat it up. No real backing — just a control system. <strong>Works only if people trust it. If trust breaks → 💥 collapse.</strong></p>
+          </div>
+        </div>
+        <div class="callout callout-red" style="margin-top:1rem">
+          <h4>⚠️ The TerraUSD Crash (2022)</h4>
+          <p>Lost its peg and collapsed to near $0. A stark reminder: <strong>stablecoin ≠ always safe.</strong> The peg depends on system strength, not just the name.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Governance -->
+    <div class="scenario-box" style="margin-bottom:1.5rem;">
+      <div class="scenario-header" style="background:rgba(181,123,255,0.07); border-color:rgba(181,123,255,0.2);">
+        <span style="font-size:1.5rem">4️⃣</span>
+        <h3 style="font-size:1.1rem; margin:0; color:var(--purple)">Governance-Based (DAO-Controlled)</h3>
+        <span class="badge badge-yellow">🟡 Medium</span>
+      </div>
+      <div class="scenario-body">
+        <p><strong>Example: DAI (MakerDAO)</strong></p>
+        <p>Controlled by a DAO (community voting) instead of a company. Users vote on interest rates, collateral rules, and risk parameters.</p>
+        <div class="analogy">
+          <div class="analogy-icon">🏢</div>
+          <div class="analogy-body">
+            <h4>Society Building Analogy</h4>
+            <p>No single owner. Residents (token holders) vote on all the rules. The system runs by community consensus — not a CEO.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>⚖️ Exogenous vs Endogenous Collateral</h3>
+    <p>This is one of the most important distinctions in DeFi safety:</p>
+
+    <div class="grid-2">
+      <div class="card" style="border-color:rgba(61,255,160,0.3);">
+        <div class="card-icon">🟢</div>
+        <h3 style="color:var(--green)">Exogenous Collateral</h3>
+        <p><strong>Backing comes from OUTSIDE the system.</strong> Example: DAI backed by ETH. Even if DAI has issues, ETH still has its own market value. The backup doesn't depend on the system itself.</p>
+        <div class="math-box" style="font-size:0.78rem; margin-top:1rem">
+Lock ETH (external) → Get DAI
+<span class="safe">ETH ≠ DAI → Safer ✅</span>
+        </div>
+        <p style="font-size:0.82rem; margin-top:0.75rem; color:var(--green)">🧠 "My backing doesn't depend on me."</p>
+      </div>
+      <div class="card" style="border-color:rgba(255,79,106,0.3);">
+        <div class="card-icon">🔴</div>
+        <h3 style="color:var(--red)">Endogenous Collateral</h3>
+        <p><strong>Backing comes from INSIDE the same system.</strong> Example: TerraUSD backed by LUNA. Both tokens are in the same ecosystem — if one falls, the other falls too.</p>
+        <div class="math-box" style="font-size:0.78rem; margin-top:1rem">
+LUNA (internal) backs UST
+<span class="danger">If UST falls → LUNA also falls 💥</span>
+        </div>
+        <p style="font-size:0.82rem; margin-top:0.75rem; color:var(--red)">🧠 "If I fall, my backup also falls."</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2.5rem">🧠 Quick Comparison Table</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Meaning</th>
+            <th>Real-Life Feel</th>
+            <th>How Peg Stays ~$1</th>
+            <th>Risk</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Backed/Anchored</td><td>Real assets backing it</td><td>🎫 Cloakroom token</td><td>$1 stored somewhere</td><td><span class="badge badge-green">Medium</span></td><td>USDT, USDC</td></tr>
+          <tr><td>Floating</td><td>Slightly flexible price</td><td>⛽ Petrol price</td><td>Market forces</td><td><span class="badge badge-yellow">Medium</span></td><td>Rare in strict coins</td></tr>
+          <tr><td>Algorithmic</td><td>No backing, only logic</td><td>🌡️ Thermostat</td><td>Supply increase/decrease</td><td><span class="badge badge-red">High</span></td><td>TerraUSD</td></tr>
+          <tr><td>Governance-based</td><td>Community-controlled</td><td>🏢 Society voting</td><td>DAO sets rules</td><td><span class="badge badge-yellow">Medium</span></td><td>DAI</td></tr>
+          <tr><td>Exogenous Collateral</td><td>Backed by external asset</td><td>🏠 Loan against gold</td><td>Independent asset (ETH, BTC)</td><td><span class="badge badge-green">Lower</span></td><td>DAI</td></tr>
+          <tr><td>Endogenous Collateral</td><td>Backed by its own system</td><td>🪙 Money backing itself</td><td>Internal token supports it</td><td><span class="badge badge-red">Very High</span></td><td>TerraUSD</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-gold" style="margin-top:2rem">
+      <h4>⚡ One-Line Understanding</h4>
+      <p>All stablecoins try to be $1 — but <strong>the way they maintain that $1 is what makes them different.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ BIGGEST ═══ -->
+<section id="biggest">
+  <div class="container">
+    <div class="section-label">Chapter 05</div>
+    <h2>🥇 The Biggest Stablecoins in the World</h2>
+
+    <!-- USDT -->
+    <div class="scenario-box" style="margin-bottom:2rem;">
+      <div class="scenario-header" style="background:rgba(245,200,66,0.07); border-color:var(--gold);">
+        <span style="font-size:2rem">🥇</span>
+        <h3 style="margin:0; color:var(--gold);">USDT (Tether) — The King</h3>
+      </div>
+      <div class="scenario-body">
+        <div class="metrics">
+          <div class="metric"><div class="metric-val" style="color:var(--gold)">$180B+</div><div class="metric-label">Market Cap</div></div>
+          <div class="metric"><div class="metric-val" style="color:var(--gold)">~58%</div><div class="metric-label">Market Share</div></div>
+          <div class="metric"><div class="metric-val" style="color:var(--gold)">2014</div><div class="metric-label">Year Founded</div></div>
+          <div class="metric"><div class="metric-val" style="color:var(--gold)">$320B</div><div class="metric-label">Total Stablecoin Market</div></div>
+        </div>
+        <p>More than half of the entire stablecoin world = USDT.</p>
+        <h4>🔁 Real Use Case: Crypto Trading</h4>
+        <p>You sell Bitcoin on Binance. Instead of moving money to your bank (slow, fees, exits crypto ecosystem), you convert BTC → USDT. Your value becomes stable and you're ready for the next trade anytime.</p>
+        <div class="flow">
+          <div class="flow-item">BTC/USDT</div>
+          <div class="flow-arrow">·</div>
+          <div class="flow-item">ETH/USDT</div>
+          <div class="flow-arrow">·</div>
+          <div class="flow-item">SOL/USDT</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item" style="border-color:var(--gold); color:var(--gold);">USDT = Default Money in Crypto</div>
+        </div>
+        <h4>🌍 Cross-Border Payments</h4>
+        <p>Traditional bank transfer from India → Dubai → USA: Slow. Expensive. Using USDT: Fast. Cheap. People directly send USDT globally as money.</p>
+        <h4>🏦 Behind the Scenes (How the Peg Works)</h4>
+        <p>Tether Limited maintains reserves: US Treasury bonds, cash equivalents. They promise: "Give me $1 → I give you 1 USDT" and "Return 1 USDT → I give you $1." This redemption mechanism is what holds the peg.</p>
+        <h4>⚡ Why USDT Became the Biggest</h4>
+        <div class="pills">
+          <span class="pill">First-mover since 2014</span>
+          <span class="pill">Available on every exchange</span>
+          <span class="pill">Highest liquidity</span>
+          <span class="pill">Fast & globally accessible</span>
+        </div>
+        <div class="insight" style="margin-top:1rem">
+          <div class="insight-title">🔥 Final Feel</div>
+          <p><strong>In the real world: USD = base money. In the crypto world: USDT = base money layer.</strong> When you see USDT, think: "This is the digital dollar that everyone in crypto uses to store value and move money."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ OTHERS ═══ -->
+<section id="others">
+  <div class="container">
+    <div class="section-label">Chapter 06</div>
+    <h2>🥈🥉 Other Major Stablecoins</h2>
+
+    <div class="grid-2">
+      <!-- USDC -->
+      <div class="scenario-box">
+        <div class="scenario-header" style="background:rgba(91,156,246,0.07); border-color:rgba(91,156,246,0.3);">
+          <span style="font-size:1.5rem">🥈</span>
+          <h3 style="margin:0; color:var(--blue); font-size:1.1rem;">USDC (USD Coin)</h3>
+        </div>
+        <div class="scenario-body">
+          <div class="metrics" style="justify-content:flex-start;">
+            <div class="metric"><div class="metric-val" style="color:var(--blue); font-size:1.4rem;">$30–40B</div><div class="metric-label">Market Cap</div></div>
+          </div>
+          <p style="font-size:0.9rem;"><strong>Issued by Circle.</strong> Fully backed by cash and US Treasury bonds. The "clean, regulated, safer version of USDT."</p>
+          <p style="font-size:0.9rem;">Preferred by institutions and DeFi protocols. More transparent about its reserves.</p>
+          <p style="font-size:0.88rem; color:var(--blue)"><strong>Choose USDC when you want:</strong> More trust, more regulation, less risk.</p>
+        </div>
+      </div>
+
+      <!-- DAI -->
+      <div class="scenario-box">
+        <div class="scenario-header" style="background:rgba(245,200,66,0.07); border-color:rgba(245,200,66,0.3);">
+          <span style="font-size:1.5rem">🥉</span>
+          <h3 style="margin:0; color:var(--gold); font-size:1.1rem;">DAI (MakerDAO)</h3>
+        </div>
+        <div class="scenario-body">
+          <div class="metrics" style="justify-content:flex-start;">
+            <div class="metric"><div class="metric-val" style="color:var(--gold); font-size:1.4rem;">$5–10B</div><div class="metric-label">Market Cap</div></div>
+          </div>
+          <p style="font-size:0.9rem;"><strong>Decentralized — no company controls it.</strong> Backed by crypto (ETH). Lock $150 ETH → get $100 DAI. Over-collateralization keeps it stable.</p>
+          <p style="font-size:0.9rem;">Used by hardcore DeFi users who don't trust centralized companies.</p>
+          <p style="font-size:0.88rem; color:var(--gold)"><strong>Choose DAI when you want:</strong> Decentralization, no central authority.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TerraUSD -->
+    <div class="scenario-box" style="margin-top:1.5rem;">
+      <div class="scenario-header" style="background:rgba(255,79,106,0.07); border-color:rgba(255,79,106,0.3);">
+        <span style="font-size:1.5rem">⚠️</span>
+        <h3 style="margin:0; color:var(--red); font-size:1.1rem;">TerraUSD (Failed Example — Learn From It)</h3>
+      </div>
+      <div class="scenario-body">
+        <p>Algorithm-based — no real backing. Used a mint/burn mechanism with its sister token LUNA.</p>
+        <div class="callout callout-red">
+          <h4>💥 What Happened in 2022</h4>
+          <p>Lost its peg. Collapsed to near $0. Both LUNA and UST went to essentially zero in a matter of days, wiping out billions in value. <strong>Lesson: Stablecoin ≠ always safe. The peg depends entirely on system strength.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-gold" style="margin-top:2rem">
+      <h4>🔥 Final Comparison Intuition</h4>
+      <p><strong>USDT</strong> → Most used, liquidity king. <strong>USDC</strong> → Safer, cleaner, institutional. <strong>DAI</strong> → Decentralized, DeFi-native.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ COLLATERAL ═══ -->
+<section id="collateral">
+  <div class="container">
+    <div class="section-label">Chapter 07</div>
+    <h2>🔒 Understanding Collateral & Ratios</h2>
+
+    <div class="insight">
+      <div class="insight-title">🔒 What is Collateral? (Quick Feel)</div>
+      <p><strong>Collateral = a backup asset you lock to create/borrow a stablecoin.</strong> Like: you give something valuable → you get money in return. You hold on to your loan as long as the backup is good enough.</p>
+    </div>
+
+    <div class="callout callout-red">
+      <h4>❗ Common Misconception</h4>
+      <p>"System jitna dega usse jyada user dega… like 50% more always?"<br><br>
+      Partly correct, but <strong>NOT always fixed at 50%.</strong> The system doesn't demand a fixed extra amount — it demands a <em>minimum safety ratio</em>, which varies by protocol.</p>
+    </div>
+
+    <h3>🧠 The Real Concept: Collateral Ratio (CR)</h3>
+    <p>Different protocols set different minimum ratios:</p>
+
+    <div class="table-wrap">
+      <table class="cr-table">
+        <thead>
+          <tr><th>Collateral</th><th>Loan</th><th>Ratio</th><th>Safety</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>$150</td><td>$100</td><td>150%</td>
+            <td><span class="badge badge-yellow">Minimum Safe</span></td>
+          </tr>
+          <tr>
+            <td>$200</td><td>$100</td><td>200%</td>
+            <td><span class="badge badge-green">Safer</span></td>
+          </tr>
+          <tr>
+            <td>$120</td><td>$100</td><td>120%</td>
+            <td><span class="badge badge-red">Dangerous!</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-blue" style="margin-top:1.5rem">
+      <h4>⚡ One-Line Correction</h4>
+      <p>❌ "Always 50% extra"<br>
+      ✅ "Always <strong>above a minimum required ratio.</strong>"<br><br>
+      The system says: "I don't want a fixed amount — I want safety. Give me enough buffer so I'm not exposed."</p>
+    </div>
+
+    <h4 style="margin-top:2rem; color:var(--text)">Why Is More Collateral Better?</h4>
+    <p>Because prices can fall. Example: $150 collateral drops to $120 → still safe at 120% ratio. $200 collateral drops to $120 → even safer. The extra buffer = breathing room for price crashes.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ STORY ═══ -->
+<section id="story">
+  <div class="container">
+    <div class="section-label">Chapter 08 — The Full Story</div>
+    <h2>🌟 The DeFi Odyssey: Alice & Bob</h2>
+    <p>Let's walk through the entire lifecycle of a crypto-backed stablecoin system. Think of it as a <strong>Digital Pawn Shop</strong> — you put up gold (ETH), take a loan (SSC), and if things go bad, a bounty hunter (Bob) cleans it up.</p>
+
+    <div class="callout callout-gold" style="margin-bottom:2.5rem">
+      <h4>📜 The Full Scenario at a Glance</h4>
+      <div class="math-box">
+Alice's Starting State:
+  ETH held: <span class="highlight">2 ETH</span>
+  ETH Price: <span class="highlight">$2,500</span>
+  Collateral Value: <span class="highlight">$5,000</span>
+  Loan (SSC minted): <span class="highlight">$2,000</span>
+  Health Factor: (5000 × 0.5) / 2000 = <span class="safe">1.25 ✅ SAFE</span>
+
+After Market Crash (ETH → $1,800):
+  Collateral Value: 2 × 1800 = <span class="highlight">$3,600</span>
+  Health Factor: (3600 × 0.5) / 2000 = <span class="danger">0.9 🚨 DANGER</span>
+      </div>
+    </div>
+
+    <div class="stages">
+
+      <!-- Stage 1 -->
+      <div class="stage">
+        <div class="stage-connector">
+          <div class="stage-num gold">1</div>
+          <div class="stage-line gold"></div>
+        </div>
+        <div class="stage-body">
+          <h3>⚔️ The Rules — How This Bank Works</h3>
+          <p>This system has two strict rules to keep everything safe:</p>
+          <div class="grid-2">
+            <div class="callout callout-gold">
+              <h4>The Gold Standard</h4>
+              <p>You can only borrow money if you deposit <strong>$2 worth of Gold (ETH) for every $1 you borrow.</strong> This is the 50% Liquidation Threshold — meaning your collateral must always be ≥2× your debt.</p>
+            </div>
+            <div class="callout callout-red">
+              <h4>The Penalty</h4>
+              <p>If your Gold's value drops and fails the 2:1 ratio, any "Hunter" can step in, pay your debt, and take your Gold at a discount (with a 10% bonus for their trouble).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 2 -->
+      <div class="stage">
+        <div class="stage-connector">
+          <div class="stage-num green">2</div>
+          <div class="stage-line green"></div>
+        </div>
+        <div class="stage-body">
+          <h3>☀️ Alice Enters — The Golden Days</h3>
+          <p>Alice has 2 ETH. ETH Price is $2,500/ETH. Total Wealth: <strong>$5,000</strong>.</p>
+          <p>Alice mints (borrows) <strong>$2,000 SSC</strong>.</p>
+          <div class="math-box">
+<span class="comment">// Health Factor Calculation</span>
+Collateral Value  = 2 ETH × $2,500 = <span class="highlight">$5,000</span>
+Adjusted Collateral = $5,000 × 50% = <span class="highlight">$2,500</span>
+Health Factor = $2,500 / $2,000 = <span class="safe">1.25 ✅</span>
+
+<span class="comment">// The Bank says: "You could borrow up to $2,500. You only took $2,000. SAFE!"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 3 -->
+      <div class="stage">
+        <div class="stage-connector">
+          <div class="stage-num red">3</div>
+          <div class="stage-line red"></div>
+        </div>
+        <div class="stage-body">
+          <h3>📉 The Storm — Market Crash</h3>
+          <p>Suddenly, ETH crashes from <strong>$2,500 → $1,800</strong>.</p>
+          <div class="math-box">
+New ETH Price = <span class="danger">$1,800</span>
+Alice's Gold Value = 2 ETH × $1,800 = <span class="highlight">$3,600</span>
+Adjusted Collateral = $3,600 × 50% = $1,800
+Health Factor = $1,800 / $2,000 = <span class="danger">0.9 🚨 DANGER!</span>
+
+<span class="comment">// "Alice, your debt should not exceed $1,800, but you owe $2,000!"</span>
+<span class="comment">// Health Factor below 1.0 → Account is now open for LIQUIDATION</span>
+          </div>
+          <div class="callout callout-red">
+            <p>Alice's account is now <strong>under-collateralized</strong>. Any bounty hunter in the world can now liquidate her position and earn a profit.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 4 -->
+      <div class="stage">
+        <div class="stage-connector">
+          <div class="stage-num blue">4</div>
+          <div class="stage-line blue"></div>
+        </div>
+        <div class="stage-body">
+          <h3>🐺 Bob the Hunter — The Liquidation</h3>
+          <p>Enter Bob. He doesn't care about Alice. He only cares about profit. He sees Alice owes $2,000 but has $3,600 worth of ETH sitting there.</p>
+          <div class="math-box">
+Bob's Move:
+  Pay the system: <span class="highlight">$1,000 SSC</span> (clears half Alice's debt)
+
+Bob's Reward:
+  ETH worth $1,000 <span class="op">+</span> 10% bonus ($100) = <span class="safe">$1,100 worth of ETH</span>
+
+How much ETH?
+  $1,000 / $1,800 (ETH price) = 0.555 ETH
+  + 10% bonus = 0.055 ETH
+  Total ETH to Bob = <span class="safe">0.611 ETH</span> ✅
+
+Bob's Profit:
+  Spent $1,000 → Received $1,100 worth of ETH
+  <span class="safe">Net Profit: +$100 in a single transaction 🎉</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 5 -->
+      <div class="stage">
+        <div class="stage-connector">
+          <div class="stage-num green">5</div>
+          <!-- no line for last -->
+        </div>
+        <div class="stage-body">
+          <h3>🕊️ Recovery — The New Normal</h3>
+          <div class="math-box">
+Alice's Account After Liquidation:
+  Remaining Debt = $2,000 - $1,000 = <span class="highlight">$1,000</span>
+  Remaining ETH  = $3,600 - $1,100 = <span class="highlight">$2,500</span> (in ETH terms ≈ 1.389 ETH)
+
+New Health Factor:
+  Adjusted Collateral = $2,500 × 50% = $1,250
+  Health Factor = $1,250 / $1,000 = <span class="safe">1.25 ✅ SAFE AGAIN!</span>
+          </div>
+          <div class="grid-2">
+            <div class="callout callout-blue">
+              <h4>Why is Alice okay?</h4>
+              <p>Her account wasn't wiped out. She lost a ~$100 "fine" (Bob's bonus), but her remaining $2,500 in ETH is now safely collateralizing her $1,000 debt.</p>
+            </div>
+            <div class="callout callout-green">
+              <h4>Why is the System happy?</h4>
+              <p>Alice's "bad debt" was removed. The stablecoin (SSC) stayed fully backed by enough collateral. No insolvency. No peg break.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ LIQUIDATION DEEP ═══ -->
+<section id="liquidation">
+  <div class="container">
+    <div class="section-label">Chapter 09 — Deep Dive</div>
+    <h2>💥 The Full Liquidation Explained</h2>
+    <p>Let's go through an even more fundamental example to internalize how the system works — with User1 and User2.</p>
+
+    <div class="stages">
+      <div class="stage">
+        <div class="stage-connector"><div class="stage-num gold">1</div><div class="stage-line gold"></div></div>
+        <div class="stage-body">
+          <h3>Starting Point</h3>
+          <p>User1 (you) has: <strong>1 ETH = $200</strong>. Net worth = $200.</p>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-connector"><div class="stage-num gold">2</div><div class="stage-line gold"></div></div>
+        <div class="stage-body">
+          <h3>Deposit (Collateral)</h3>
+          <p>You deposit your 1 ETH into the system. System records: holds 1 ETH, you hold 0 ETH.</p>
+          <div class="math-box">
+You give:   1 ETH → System
+You get:    $100 stablecoin (loan)
+Ratio:      $200 / $100 = 200% <span class="safe">✅ Safe</span>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-connector"><div class="stage-num red">3</div><div class="stage-line red"></div></div>
+        <div class="stage-body">
+          <h3>Market Crash 📉</h3>
+          <p>ETH price falls: <strong>$200 → $150 → $120 → $90</strong></p>
+          <div class="math-box">
+System sees right NOW:
+  Collateral value: <span class="danger">$90</span> (1 ETH at $90)
+  Loan outstanding:  <span class="highlight">$100</span>
+  
+<span class="danger">⚠️ Collateral < Loan → INSOLVENT RISK!</span>
+
+<span class="comment">// The system FORGETS your original $200 deposit.
+// It only cares about current reality: $90 vs $100.</span>
+          </div>
+          <div class="callout callout-red">
+            <h4>🧠 Most Important Point</h4>
+            <p>The system is not being unfair. It <strong>cannot</strong> think about what you deposited before. It only sees what's there right now. If it waits: $90 → $70 → $50 → total loss. Fast action = survival.</p>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-connector"><div class="stage-num blue">4</div><div class="stage-line blue"></div></div>
+        <div class="stage-body">
+          <h3>Liquidation Trigger & User2 Enters</h3>
+          <p>System announces: "I'll reward whoever clears this loan."</p>
+          <div class="math-box">
+User2 Action:
+  Pays system: <span class="highlight">$100 stablecoin</span>
+  Receives:    ETH worth ~<span class="safe">$110</span> (ETH + 10% bonus)
+
+User2 Profit: <span class="safe">+$10</span> for helping the system
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-connector"><div class="stage-num green">5</div></div>
+        <div class="stage-body">
+          <h3>Final Result</h3>
+          <div class="grid-2">
+            <div class="callout callout-orange">
+              <h4>User1 (You)</h4>
+              <p>ETH = 0 (taken by liquidation)<br>Stablecoin = $100 (still in wallet)<br><strong>Net worth = $100. Loss = $100 (from the market crash, not the system).</strong></p>
+            </div>
+            <div class="callout callout-green">
+              <h4>User2 (Bob)</h4>
+              <p>Paid = $100<br>Received = $110 ETH<br><strong>Profit = $10 for helping the system.</strong></p>
+            </div>
+          </div>
+          <div class="callout callout-blue" style="margin-top:1rem">
+            <h4>System</h4>
+            <p>ETH = 0. Stablecoin = 0. <strong>Perfectly balanced. Safe. ✅</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">🔥 The Brutal Truth</div>
+      <p><strong>You borrowed safety using a risky asset — when it failed, you paid the price.</strong><br><br>
+      The system is not unfair. It is <em>strict by design</em>. That strictness is exactly why the stablecoin stays stable. The system's job is to protect $1 = $1 for the stablecoin — not to protect the borrower.<br><br>
+      That extra buffer you deposited was not yours to keep safely. It was <strong>insurance for the system.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ Q&A ═══ -->
+<section id="qa">
+  <div class="container">
+    <div class="section-label">Chapter 10 — Questions Answered</div>
+    <h2>🤔 Real Questions, Real Answers</h2>
+
+    <div class="qa">
+      <div class="qa-question">
+        <div class="qa-q-icon">Q</div>
+        <div class="qa-q-text">Yaha pe to dekho system ko to loss ho hi nahi raha hai — suppose ETH = $1,800 to 2 ETH girvi the to $3,600 worth hai abhi system ke pass and usne user ko diya hai $2,000. Agar user bhag bhi gaya to system ko to koi loss hai hi nahi?</div>
+      </div>
+      <div class="qa-answer">
+        <p><strong>You are absolutely right!</strong> As long as the ETH price stays above $1,000, the system is technically safe because Alice's 2 ETH are still worth more than her $2,000 debt.</p>
+        <p>However, the reason we need liquidation and users like Bob is to ensure the system <em>never even gets close</em> to that "Insolvency Line." Think of it like this:</p>
+        <p><strong>1. The Safety Cushion:</strong> The system only gave Alice $2,000 when she deposited $5,000. This $3,000 gap is a cushion. Crypto prices are extremely volatile — the cushion gives the system "room to breathe" if the market drops overnight.</p>
+        <p><strong>2. The Real Threat — The Flash Crash:</strong> Imagine ETH doesn't stop at $1,800. What if it crashes to $900 in a few minutes? Alice's 2 ETH = only $1,800. Alice's debt = $2,000. Now the system is at a loss. Alice "runs away" with $2,000 in her pocket while the system only has $1,800. The stablecoin loses its peg → system goes insolvent (bankrupt).</p>
+        <p><strong>3. Bob's Role — The Preventive Strike:</strong> Bob's job is to ensure we never hit the "Death Line." As soon as the price hits $1,800 (danger zone), Bob starts liquidating. The 10% bonus is Bob's motivation to act fast. Without a bonus, Bob might wait too long — and by the time he acts, ETH might have already fallen below the debt amount.</p>
+        <p><strong>4. In DeFi, the user is already "gone":</strong> There is no KYC. Alice has the $2,000 SSC tokens and can spend them anywhere. The system doesn't care about Alice's identity — it only cares about her ETH collateral. The system relies entirely on Bob to pay back the debt (burning SSC) and clean up the collateral before its value crashes below the debt.</p>
+      </div>
+    </div>
+
+    <div class="qa" style="margin-top:1.5rem;">
+      <div class="qa-question">
+        <div class="qa-q-icon">Q</div>
+        <div class="qa-q-text">Why does the user lose SO much in liquidation? Feels harsh — pura ETH chala gaya?</div>
+      </div>
+      <div class="qa-answer">
+        <p><strong>I get why this feels harsh.</strong> Let's make the "why" super clear with plain logic.</p>
+        <p><strong>Core truth:</strong> The system is built to protect $1 = $1 for the stablecoin. It is NOT built to protect the borrower.</p>
+        <p>Think like the system: its only rule is "I gave out $100. I must be able to get back $100 right now." Not "User ne pehle $200 diya tha." Not "Let's be fair." Just: "Can I recover $100 today?"</p>
+        <p><strong>Three things hit together:</strong><br>
+        1️⃣ <em>Price crash already killed value</em> — ETH went $200 → $90. That $110 loss is market risk YOU took. Not the system's fault.<br>
+        2️⃣ <em>System must act fast</em> — Crypto falls fast. If it waits: $90 → $70 → $50. Every second of delay = more potential loss.<br>
+        3️⃣ <em>Liquidation bonus</em> — To attract a liquidator, the system offers extra incentive. That extra comes from your collateral.</p>
+        <div class="analogy">
+          <div class="analogy-icon">🏦</div>
+          <div class="analogy-body">
+            <h4>Real-World Bank Analogy</h4>
+            <p>You take a loan, give ₹2000 gold. Gold crashes to ₹900. Bank doesn't wait. It immediately sells your gold, possibly at a discount to attract a quick buyer. You lose the gold completely. The bank didn't do this to hurt you — it did it to survive.</p>
+          </div>
+        </div>
+        <p style="margin-top:1rem"><strong>Important shift in thinking:</strong> That extra buffer ($100 or $3,000) was not yours to keep safely. It was the system's insurance. You already took your loan. The buffer exists to protect the system, not you.</p>
+        <div class="callout callout-gold" style="margin-top:1rem">
+          <h4>💥 One-Line Brutal Truth</h4>
+          <p>You borrowed safety using a risky asset. When it failed, you paid the price. <strong>The system is not unfair — it's strict by design. That strictness is why the stablecoin stays stable.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ CODE ═══ -->
+<section id="code">
+  <div class="container">
+    <div class="section-label">Chapter 11 — The Smart Contract</div>
+    <h2>🔧 SingleAssetStableCoin — The Code</h2>
+    <p>This is the actual Solidity smart contract that implements everything we've discussed. Every function, every constant, every event — annotated with exactly what it does in the Alice & Bob story.</p>
+
+    <div class="callout callout-gold" style="margin-bottom:2rem">
+      <h4>📜 What This Contract Does</h4>
+      <p>Users deposit ETH as collateral and mint SSC (SingleAssetStableCoin) tokens. The contract enforces a 50% liquidation threshold and allows liquidators to earn a 10% bonus for cleaning up under-collateralized positions. Price data comes from a Chainlink ETH/USD price feed.</p>
+    </div>
+
+    <!-- Imports & Constants -->
+    <div class="code-section">
+      <div class="code-header">
+        <div class="code-dot dot-red"></div>
+        <div class="code-dot dot-yellow"></div>
+        <div class="code-dot dot-green"></div>
+        <span class="code-filename">SingleAssetStableCoin.sol — Imports & Constants</span>
+      </div>
+      <div class="code-block"><span class="cm">// SPDX-License-Identifier: MIT</span>
+<span class="kw">pragma solidity</span> ^0.8.29;
+
+<span class="kw">import</span> {ERC20} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"</span>;
+<span class="kw">import</span> {Ownable} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/access/Ownable.sol"</span>;
+<span class="kw">import</span> {ReentrancyGuard} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol"</span>;
+<span class="kw">import</span> {SafeERC20} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol"</span>;
+<span class="kw">import</span> {AggregatorV3Interface} <span class="kw">from</span> <span class="str">"...chainlink.../AggregatorV3Interface.sol"</span>;
+
+<span class="kw">contract</span> <span class="ty">SingleAssetStableCoin</span> <span class="kw">is</span> <span class="ty">ERC20</span>, <span class="ty">Ownable</span>, <span class="ty">ReentrancyGuard</span> {
+
+    <span class="cm">// ─── ⚔️ THE RULES (CONSTANTS) ───────────────────────────────────</span>
+
+    <span class="cm">/**
+     * 🛡️ THE SHIELD: 50% Liquidation Threshold
+     * Alice has $5,000 ETH → can only borrow $2,500 SSC.
+     * This means for every $1 borrowed, $2 of collateral must back it.
+     */</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">LIQUIDATION_THRESHOLD</span> = <span class="num">50</span>;
+
+    <span class="cm">/**
+     * 🐺 THE HUNTER'S BOUNTY: 10%
+     * Alice fails. Bob pays $1,000 debt. Bob gets $1,100 worth of ETH.
+     * This 10% bonus is Bob's motivation to act FAST.
+     */</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">LIQUIDATION_BONUS</span>    = <span class="num">10</span>;
+
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">LIQUIDATION_PRECISION</span> = <span class="num">100</span>;   <span class="cm">// Scale for % math</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">MIN_HEALTH_FACTOR</span>     = <span class="num">1e18</span>;   <span class="cm">// Line of Death (HF &lt; 1.0)</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">PRECISION</span>             = <span class="num">1e18</span>;   <span class="cm">// Standard WEI scale</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">ADDITIONAL_FEED_PRECISION</span> = <span class="num">1e10</span>; <span class="cm">// 8-decimal → 18-decimal fix</span>
+
+    <span class="cm">// ─── 📊 THE LEDGER (STATE) ──────────────────────────────────────</span>
+
+    <span class="cm">// Alice's ETH balance in WEI (e.g., 2 * 10^18)</span>
+    <span class="ty">mapping</span>(<span class="ty">address</span> => <span class="ty">uint256</span>) <span class="kw">private</span> <span class="var">collateralDeposited</span>;
+
+    <span class="cm">// Alice's SSC debt in WEI (e.g., 2000 * 10^18)</span>
+    <span class="ty">mapping</span>(<span class="ty">address</span> => <span class="ty">uint256</span>) <span class="kw">private</span> <span class="var">sscMinted</span>;
+}</div>
+    </div>
+
+    <!-- Constructor & User Actions -->
+    <div class="code-section" style="margin-top:1.5rem;">
+      <div class="code-header">
+        <div class="code-dot dot-red"></div>
+        <div class="code-dot dot-yellow"></div>
+        <div class="code-dot dot-green"></div>
+        <span class="code-filename">User Actions — The Journey (Alice's Path)</span>
+      </div>
+      <div class="code-block"><span class="cm">/**
+ * ─── 🏗️ CONSTRUCTOR ───
+ * Deploys the ERC20 token "SingleAssetStableCoin" (SSC).
+ * Stores the ETH/USD Chainlink price feed address.
+ */</span>
+<span class="kw">constructor</span>(<span class="ty">address</span> ethUSDPriceFeedAddress)
+    <span class="fn">ERC20</span>(<span class="str">"SingleAssetStableCoin"</span>, <span class="str">"SSC"</span>) <span class="fn">Ownable</span>(msg.sender) {
+    ETH_PRICE_FEED = ethUSDPriceFeedAddress;
+}
+
+<span class="cm">/**
+ * ─── 🚩 FLOW: ALICE ENTERS (depositCollateralAndMintSsc) ─────────
+ *
+ * Alice calls this with msg.value = 2 ether and amountSscToMint = 2000e18.
+ *
+ * Step 1: _depositCollateral() → Contract keeps ETH, updates Alice's ledger.
+ * Step 2: _mintSsc(2000e18)   → Check HF (1.25 > 1.0 ✅), mint SSC tokens.
+ */</span>
+<span class="kw">function</span> <span class="fn">depositCollateralAndMintSsc</span>(<span class="ty">uint256</span> amountSscToMint)
+    <span class="kw">external payable</span>
+{
+    _depositCollateral();  <span class="cm">// Lock Alice's 2 ETH</span>
+    _mintSsc(amountSscToMint); <span class="cm">// Give Alice $2,000 SSC tokens</span>
+}
+
+<span class="cm">/**
+ * ─── 🚩 FLOW: ALICE RECOVERS VOLUNTARILY (redeemCollateralForSsc) ─
+ *
+ * Alice wants her 1 ETH back. She pays $1,000 SSC first.
+ *
+ * Step 1: _burnSsc(1000e18)    → Debt: $2,000 → $1,000
+ * Step 2: _redeemCollateral()  → Return 1 ETH to Alice
+ * Step 3: Health Check         → (1 ETH × $2500 × 0.5) / $1000 = 1.25 ✅
+ */</span>
+<span class="kw">function</span> <span class="fn">redeemCollateralForSsc</span>(
+    <span class="ty">uint256</span> amountCollateral,
+    <span class="ty">uint256</span> amountSscToBurn
+) <span class="kw">external</span> moreThanZero(amountCollateral) moreThanZero(amountSscToBurn) nonReentrant {
+    _burnSsc(amountSscToBurn, msg.sender);
+    _redeemCollateral(amountCollateral, msg.sender, msg.sender);
+    _revertIfHealthFactorIsBroken(msg.sender); <span class="cm">// Guard: must remain safe</span>
+}
+
+<span class="cm">/**
+ * ─── 🚩 FLOW: ALICE WITHDRAWS EXCESS (redeemCollateral) ──────────
+ *
+ * Alice wants to pull out 0.2 ETH without burning debt.
+ * If she tries to pull too much → Health breaks → REVERT.
+ *
+ * Example: Pull 0.5 ETH from $5,000 collateral with $2,000 debt:
+ *   Remaining: $3,750. HF = (3750 × 0.5) / 2000 = 0.9375 → REVERTS ❌
+ */</span>
+<span class="kw">function</span> <span class="fn">redeemCollateral</span>(<span class="ty">uint256</span> amountCollateral)
+    <span class="kw">external</span> moreThanZero(amountCollateral) nonReentrant
+{
+    _redeemCollateral(amountCollateral, msg.sender, msg.sender);
+    _revertIfHealthFactorIsBroken(msg.sender);
+}
+
+<span class="cm">/**
+ * ─── 🚩 FLOW: ALICE BURNS DEBT (burnSsc) ──────────────────────────
+ *
+ * Alice burns $500 SSC just to increase her safety (voluntarily).
+ * Effect: Debt drops from $2,000 to $1,500.
+ * New HF: (5000 × 0.5) / 1500 = 1.66 → VERY SAFE 🛡️
+ */</span>
+<span class="kw">function</span> <span class="fn">burnSsc</span>(<span class="ty">uint256</span> amount)
+    <span class="kw">external</span> moreThanZero(amount) nonReentrant
+{
+    _burnSsc(amount, msg.sender);
+    _revertIfHealthFactorIsBroken(msg.sender);
+}</div>
+    </div>
+
+    <!-- Liquidate -->
+    <div class="code-section" style="margin-top:1.5rem;">
+      <div class="code-header">
+        <div class="code-dot dot-red"></div>
+        <div class="code-dot dot-yellow"></div>
+        <div class="code-dot dot-green"></div>
+        <span class="code-filename">⚡ liquidate() — Bob Strikes</span>
+      </div>
+      <div class="code-block"><span class="cm">/**
+ * ─── ⚡ FLOW: BOB THE BOUNTY HUNTER (liquidate) ───────────────────
+ *
+ * Alice's ETH = $1,800. Her Health = 0.9 (below 1.0 → DANGER!).
+ * Bob calls: liquidate(alice, 1000e18)
+ *
+ * Step 1: Check Alice's HF → 0.9. Hunt is ON (< 1.0).
+ * Step 2: Convert $1,000 debt to ETH → $1,000 / $1,800 = 0.555 ETH
+ * Step 3: Add 10% Bonus → 0.555 + 0.055 = 0.611 ETH total reward
+ * Step 4: Transfer 0.611 ETH from Alice's vault to Bob.
+ * Step 5: Delete $1,000 from Alice's debt ledger.
+ * Step 6: Alice's new HF = (1.389 ETH × $1800 × 0.5) / $1000 = 1.25 ✅
+ */</span>
+<span class="kw">function</span> <span class="fn">liquidate</span>(<span class="ty">address</span> user, <span class="ty">uint256</span> debtToCover)
+    <span class="kw">external</span> moreThanZero(debtToCover) nonReentrant
+{
+    <span class="cm">// ── Step 1: Is Alice actually failing? ──</span>
+    <span class="ty">uint256</span> startingHealthFactor = <span class="fn">_healthFactor</span>(user);
+    <span class="kw">if</span> (startingHealthFactor >= MIN_HEALTH_FACTOR) <span class="kw">revert</span> <span class="fn">HealthFactorOk</span>();
+
+    <span class="cm">// ── Step 2: How much ETH covers $1,000 debt? ──</span>
+    <span class="cm">// If ETH = $1,800: $1,000 / $1,800 = 0.555 ETH</span>
+    <span class="ty">uint256</span> tokenAmountFromDebt = <span class="fn">getTokenAmountFromUsd</span>(debtToCover);
+
+    <span class="cm">// ── Step 3: Calculate Bob's 10% tip ──</span>
+    <span class="cm">// 10% of 0.555 ETH = 0.055 ETH</span>
+    <span class="ty">uint256</span> bonusCollateral =
+        (tokenAmountFromDebt * LIQUIDATION_BONUS) / LIQUIDATION_PRECISION;
+
+    <span class="cm">// ── Step 4: Total payout = 0.555 + 0.055 = 0.611 ETH ──</span>
+    <span class="ty">uint256</span> totalCollateralToRedeem = tokenAmountFromDebt + bonusCollateral;
+
+    <span class="cm">// ── Step 5: Transfer ETH "prize" from Alice → Bob ──</span>
+    <span class="fn">_redeemCollateral</span>(totalCollateralToRedeem, user, msg.sender);
+
+    <span class="cm">// ── Step 6: Wipe $1,000 from Alice's debt ledger ──</span>
+    <span class="fn">_burnSsc</span>(debtToCover, user);
+
+    <span class="cm">// ── Step 7: Did Alice's health improve? ──</span>
+    <span class="ty">uint256</span> endingHealthFactor = <span class="fn">_healthFactor</span>(user);
+    <span class="kw">if</span> (endingHealthFactor <= startingHealthFactor)
+        <span class="kw">revert</span> <span class="fn">HealthFactorNotImproved</span>();
+
+    <span class="cm">// ── Step 8: Did BOB break his own health factor? ──</span>
+    <span class="fn">_revertIfHealthFactorIsBroken</span>(msg.sender);
+}</div>
+    </div>
+
+    <!-- Internal Engine -->
+    <div class="code-section" style="margin-top:1.5rem;">
+      <div class="code-header">
+        <div class="code-dot dot-red"></div>
+        <div class="code-dot dot-yellow"></div>
+        <div class="code-dot dot-green"></div>
+        <span class="code-filename">🧊 The Engine Room — Internal Functions</span>
+      </div>
+      <div class="code-block"><span class="cm">// ─── _depositCollateral ──────────────────────────────────────────
+// Adds ETH to Alice's balance in the ledger.
+// msg.value = actual ETH sent. collateralDeposited[Alice] += msg.value</span>
+<span class="kw">function</span> <span class="fn">_depositCollateral</span>() <span class="kw">internal</span> nonReentrant {
+    <span class="ty">uint256</span> amountCollateral = msg.value;
+    <span class="kw">if</span> (amountCollateral == <span class="num">0</span>) <span class="kw">revert</span> <span class="fn">NeedsMoreThanZero</span>();
+    collateralDeposited[msg.sender] += amountCollateral;
+    <span class="kw">emit</span> <span class="fn">CollateralDeposited</span>(msg.sender, amountCollateral);
+}
+
+<span class="cm">// ─── _mintSsc ────────────────────────────────────────────────────
+// Adds debt to Alice's ledger, checks health, then mints ERC20 tokens.</span>
+<span class="kw">function</span> <span class="fn">_mintSsc</span>(<span class="ty">uint256</span> amountSscToMint) <span class="kw">internal</span> moreThanZero(amountSscToMint) nonReentrant {
+    sscMinted[msg.sender] += amountSscToMint;
+    _revertIfHealthFactorIsBroken(msg.sender); <span class="cm">// 🛡️ GUARD: HF must be ≥ 1.0</span>
+    _mint(msg.sender, amountSscToMint);
+    <span class="kw">emit</span> <span class="fn">SSCMinted</span>(msg.sender, amountSscToMint);
+}
+
+<span class="cm">// ─── _redeemCollateral ───────────────────────────────────────────
+// Reduces Alice's collateral ledger and sends actual ETH to receiver (Bob/Alice).
+// from = who loses ETH, to = who receives ETH</span>
+<span class="kw">function</span> <span class="fn">_redeemCollateral</span>(<span class="ty">uint256</span> amountCollateral, <span class="ty">address</span> from, <span class="ty">address</span> to) <span class="kw">private</span> {
+    <span class="kw">if</span> (amountCollateral > collateralDeposited[from]) <span class="kw">revert</span> <span class="fn">AmountMustBeMoreThanZero</span>();
+    collateralDeposited[from] -= amountCollateral;
+    <span class="kw">emit</span> <span class="fn">CollateralRedeemed</span>(from, to, amountCollateral);
+    (<span class="ty">bool</span> success,) = <span class="ty">payable</span>(to).<span class="fn">call</span>{value: amountCollateral}(<span class="str">""</span>);
+    <span class="kw">if</span> (!success) <span class="kw">revert</span> <span class="fn">TransferFailed</span>();
+}
+
+<span class="cm">// ─── _burnSsc ────────────────────────────────────────────────────
+// Reduces debt ledger, pulls tokens from user back to contract, then burns them.
+// "from" = whose debt to reduce (could be Alice during Bob's liquidation)</span>
+<span class="kw">function</span> <span class="fn">_burnSsc</span>(<span class="ty">uint256</span> amountSscToBurn, <span class="ty">address</span> from) <span class="kw">private</span> {
+    <span class="kw">if</span> (amountSscToBurn > sscMinted[from]) <span class="kw">revert</span> <span class="fn">AmountMustBeMoreThanZero</span>();
+    sscMinted[from] -= amountSscToBurn;
+    <span class="ty">IERC20</span>(<span class="ty">address</span>(<span class="kw">this</span>)).<span class="fn">safeTransferFrom</span>(from, <span class="ty">address</span>(<span class="kw">this</span>), amountSscToBurn);
+    <span class="fn">_burn</span>(<span class="ty">address</span>(<span class="kw">this</span>), amountSscToBurn); <span class="cm">// 🔥 Tokens destroyed forever</span>
+    <span class="kw">emit</span> <span class="fn">SSCBurned</span>(from, amountSscToBurn);
+}</div>
+    </div>
+
+    <!-- Math -->
+    <div class="code-section" style="margin-top:1.5rem;">
+      <div class="code-header">
+        <div class="code-dot dot-red"></div>
+        <div class="code-dot dot-yellow"></div>
+        <div class="code-dot dot-green"></div>
+        <span class="code-filename">🧩 The Brains — Health Factor Math</span>
+      </div>
+      <div class="code-block"><span class="cm">// ─── _getUsdValue ────────────────────────────────────────────────
+// Asks Chainlink: "What is ETH worth right now?"
+// Price feed returns 8-decimal number → we scale to 18 decimals.
+//
+// Example: price = 2500 × 10^8
+//   × ADDITIONAL_FEED_PRECISION (10^10) = 2500 × 10^18
+//   × Alice's 2 ETH (2 × 10^18) / PRECISION (10^18) = $5,000 in WEI</span>
+<span class="kw">function</span> <span class="fn">_getUsdValue</span>(<span class="ty">uint256</span> amount) <span class="kw">private view returns</span> (<span class="ty">uint256</span>) {
+    (, <span class="ty">int256</span> price,,, ) = <span class="ty">AggregatorV3Interface</span>(ETH_PRICE_FEED).<span class="fn">latestRoundData</span>();
+    <span class="kw">return</span> ((<span class="ty">uint256</span>(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
+}
+
+<span class="cm">// ─── _calculateHealthFactor ──────────────────────────────────────
+// THE CORE FORMULA: (Collateral × 50%) / Debt = Health Factor
+//
+// Alice:  ($5,000 × 50%) / $2,000 = 1.25 ✅
+// Alice:  ($3,600 × 50%) / $2,000 = 0.9  🚨
+// If no debt → infinitely safe (return type(uint256).max)</span>
+<span class="kw">function</span> <span class="fn">_calculateHealthFactor</span>(
+    <span class="ty">uint256</span> totalSsc,
+    <span class="ty">uint256</span> collateralValueUsd
+) <span class="kw">internal pure returns</span> (<span class="ty">uint256</span>) {
+    <span class="kw">if</span> (totalSsc == <span class="num">0</span>) <span class="kw">return</span> <span class="ty">type</span>(<span class="ty">uint256</span>).<span class="var">max</span>; <span class="cm">// No debt = infinite safety</span>
+
+    <span class="ty">uint256</span> collateralAdjusted =
+        (collateralValueUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
+    <span class="cm">// $5,000 × 50 / 100 = $2,500 ("Borrowing Power")</span>
+
+    <span class="kw">return</span> (collateralAdjusted * PRECISION) / totalSsc;
+    <span class="cm">// $2,500 × 1e18 / $2,000 × 1e18 = 1.25e18 (= 1.25 HF)</span>
+}
+
+<span class="cm">// ─── _healthFactor ───────────────────────────────────────────────</span>
+<span class="cm">// THE SAFETY CHECK: Current status of a user's account (Debt vs Gold).</span>
+<span class="kw">function</span> <span class="fn">_healthFactor</span>(<span class="ty">address</span> user) <span class="kw">private view returns</span> (<span class="ty">uint256</span>) {
+    <span class="cm">// Step 1: How much debt? (e.g. $2,000)</span>
+    <span class="cm">// Step 2: How much gold? (e.g. $5,000)</span>
+    (<span class="ty">uint256</span> totalSsc, <span class="ty">uint256</span> collateralValueUsd) = <span class="fn">_getAccountInformation</span>(user);
+
+    <span class="cm">// Step 3: Run the calculation.</span>
+    <span class="kw">return</span> <span class="fn">_calculateHealthFactor</span>(totalSsc, collateralValueUsd);
+}
+
+<span class="cm">// ─── _revertIfHealthFactorIsBroken ───────────────────────────────
+// THE DEFI WALL: If HF < 1.0e18, revert the entire transaction.
+// Called after EVERY state-changing operation as a safety guard.</span>
+<span class="kw">function</span> <span class="fn">_revertIfHealthFactorIsBroken</span>(<span class="ty">address</span> user) <span class="kw">internal view</span> {
+    <span class="ty">uint256</span> healthFactor = <span class="fn">_healthFactor</span>(user);
+    <span class="kw">if</span> (healthFactor < MIN_HEALTH_FACTOR)
+        <span class="kw">revert</span> <span class="fn">BreaksHealthFactor</span>(healthFactor);
+}
+
+<span class="cm">// ─── getTokenAmountFromUsd ───────────────────────────────────────</span>
+<span class="cm">// Question: How much ETH covers $1,000?</span>
+<span class="cm">// Answer: $1,000 / Price-of-ETH.</span>
+<span class="cm">// Calculation: ($1,000 * 1e18) / ($1,800 * 1e18) = 0.555 ETH.</span>
+<span class="kw">function</span> <span class="fn">getTokenAmountFromUsd</span>(<span class="ty">uint256</span> usdAmountInWei) <span class="kw">public view returns</span> (<span class="ty">uint256</span>) {
+    (, <span class="ty">int256</span> price,,, ) = <span class="ty">AggregatorV3Interface</span>(ETH_PRICE_FEED).<span class="fn">latestRoundData</span>();
+    <span class="kw">return</span> ((usdAmountInWei * PRECISION) / (<span class="ty">uint256</span>(price) * ADDITIONAL_FEED_PRECISION));
+}
+
+<span class="kw">function</span> <span class="fn">getHealthFactor</span>(<span class="ty">address</span> user) <span class="kw">external view returns</span> (<span class="ty">uint256</span>) { <span class="kw">return</span> <span class="fn">_healthFactor</span>(user); }
+<span class="kw">function</span> <span class="fn">getAccountCollateralValue</span>(<span class="ty">address</span> user) <span class="kw">public view returns</span> (<span class="ty">uint256</span>) { <span class="kw">return</span> <span class="fn">_getUsdValue</span>(collateralDeposited[user]); }
+<span class="kw">function</span> <span class="fn">getAccountInformation</span>(<span class="ty">address</span> user) <span class="kw">external view returns</span> (<span class="ty">uint256</span> totalSsc, <span class="ty">uint256</span> collateralValueUsd) { <span class="kw">return</span> <span class="fn">_getAccountInformation</span>(user); }</div>
+    </div>
+
+    <!-- Full Complete Contract -->
+    <div class="code-section" style="margin-top:3rem;">
+      <div class="code-header">
+        <div class="code-dot dot-red"></div>
+        <div class="code-dot dot-yellow"></div>
+        <div class="code-dot dot-green"></div>
+        <span class="code-filename">SingleAssetStableCoin.sol — Full Complete Version</span>
+      </div>
+      <div class="code-block"><span class="cm">/** 
+ * @title SingleAssetStableCoin (SSC)
+ * @author Dhruv Patel
+ * @notice 🌟 **THE DEFI ODYSSEY: THE STORY OF ALICE & BOB** 🌟
+ * 
+ * 📜 **THE SCENARIO FOR THIS ENTIRE CONTRACT:**
+ * -----------------------------------------------
+ * 🪐 **PART 1: THE BIRTH (Alice enters)**
+ *   - Alice has **2 ETH** (The Gold).
+ *   - ETH Price is **$2,500** (Fetched by `_getUsdValue`).
+ *   - Her total Collateral value = **$5,000**.
+ * 
+ * 🪐 **PART 2: THE SACRIFICE (Minting debt)**
+ *   - Alice borrows **$2,000 SSC** (The Debt).
+ *   - Her Health Factor = (5000 * 0.5) / 2000 = **1.25** (SAFE! 🏰).
+ * 
+ * 🪐 **PART 3: THE STORM (The Market Crash)**
+ *   - ETH Price crashes to **$1,800**.
+ *   - Alice's Collateral value = 2 * 1800 = **$3,600**.
+ *   - Her Health Factor = (3600 * 0.5) / 2000 = **0.9** (DANGER! 📉).
+ * 
+ * 🪐 **PART 4: THE RECKONING (Bob the Hunter)**
+ *   - Bob sees Alice is underwater (&lt; 1.0).
+ *   - Bob pays **$1,000 SSC** to clear half her debt.
+ *   - Bob gets Alice's ETH worth $1,000 + 10% bounty = **$1,100**.
+ *   - Alice is left with **1.38 ETH** and **$1,000** debt. (Health = 1.2+ SAFE again!).
+ */</span>
+<span class="cm">/*
+ Stage 1: The Rules
+This "Bank" has two strict rules to keep the system safe:
+
+The Gold Standard (Collateral): You can only borrow money if you deposit $2 worth of Gold (ETH) for every $1 you borrow (SSC). (This is the 50% Liquidation Threshold).
+The Penalty (Liquidation): If your Gold's value drops and fails the $2:$1 ratio, any "Hunter" can step in, pay your debt, and take your Gold at a discount.
+Stage 2: Alice Enters (The Golden Days) ☀️
+Alice has: 2 ETH.
+ETH Price: $2,500 per ETH.
+Alice's Total Wealth: $5,000 (2 ETH * $2,500).
+The Loan: Alice borrows (mints) $2,000 SSC.
+The Mathematical Check: The Bank says: "Alice, you have $5,000 in Gold. Since our threshold is 50%, you could have borrowed up to $2,500. Since you only took $2,000, you are Safe!" (Health Factor = (5000 * 0.5) / 2000 = 1.25) ✅
+
+Stage 3: The Storm (Market Crash) 📉
+Suddenly, the market crashes.
+
+New ETH Price: $1,800.
+Alice's Gold Value: Now worth $3,600 (2 ETH * $1,800).
+What is the Danger? The Bank says: "Alice, with only $3,600 in Gold, your debt should not exceed $1,800 (50%). But you owe us $2,000!" (Health Factor = (3600 * 0.5) / 2000 = 0.9) 🚨 DANGER!
+
+Alice’s Health Factor is below 1.0. Her account is now "Under-collateralized" and open for liquidation.
+
+Stage 4: Bob the Hunter (The Liquidation) 🐺
+Enter Bob. Bob is a "Bounty Hunter." He doesn't care about Alice; he only cares about Profit.
+
+Bob sees the opportunity: "Alice owes $2,000, but she has $3,600 worth of ETH sitting there."
+
+Bob's Move: Bob pays the bank $1,000 SSC (clearing half of Alice's debt).
+Bob's Reward: The Bank says, "Since you cleared $1,000 of debt, you can take $1,000 worth of Alice's ETH plus a 10% Bonus ($100) for your service!"
+The Result: Bob spent $1,000 and received $1,100 worth of ETH. Bob just made a $100 profit in a single transaction.
+Stage 5: Recovery (The New Normal) 🕊️
+Let’s look at Alice's new account status:
+
+Remaining Debt: $2,000 - $1,000 (paid by Bob) = $1,000.
+Remaining Gold: $3,600 - $1,100 (taken by Bob) = $2,500.
+The New Health Factor: Alice has $2,500 in Gold. The Bank says 50% of that ($1,250) is the safe debt limit. Alice’s debt is only $1,000. (Health Factor = (2500 * 0.5) / 1000 = 1.25) ✅ SAFE AGAIN!
+
+The Core Concept (The "Feel")
+Why is Alice okay? Her account wasn't completely wiped out. She lost a $100 "fine" (the bonus to Bob), but her remaining $2,500 in ETH is now safe.
+Why is Bob happy? He got a "Free Lunch." He turned $1,000 into $1,100 effortlessly.
+Why is the System happy? Alice’s "Bad Debt" was removed, and the Stablecoin (SSC) stayed backed by enough collateral.
+
+Q--yaha pe to dekho system ko to loss ho hi nahi raha hai suppose 1800 hua to 2 eth girvi the to 3600  worth hai abhi system ke pass and usne user ko diya hai 2000 agar user bhag bhi gaya to system ko to koi loss hai hi nahi  ?
+  You are absolutely right! As long as the ETH price stays above $1,000, the system is technically safe because Alice's 2 ETH are still worth more than her $2,000 debt.
+
+However, the reason we need Liquidation and users like Bob is to ensure the system never even gets close to that "Insolvency Line." Think of it like this:
+
+1. The "Safety Cushion"
+The system only gave Alice $2,000 when she deposited $5,000. This $3,000 gap is a Cushion. It exists because crypto prices are extremely volatile. The cushion gives the system "room to breathe" if the market drops overnight.
+
+2. The Real Threat: The "Flash Crash"
+Imagine ETH doesn't stop at $1,800. What if it suddenly crashes to $900 in a few minutes?
+
+Alice’s Debt: $2,000.
+Alice’s Gold (2 ETH): Worth only $1,800 (2 * $900).
+The Result: Now the system is at a Loss. If Alice "runs away" (which she essentially does in DeFi), she has $2,000 in her pocket while the system only has $1,800 left. The stablecoin would lose its peg and the system would go "Insolvent" (Bankrupt).
+3. Bob’s Role: The "Preventive Strike"
+Bob’s job is to ensure we never hit the $1,000 "Death Line."
+
+As soon as the price hits $1,800 (nearing the danger zone), Bob starts cleaning up (Liquidating).
+The 10% Bonus is Bob’s motivation to act fast. Without a bonus, Bob might wait too long, and by the time he acts, the ETH price might have already fallen below the debt amount.
+4. What if the user runs away?
+In DeFi, the user is already "gone." There is no KYC (identity check). Alice has the $2,000 SSC tokens and can spend them anywhere.
+
+The system doesn't care about Alice's face or name.
+It only cares about her ETH collateral.
+The system relies entirely on Bob to pay back the debt (burning the SSC) and sell the ETH before its value drops below the debt.
+ */</span>
+
+<span class="cm">// SPDX-License-Identifier: MIT</span>
+<span class="kw">pragma solidity</span> ^0.8.29;
+
+<span class="kw">import</span> {ERC20} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"</span>;
+<span class="kw">import</span> {Ownable} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/access/Ownable.sol"</span>;
+<span class="kw">import</span> {ReentrancyGuard} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol"</span>;
+<span class="kw">import</span> {SafeERC20} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol"</span>;
+<span class="kw">import</span> {IERC20} <span class="kw">from</span> <span class="str">"openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"</span>;
+<span class="kw">import</span> {AggregatorV3Interface} <span class="kw">from</span>
+    <span class="str">"../lib/foundry-chainlink-toolkit/lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol"</span>;
+
+<span class="kw">contract</span> <span class="ty">SingleAssetStableCoin</span> <span class="kw">is</span> <span class="ty">ERC20</span>, <span class="ty">Ownable</span>, <span class="ty">ReentrancyGuard</span> {
+    <span class="kw">using</span> <span class="ty">SafeERC20</span> <span class="kw">for</span> <span class="ty">IERC20</span>;
+
+    <span class="cm">// ------------------ ❌ CUSTOM ERRORS ------------------</span>
+    <span class="kw">error</span> <span class="fn">AmountMustBeMoreThanZero</span>();
+    <span class="kw">error</span> <span class="fn">BurnAmountExceedsBalance</span>();
+    <span class="kw">error</span> <span class="fn">NotZeroAddress</span>();
+    <span class="kw">error</span> <span class="fn">NeedsMoreThanZero</span>();
+    <span class="kw">error</span> <span class="fn">TransferFailed</span>();
+    <span class="kw">error</span> <span class="fn">BreaksHealthFactor</span>(<span class="ty">uint256</span> healthFactorValue);
+    <span class="kw">error</span> <span class="fn">MintFailed</span>();
+    <span class="kw">error</span> <span class="fn">HealthFactorOk</span>();
+    <span class="kw">error</span> <span class="fn">HealthFactorNotImproved</span>();
+
+    <span class="cm">// ------------------ ⛓️ IMMUTABLES ------------------</span>
+    <span class="ty">address</span> <span class="kw">private immutable</span> <span class="var">ETH_PRICE_FEED</span>;
+
+    <span class="cm">// ------------------ ⚔️ THE RULES OF THE BATTLEFIELD (CONSTANTS) ------------------</span>
+
+    <span class="cm">/**
+     * @dev 🛡️ THE SHIELD: 50%.
+     * Alice has $5,000 ETH. Guard says: "You can only borrow $2,500 SSC."
+     */</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">LIQUIDATION_THRESHOLD</span> = <span class="num">50</span>; 
+    
+    <span class="cm">/**
+     * @dev 🐺 THE HUNTER'S BOUNTY: 10%.
+     * Alice fails. Bob pays her $1,000 debt. Bob gets $1,100 worth of her ETH.
+     */</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">LIQUIDATION_BONUS</span> = <span class="num">10</span>; 
+    
+    <span class="cm">// Scale for percentage math (100 = 100%)</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">LIQUIDATION_PRECISION</span> = <span class="num">100</span>;
+    
+    <span class="cm">// The Line of Death (Health Factor &lt; 1.0)</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">MIN_HEALTH_FACTOR</span> = <span class="num">1e18</span>;
+    
+    <span class="cm">// Standard WEI Scale</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">PRECISION</span> = <span class="num">1e18</span>;
+    
+    <span class="cm">// Translates 8-decimal Price Feed to our 18-decimal Contract.</span>
+    <span class="ty">uint256</span> <span class="kw">private constant</span> <span class="var">ADDITIONAL_FEED_PRECISION</span> = <span class="num">1e10</span>;
+
+    <span class="cm">// ------------------ 📊 THE LEDGER (STATE) ------------------</span>
+    <span class="cm">// Alice's ETH balance in WEI (e.g., 2 * 10^18)</span>
+    <span class="ty">mapping</span>(<span class="ty">address</span> => <span class="ty">uint256</span>) <span class="kw">private</span> <span class="var">collateralDeposited</span>; 
+    
+    <span class="cm">// Alice's SSC debt in WEI (e.g., 2000 * 10^18)</span>
+    <span class="ty">mapping</span>(<span class="ty">address</span> => <span class="ty">uint256</span>) <span class="kw">private</span> <span class="var">sscMinted</span>;
+
+    <span class="cm">// ------------------ 🔔 EVENTS ------------------</span>
+    <span class="kw">event</span> <span class="fn">CollateralDeposited</span>(<span class="ty">address</span> <span class="kw">indexed</span> user, <span class="ty">uint256</span> <span class="kw">indexed</span> amount);
+    <span class="kw">event</span> <span class="fn">CollateralRedeemed</span>(<span class="ty">address</span> <span class="kw">indexed</span> redeemFrom, <span class="ty">address</span> <span class="kw">indexed</span> redeemTo, <span class="ty">uint256</span> amount);
+    <span class="kw">event</span> <span class="fn">SSCMinted</span>(<span class="ty">address</span> <span class="kw">indexed</span> user, <span class="ty">uint256</span> <span class="kw">indexed</span> amount);
+    <span class="kw">event</span> <span class="fn">SSCBurned</span>(<span class="ty">address</span> <span class="kw">indexed</span> user, <span class="ty">uint256</span> <span class="kw">indexed</span> amount);
+
+    <span class="cm">// 🛡️ Ensure no one passes "0" as gold or debt.</span>
+    <span class="kw">modifier</span> <span class="fn">moreThanZero</span>(<span class="ty">uint256</span> amount) {
+        <span class="kw">if</span> (amount == <span class="num">0</span>) <span class="kw">revert</span> <span class="fn">NeedsMoreThanZero</span>();
+        <span class="kw">_</span>;
+    }
+
+    <span class="cm">// ------------------ 🏗️ CONSTRUCTOR ------------------</span>
+    <span class="kw">constructor</span>(<span class="ty">address</span> ethUSDPriceFeedAddress) <span class="fn">ERC20</span>(<span class="str">"SingleAssetStableCoin"</span>, <span class="str">"SSC"</span>) <span class="fn">Ownable</span>(msg.sender) {
+        <span class="var">ETH_PRICE_FEED</span> = ethUSDPriceFeedAddress;
+    }
+
+    <span class="cm">// ------------------ 👤 USER ACTIONS: THE JOURNEY BEGINS ------------------</span>
+
+    <span class="cm">/**
+     * @notice 🚩 **FLOW: ALICE ENTERS (PART 1)**
+     * Alice calls this with `amountSscToMint = 2000e18` ($2,000) and `msg.value = 2 ether`.
+     * 
+     * ⏩ JUMP 1: Go to _depositCollateral() to lock her 2 ETH.
+     * ⏩ JUMP 2: Go to _mintSsc() to get her $2,000 tokens.
+     */</span>
+    <span class="kw">function</span> <span class="fn">depositCollateralAndMintSsc</span>(<span class="ty">uint256</span> amountSscToMint) <span class="kw">external payable</span> {
+        <span class="cm">// Step 1: Alice sends 2 ETH ($5,000 value). </span>
+        <span class="cm">// Logic: Contract keeps the ETH and updates Alice's ledger.</span>
+        <span class="fn">_depositCollateral</span>();
+
+        <span class="cm">// Step 2: Alice asks for 2,000 SSC ($2,000 value).</span>
+        <span class="cm">// Logic: Check if $2,000 debt is supported by $5,000 collateral.</span>
+        <span class="cm">// Calculation: (5000 * 50%) / 2000 = 1.25 HP (Health Factor). 1.25 > 1.0, so proceed!</span>
+        <span class="fn">_mintSsc</span>(amountSscToMint);
+    }
+
+    <span class="cm">/**
+     * @notice 🚩 **FLOW: ALICE RECOVERS (Voluntary)**
+     * Alice wants her 1 ETH back, so She pays back $1,000 SSC.
+     * 
+     * ⏩ JUMP 1: _burnSsc(1000) -> Deletes her debt. New Debt = $1,000.
+     * ⏩ JUMP 2: _redeemCollateral(1 ether) -> Releases 1 ETH. New Collateral = 1 ETH.
+     * ⏩ JUMP 3: Check Health -> (1 ETH * $2500 * 0.5) / $1000 = 1.25. (SAFE!🏰).
+     */</span>
+    <span class="kw">function</span> <span class="fn">redeemCollateralForSsc</span>(<span class="ty">uint256</span> amountCollateral, <span class="ty">uint256</span> amountSscToBurn)
+        <span class="kw">external</span>
+        <span class="fn">moreThanZero</span>(amountCollateral)
+        <span class="fn">moreThanZero</span>(amountSscToBurn)
+        <span class="fn">nonReentrant</span>
+    {
+        <span class="cm">// Step 1: Alice hands back $1,000 SSC to the bank.</span>
+        <span class="cm">// Effect: sscMinted[Alice] decreases from 2000 to 1000.</span>
+        <span class="fn">_burnSsc</span>(amountSscToBurn, msg.sender);
+
+        <span class="cm">// Step 2: Alice takes back 1 ETH ($2,500 value).</span>
+        <span class="cm">// Effect: collateralDeposited[Alice] decreases from 2 ETH to 1 ETH.</span>
+        <span class="fn">_redeemCollateral</span>(amountCollateral, msg.sender, msg.sender);
+
+        <span class="cm">// Step 3: Security Check.</span>
+        <span class="cm">// New Calculation: Collateral = $2,500 (1 ETH), Debt = $1,000.</span>
+        <span class="cm">// Health Factor: (2500 * 50%) / 1000 = 1.25. Still safe!</span>
+        <span class="fn">_revertIfHealthFactorIsBroken</span>(msg.sender);
+    }
+
+    <span class="cm">/**
+     * @notice 🚩 **FLOW: ALICE WITHDRAWS EXCESS GOLD**
+     * Alice wants to pull out 0.2 ETH without paying debt.
+     * 
+     * ⏩ JUMP 1: _redeemCollateral(0.2 ether) -> Sends ETH back to her.
+     * ⏩ JUMP 2: Check Health -> (1.8 ETH * $2500 * 0.5) / $2000 = 1.125. (SAFE!🏠).
+     * If She tried to withdraw 1 ETH, health would be 0.625 and the GUARD would REVERT!
+     */</span>
+    <span class="kw">function</span> <span class="fn">redeemCollateral</span>(<span class="ty">uint256</span> amountCollateral) <span class="kw">external</span> <span class="fn">moreThanZero</span>(amountCollateral) <span class="fn">nonReentrant</span> {
+        <span class="cm">// Example: Alice has 2 ETH ($5,000) and $2,000 debt.</span>
+        <span class="cm">// Alice tries to withdraw 0.5 ETH ($1,250).</span>
+        <span class="fn">_redeemCollateral</span>(amountCollateral, msg.sender, msg.sender);
+
+        <span class="cm">// Security Check:</span>
+        <span class="cm">// Remaining Collateral: 1.5 ETH = $3,750. Debt = $2,000.</span>
+        <span class="cm">// Calculation: (3750 * 50%) / 2000 = 1875 / 2000 = 0.9375.</span>
+        <span class="cm">// ACTION: This will REVERT because HF &lt; 1.0!</span>
+        <span class="fn">_revertIfHealthFactorIsBroken</span>(msg.sender);
+    }
+
+    <span class="cm">/**
+     * @notice 🚩 **FLOW: ALICE RE-FORGES HER SHIELD**
+     * Alice burns $500 SSC just to increase her safety multiplier.
+     * 
+     * ⏩ JUMP 1: _burnSsc(500) -> Debt = $1500.
+     * ⏩ JUMP 2: Check Health -> (5000 * 0.5) / 1500 = **1.66**. (VERY SAFE!🛡️).
+     */</span>
+    <span class="kw">function</span> <span class="fn">burnSsc</span>(<span class="ty">uint256</span> amount) <span class="kw">external</span> <span class="fn">moreThanZero</span>(amount) <span class="fn">nonReentrant</span> {
+        <span class="cm">// Alice has $2,000 debt. She burns $500 SSC.</span>
+        <span class="cm">// Effect: Alice's liability drops to $1,500.</span>
+        <span class="fn">_burnSsc</span>(amount, msg.sender);
+
+        <span class="cm">// Security Check:</span>
+        <span class="cm">// Result: Her Health Factor increases (makes her safer).</span>
+        <span class="cm">// Calculation: (2500 / 1500) = 1.66 HF.</span>
+        <span class="fn">_revertIfHealthFactorIsBroken</span>(msg.sender);
+    }
+
+    <span class="cm">/**
+     * @notice ⚡ **FLOW: BOB THE BOUNTY HUNTER STRIKES (PART 4)**
+     * Alice's ETH price falls to **$1,800**. Her shield breaks (Health = 0.9).
+     * Bob smells the bounty! He calls `liquidate(alice, 1000e18)`.
+     * 
+     * ⏩ JUMP 1: Check Alice Health -> 0.9. (It's &lt; 1.0, so the hunt is ON).
+     * ⏩ JUMP 2: Convert $1,000 Debt to ETH -> ($1000 / $1800) = **0.555 ETH**.
+     * ⏩ JUMP 3: Add 10% Bounty -> 0.555 + 0.055 = **0.611 ETH total reward**.
+     * ⏩ JUMP 4: Give 0.611 ETH to Bob from Alice's vault.
+     * ⏩ JUMP 5: Delete $1,000 from Alice's debt ledger.
+     * ⏩ JUMP 6: New Alice Health = (1.389 ETH * $1800 * 0.5) / $1000 = **1.25** (SAFE!).
+     */</span>
+    <span class="kw">function</span> <span class="fn">liquidate</span>(<span class="ty">address</span> user, <span class="ty">uint256</span> debtToCover) <span class="kw">external</span> <span class="fn">moreThanZero</span>(debtToCover) <span class="fn">nonReentrant</span> {
+        <span class="cm">//debtToCover-token amount of ssc to be liquidated</span>
+        <span class="cm">// Step 1: Check if User is actually failing.</span>
+        <span class="ty">uint256</span> startingHealthFactor = <span class="fn">_healthFactor</span>(user);
+        <span class="kw">if</span> (startingHealthFactor >= MIN_HEALTH_FACTOR) <span class="kw">revert</span> <span class="fn">HealthFactorOk</span>();
+
+        <span class="cm">// Step 2: Calculate how much ETH is needed to cover $1,000 debt.</span>
+        <span class="cm">// If ETH = $1,800, then $1000 debt = 0.555 ETH.</span>
+        <span class="ty">uint256</span> tokenAmountFromDebt = <span class="fn">getTokenAmountFromUsd</span>(debtToCover);
+
+        <span class="cm">// Step 3: Calculate Bob's 10% tip. </span>
+        <span class="cm">// 10% of 0.555 ETH = 0.055 ETH.</span>
+        <span class="ty">uint256</span> bonusCollateral = (tokenAmountFromDebt * LIQUIDATION_BONUS) / LIQUIDATION_PRECISION;
+
+        <span class="cm">// Step 4: Total payout to Bob = 0.555 + 0.055 = 0.611 ETH.</span>
+        <span class="ty">uint256</span> totalCollateralToRedeem = tokenAmountFromDebt + bonusCollateral;
+
+        <span class="cm">// Step 5: Transfer the "Prize" from Alice to Bob.</span>
+        <span class="fn">_redeemCollateral</span>(totalCollateralToRedeem, user, msg.sender);
+
+        <span class="cm">// Step 6: Wipe $1,000 from Alice's debt ledger.</span>
+        <span class="fn">_burnSsc</span>(debtToCover, user);
+
+        <span class="cm">// Step 7: Final Check. Did Alice's health actually get better?</span>
+        <span class="ty">uint256</span> endingHealthFactor = <span class="fn">_healthFactor</span>(user);
+        <span class="kw">if</span> (endingHealthFactor <= startingHealthFactor) <span class="kw">revert</span> <span class="fn">HealthFactorNotImproved</span>();
+
+        <span class="cm">// Step 8: Ensure the Hunter (Bob) didn't break his own health factor in the process.</span>
+        <span class="fn">_revertIfHealthFactorIsBroken</span>(msg.sender);
+    }
+
+    <span class="cm">// ------------------ 🧊 THE ENGINE ROOM (INTERNAL) ------------------</span>
+
+    <span class="cm">/**
+     * @dev 🚂 **MINTING SUB-FLOW:**
+     * 📝 Alice Ledger: Increase `sscMinted` by 2000.
+     * ⏩ JUMP: Check if she hit the $2,500 safety wall. If Price crashed mid-transaction, REVERT.
+     */</span>
+    <span class="kw">function</span> <span class="fn">_mintSsc</span>(<span class="ty">uint256</span> amountSscToMint) <span class="kw">internal</span> <span class="fn">moreThanZero</span>(amountSscToMint) <span class="fn">nonReentrant</span> {
+        <span class="cm">// Add to internal debt ledger.</span>
+        sscMinted[msg.sender] += amountSscToMint;
+
+        <span class="cm">// If Alice has $5000 collateral and tries to mint $6000 SSC, this guard stops her.</span>
+        <span class="fn">_revertIfHealthFactorIsBroken</span>(msg.sender);
+
+        <span class="cm">// Create the actual ERC20 tokens in Alice's wallet.</span>
+        <span class="fn">_mint</span>(msg.sender, amountSscToMint);
+        <span class="kw">emit</span> <span class="fn">SSCMinted</span>(msg.sender, amountSscToMint);
+    }
+
+    <span class="cm">/**
+     * @dev 🚂 **DEPOSIT SUB-FLOW:**
+     * 📝 Alice Ledger: Increase `collateralDeposited` by 2 ETH.
+     */</span>
+    <span class="kw">function</span> <span class="fn">_depositCollateral</span>() <span class="kw">internal</span> <span class="fn">nonReentrant</span> {
+        <span class="ty">uint256</span> amountCollateral = msg.value;
+        <span class="kw">if</span> (amountCollateral == <span class="num">0</span>) <span class="kw">revert</span> <span class="fn">NeedsMoreThanZero</span>();
+
+        <span class="cm">// Increment Alice's "Savings Account" in the contract.</span>
+        collateralDeposited[msg.sender] += amountCollateral;
+        <span class="kw">emit</span> <span class="fn">CollateralDeposited</span>(msg.sender, amountCollateral);
+    }
+
+    <span class="cm">/**
+     * @dev 🚂 **REDEEM SUB-FLOW:**
+     * 📝 Alice Ledger: Decrease her gold by `totalCollateralToRedeem` (0.611 ETH in Bob's hunt).
+     * 🏧 Payout: Transfer actual ETH from this contract's vault to Bob's wallet.
+     */</span>
+    <span class="kw">function</span> <span class="fn">_redeemCollateral</span>(<span class="ty">uint256</span> amountCollateral, <span class="ty">address</span> from, <span class="ty">address</span> to) <span class="kw">private</span> {
+        <span class="cm">// Ensure Alice has enough balance to withdraw.</span>
+        <span class="kw">if</span> (amountCollateral > collateralDeposited[from]) <span class="kw">revert</span> <span class="fn">AmountMustBeMoreThanZero</span>();
+
+        <span class="cm">// Deduct from ledger.</span>
+        collateralDeposited[from] -= amountCollateral;
+        <span class="kw">emit</span> <span class="fn">CollateralRedeemed</span>(from, to, amountCollateral);
+
+        <span class="cm">// Perform physical ETH transfer from the contract to the receiver.</span>
+        (<span class="ty">bool</span> success,) = <span class="ty">payable</span>(to).<span class="fn">call</span>{value: amountCollateral}(<span class="str">""</span>);
+        <span class="kw">if</span> (!success) <span class="kw">revert</span> <span class="fn">TransferFailed</span>();
+    }
+
+    <span class="cm">/**
+     * @dev 🚂 **BURN SUB-FLOW:**
+     * 📝 Alice Ledger: Decrease her debt by 1000.
+     * 🔥 Destruction: Move tokens from user back to contract and DELETE them forever.
+     */</span>
+    <span class="kw">function</span> <span class="fn">_burnSsc</span>(<span class="ty">uint256</span> amountSscToBurn, <span class="ty">address</span> from) <span class="kw">private</span> {
+        <span class="cm">// Ensure the person has the debt they claim to be paying.</span>
+        <span class="kw">if</span> (amountSscToBurn > sscMinted[from]) <span class="kw">revert</span> <span class="fn">AmountMustBeMoreThanZero</span>();
+
+        <span class="cm">// Deduct from debt ledger.</span>
+        sscMinted[from] -= amountSscToBurn;
+
+        <span class="cm">// Move tokens from user back to contract.</span>
+        <span class="ty">IERC20</span>(<span class="ty">address</span>(<span class="kw">this</span>)).<span class="fn">safeTransferFrom</span>(from, <span class="ty">address</span>(<span class="kw">this</span>), amountSscToBurn);
+
+        <span class="cm">// Physically delete/burn the tokens.</span>
+        <span class="fn">_burn</span>(<span class="ty">address</span>(<span class="kw">this</span>), amountSscToBurn);
+        <span class="kw">emit</span> <span class="fn">SSCBurned</span>(from, amountSscToBurn);
+    }
+
+    <span class="cm">// ------------------ 🧩 THE BRAINS (MATH) ------------------</span>
+
+    <span class="cm">/**
+     * @dev 🧠 **SAFETY ANALYZER:**
+     * Steps into Alice's account info. 
+     * Pulls Debt ($2000) and Gold ($5000). 
+     * ⏩ JUMP: Hand data to `_calculateHealthFactor`.
+     */</span>
+    <span class="kw">function</span> <span class="fn">_healthFactor</span>(<span class="ty">address</span> user) <span class="kw">private view returns</span> (<span class="ty">uint256</span>) {
+        <span class="cm">// Step 1: How much debt? (e.g. $2,000)</span>
+        <span class="cm">// Step 2: How much gold? (e.g. $5,000)</span>
+        (<span class="ty">uint256</span> totalSsc, <span class="ty">uint256</span> collateralValueUsd) = <span class="fn">_getAccountInformation</span>(user);
+
+        <span class="cm">// Step 3: Run the calculation.</span>
+        <span class="kw">return</span> <span class="fn">_calculateHealthFactor</span>(totalSsc, collateralValueUsd);
+    }
+
+    <span class="cm">/**
+     * @dev 🧠 **THE DECODER RING (PRICE FEED):**
+     * 🧮 CALC: Price = 2500 * 10^8. 
+     * Multiply by 10^10 = 2500 * 10^18. 
+     * Multiply by Alice's 2 ETH = 5000 * 10^18 USD ($5,000 in WEI).
+     */</span>
+    <span class="kw">function</span> <span class="fn">_getUsdValue</span>(<span class="ty">uint256</span> amount) <span class="kw">private view returns</span> (<span class="ty">uint256</span>) {
+        (, <span class="ty">int256</span> price,,,) = <span class="ty">AggregatorV3Interface</span>(ETH_PRICE_FEED).<span class="fn">latestRoundData</span>();
+        <span class="kw">return</span> ((<span class="ty">uint256</span>(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
+    }
+
+    <span class="cm">/**
+     * @dev 🧠 **THE SAFETY FORMULA:**
+     * ⚖️ (Collateral $5000 * Threshold 50%) / Debt $2000 = **1.25 Score.**
+     */</span>
+    <span class="kw">function</span> <span class="fn">_calculateHealthFactor</span>(<span class="ty">uint256</span> totalSsc, <span class="ty">uint256</span> collateralValueUsd) <span class="kw">internal pure returns</span> (<span class="ty">uint256</span>) {
+        <span class="cm">// If no debt, you are infinitely safe!</span>
+        <span class="kw">if</span> (totalSsc == <span class="num">0</span>) <span class="kw">return</span> <span class="ty">type</span>(<span class="ty">uint256</span>).<span class="var">max</span>; 
+
+        <span class="cm">// 1. Apply the 50% Safety Filter. </span>
+        <span class="cm">// $5,000 ETH * 50% = $2,500 (The "Borrowing Power").</span>
+        <span class="ty">uint256</span> collateralAdjusted = (collateralValueUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
+
+        <span class="cm">// 2. Divide Power by Debt.</span>
+        <span class="cm">// $2,500 / $2,000 = 1.25 HP.</span>
+        <span class="kw">return</span> (collateralAdjusted * PRECISION) / totalSsc;
+    }
+
+    <span class="cm">/**
+     * @dev 🧱 **THE DEFI WALL:**
+     * Alice tried to withdraw too much Gold? Health becomes 0.9.
+     * **ERROR: BreaksHealthFactor(0.9e18)** triggered. Whole journey cancels!
+     */</span>
+    <span class="kw">function</span> <span class="fn">_revertIfHealthFactorIsBroken</span>(<span class="ty">address</span> user) <span class="kw">internal view</span> {
+        <span class="ty">uint256</span> healthFactor = <span class="fn">_healthFactor</span>(user);
+        <span class="kw">if</span> (healthFactor < MIN_HEALTH_FACTOR) {
+            <span class="kw">revert</span> <span class="fn">BreaksHealthFactor</span>(healthFactor);
+        }
+    }
+
+    <span class="cm">// ------------------ 🌐 EXTERNAL READERS ------------------</span>
+
+    <span class="kw">function</span> <span class="fn">_getAccountInformation</span>(<span class="ty">address</span> user) <span class="kw">private view returns</span> (<span class="ty">uint256</span> totalSsc, <span class="ty">uint256</span> collateralValueUsd) {
+        totalSsc = sscMinted[user];
+        collateralValueUsd = <span class="fn">getAccountCollateralValue</span>(user);
+    }
+
+    <span class="kw">function</span> <span class="fn">getTokenAmountFromUsd</span>(<span class="ty">uint256</span> usdAmountInWei) <span class="kw">public view returns</span> (<span class="ty">uint256</span>) {
+        <span class="cm">// Question: How much ETH covers $1,000?</span>
+        <span class="cm">// Answer: $1,000 / Price-of-ETH.</span>
+        <span class="cm">// Calculation: ($1,000 * 1e18) / ($1,800 * 1e18) = 0.555 ETH.</span>
+        (, <span class="ty">int256</span> price,,,) = <span class="ty">AggregatorV3Interface</span>(ETH_PRICE_FEED).<span class="fn">latestRoundData</span>();
+        <span class="kw">return</span> ((usdAmountInWei * PRECISION) / (<span class="ty">uint256</span>(price) * ADDITIONAL_FEED_PRECISION));
+    }
+
+    <span class="kw">function</span> <span class="fn">getHealthFactor</span>(<span class="ty">address</span> user) <span class="kw">external view returns</span> (<span class="ty">uint256</span>) { <span class="kw">return</span> <span class="fn">_healthFactor</span>(user); }
+    <span class="kw">function</span> <span class="fn">getAccountCollateralValue</span>(<span class="ty">address</span> user) <span class="kw">public view returns</span> (<span class="ty">uint256</span>) { <span class="kw">return</span> <span class="fn">_getUsdValue</span>(collateralDeposited[user]); }
+    <span class="kw">function</span> <span class="fn">getAccountInformation</span>(<span class="ty">address</span> user) <span class="kw">external view returns</span> (<span class="ty">uint256</span> totalSsc, <span class="ty">uint256</span> collateralValueUsd) { <span class="kw">return</span> <span class="fn">_getAccountInformation</span>(user); }
+
+    <span class="kw">receive</span>() <span class="kw">external payable</span> {}
+}</div>
+    </div>
+
+    <!-- Final summary -->
+    <div class="callout callout-green" style="margin-top:2rem">
+      <span class="callout-icon"><span class="live-dot"></span>System Health Check</span>
+      <h4>Why This Contract Works</h4>
+      <p>Every single operation — deposit, mint, burn, withdraw, liquidate — ends with a call to <code style="font-family:JetBrains Mono; background:rgba(0,0,0,0.3); padding:0.1em 0.4em; border-radius:4px; font-size:0.9em;">_revertIfHealthFactorIsBroken()</code>. This single guard ensures that no matter what path a user takes through the system, they can never leave their account in an unsafe state. It's the DeFi equivalent of a circuit breaker — it doesn't prevent bad markets, but it ensures the protocol never holds more debt than collateral.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ FOOTER ═══ -->
+<footer>
+  <div style="font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--text-dim); margin-bottom:1rem;">
+    The DeFi Odyssey — <span style="color:var(--gold)">SingleAssetStableCoin</span>
+  </div>
+  <p>Written by <strong>Dhruv Patel</strong> · A complete guide from concept to Solidity code.</p>
+  <p style="margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">
+    stablecoins · defi · solidity · blockchain · ethereum · chainlink
+  </p>
+</footer>
+
+</body>
+</html>
